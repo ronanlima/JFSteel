@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">MailDeliveryJFSteel</string>
+    <string name="matricula">Informe sua matrícula</string>
+    <string name="conf_matricula">Confirme sua matrícula</string>
+</resources>

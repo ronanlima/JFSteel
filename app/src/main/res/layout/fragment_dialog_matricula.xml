@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <EditText
+        android:id="@+id/matricula"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/matricula"
+        android:gravity="center"
+        android:layout_margin="15dp"/>
+
+    <EditText
+        android:id="@+id/conf_matricula"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/matricula"
+        android:gravity="center"
+        android:layout_margin="15dp"/>
+
+    <Button
+        android:id="@+id/btn_entrar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Entrar"
+        android:layout_margin="15dp"/>
+</LinearLayout>
