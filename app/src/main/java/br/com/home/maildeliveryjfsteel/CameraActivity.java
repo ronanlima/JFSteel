@@ -46,11 +46,15 @@ public class CameraActivity extends AppCompatActivity {
         btnPhoto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                initPictureCallback();
+                camera.takePicture(null, null, pictureCallback);
             }
         });
+        initPictureCallback();
     }
 
+    /**
+     * Instancia o callback da ação de tirar foto
+     */
     private void initPictureCallback() {
         pictureCallback = new Camera.PictureCallback() {
             @Override
@@ -74,6 +78,11 @@ public class CameraActivity extends AppCompatActivity {
         };
     }
 
+    /**
+     * Cria o arquivo de imagem com nomenclatura única e o retorna para escrita dos bytes
+     * @param type
+     * @return
+     */
     private File getOutputMediaFile(int type) {
         if (Environment.getExternalStorageState() != null && !Environment.getExternalStorageState().isEmpty()) {
             File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
@@ -119,6 +128,12 @@ public class CameraActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        releaseCamera();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
         releaseCamera();
     }
 }

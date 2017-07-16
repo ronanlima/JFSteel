@@ -1,5 +1,9 @@
 <resources>
     <string name="app_name">MailDeliveryJFSteel</string>
+    <string name="title_dialog_matricula">Matricula - JFSteel</string>
     <string name="matricula">Informe sua matrícula</string>
     <string name="conf_matricula">Confirme sua matrícula</string>
+    <string name="btn_capturar_foto">Foto</string>
+    <string name="btn_capturar_qrcode">QR Code</string>
+    <string name="btn_entrar">Entrar</string>
 </resources>
