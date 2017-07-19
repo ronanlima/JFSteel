@@ -24,6 +24,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void nextActivity(String matricula) {
                 startActivity(new Intent(getApplicationContext(), CameraActivity.class));
+                finish();
             }
         };
     }

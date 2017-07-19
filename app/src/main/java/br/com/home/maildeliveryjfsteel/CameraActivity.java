@@ -1,21 +1,29 @@
 package br.com.home.maildeliveryjfsteel;
 
+import android.content.pm.PackageManager;
 import android.hardware.Camera;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by Ronan.lima on 15/07/17.
@@ -33,14 +41,70 @@ public class CameraActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
         setContentView(R.layout.activity_camera);
+        releaseCameraAndPreview();
+
         btnPhoto = (Button) findViewById(R.id.btn_capturar_foto);
         btnQrCode = (Button) findViewById(R.id.btn_capturar_qrcode);
+    }
 
-        getCameraInstance();
+    private boolean temPermissaoFuncionalidade(int codReferencia, String... permissoes) {
+        List<String> permissoesNegadas = new ArrayList<>();
+        for (String acesso : permissoes) {
+            if (ActivityCompat.checkSelfPermission(this, acesso) != PackageManager.PERMISSION_GRANTED) {
+                permissoesNegadas.add(acesso);
+            }
+        }
 
-        cameraPreview = new CameraPreview(this, camera);
+        if(!permissoesNegadas.isEmpty()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                requestPermissions(permissoesNegadas.toArray(new String[]{}), codReferencia);
+            }
+            return false;
+        }
+        return true;
+    }
+
+    public boolean isPermissaoConcedida(int[] permissoes) {
+        boolean isPermissaoConcedida = false;
+
+        for (int i = 0; i < permissoes.length; i++) {
+            if (permissoes[i] > 0) {
+                isPermissaoConcedida = true;
+            }
+        }
+        return isPermissaoConcedida;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == 10) {
+            if (isPermissaoConcedida(grantResults)) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        init();
+                    }
+                });
+            } else {
+                Toast.makeText(getApplicationContext(), "Não autorizou usar a câmera", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (temPermissaoFuncionalidade(10, android.Manifest.permission.CAMERA)) {
+            init();
+        }
+    }
+
+    private void init() {
         FrameLayout frame = (FrameLayout) findViewById(R.id.camera_preview);
+        getCameraInstance();
+        cameraPreview = new CameraPreview(this, camera);
         frame.addView(cameraPreview);
 
         btnPhoto.setOnClickListener(new View.OnClickListener() {
@@ -104,6 +168,22 @@ public class CameraActivity extends AppCompatActivity {
     }
 
     /**
+     *
+     */
+    private void releaseCameraAndPreview() {
+        if (cameraPreview != null) {
+            cameraPreview.removeCallbacks(new Runnable() {
+                @Override
+                public void run() {
+                    cameraPreview.getmHolder().removeCallback(cameraPreview);
+                }
+            });
+            cameraPreview = null;
+        }
+        releaseCamera();
+    }
+
+    /**
      * Libera a câmera do dispositivo
      */
     private void releaseCamera() {
@@ -119,8 +199,9 @@ public class CameraActivity extends AppCompatActivity {
     private void getCameraInstance() {
         camera = null;
         try {
-            camera = Camera.open(0); //abre a câmera traseira
+            camera = Camera.open(Camera.CameraInfo.CAMERA_FACING_BACK); //abre a câmera traseira
         } catch (Exception e) {
+            e.printStackTrace();
             Log.e(TAG, e.getMessage());
         }
     }
