@@ -1,29 +1,33 @@
-package br.com.home.maildeliveryjfsteel;
+package br.com.home.maildeliveryjfsteel.activity;
 
+import android.Manifest;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.hardware.Camera;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.FrameLayout;
-import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
+
+import br.com.home.maildeliveryjfsteel.BuildConfig;
+import br.com.home.maildeliveryjfsteel.CameraPreview;
+import br.com.home.maildeliveryjfsteel.R;
+import br.com.home.maildeliveryjfsteel.utils.PermissionUtils;
 
 /**
  * Created by Ronan.lima on 15/07/17.
@@ -32,7 +36,11 @@ import java.util.List;
 public class CameraActivity extends AppCompatActivity {
     private static final String TAG = CameraActivity.class.getCanonicalName().toUpperCase();
     private static final int MEDIA_TYPE_IMAGE = 1;
+    public static final int CAMERA_PERMISSION = 10;
+    public static final int WRITE_EXTERNAL_STORAGE_PERMISSION = 11;
+    public static final int READ_EXTERNAL_STORAGE_PERMISSION = 12;
 
+    private Context mContext = this;
     private Camera camera;
     private CameraPreview cameraPreview;
     private Button btnPhoto, btnQrCode;
@@ -43,34 +51,19 @@ public class CameraActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
         setContentView(R.layout.activity_camera);
-        releaseCameraAndPreview();
 
         btnPhoto = (Button) findViewById(R.id.btn_capturar_foto);
         btnQrCode = (Button) findViewById(R.id.btn_capturar_qrcode);
-    }
-
-    private boolean temPermissaoFuncionalidade(int codReferencia, String... permissoes) {
-        List<String> permissoesNegadas = new ArrayList<>();
-        for (String acesso : permissoes) {
-            if (ActivityCompat.checkSelfPermission(this, acesso) != PackageManager.PERMISSION_GRANTED) {
-                permissoesNegadas.add(acesso);
-            }
+        if (PermissionUtils.validate(this, CAMERA_PERMISSION, Manifest.permission.CAMERA)) {
+            init();
         }
-
-        if(!permissoesNegadas.isEmpty()) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                requestPermissions(permissoesNegadas.toArray(new String[]{}), codReferencia);
-            }
-            return false;
-        }
-        return true;
     }
 
     public boolean isPermissaoConcedida(int[] permissoes) {
         boolean isPermissaoConcedida = false;
 
         for (int i = 0; i < permissoes.length; i++) {
-            if (permissoes[i] > 0) {
+            if (permissoes[i] > PackageManager.PERMISSION_DENIED) {
                 isPermissaoConcedida = true;
             }
         }
@@ -79,7 +72,7 @@ public class CameraActivity extends AppCompatActivity {
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == 10) {
+        if (requestCode == CAMERA_PERMISSION) {
             if (isPermissaoConcedida(grantResults)) {
                 runOnUiThread(new Runnable() {
                     @Override
@@ -88,20 +81,39 @@ public class CameraActivity extends AppCompatActivity {
                     }
                 });
             } else {
-                Toast.makeText(getApplicationContext(), "Não autorizou usar a câmera", Toast.LENGTH_SHORT).show();
+                createAlertDialo("Ok", mContext.getResources().getString(R.string.msg_permissao)).show();
             }
         }
+    }
+
+    /**
+     * Cria alertDialog informativo para o usuário.
+     * @param nameBtn
+     * @param msg
+     * @return
+     */
+    private AlertDialog.Builder createAlertDialo(String nameBtn, String msg) {
+        return new AlertDialog.Builder(mContext)
+                .setCancelable(false)
+                .setMessage(msg)
+                .setNegativeButton(nameBtn, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        finish();
+                    }
+                });
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        if (temPermissaoFuncionalidade(10, android.Manifest.permission.CAMERA)) {
-            init();
-        }
     }
 
+    /**
+     * Inicializa a os componentes para utilização da câmera.
+     */
     private void init() {
+        releaseCameraAndPreview();
         FrameLayout frame = (FrameLayout) findViewById(R.id.camera_preview);
         getCameraInstance();
         cameraPreview = new CameraPreview(this, camera);
@@ -144,6 +156,7 @@ public class CameraActivity extends AppCompatActivity {
 
     /**
      * Cria o arquivo de imagem com nomenclatura única e o retorna para escrita dos bytes
+     *
      * @param type
      * @return
      */
@@ -200,6 +213,7 @@ public class CameraActivity extends AppCompatActivity {
         camera = null;
         try {
             camera = Camera.open(Camera.CameraInfo.CAMERA_FACING_BACK); //abre a câmera traseira
+            camera.setDisplayOrientation(90); // exibe verticalmente
         } catch (Exception e) {
             e.printStackTrace();
             Log.e(TAG, e.getMessage());

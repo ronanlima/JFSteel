@@ -29,6 +29,24 @@ public class MatriculaDialogFragment extends DialogFragment {
     private Button btnEntrar;
     private ClickButtonEntrar listener;
 
+    /**
+     * Mapeia o click no botão de entrar para validar os campos informados e prosseguir para a próxima
+     * tela.
+     */
+    View.OnClickListener btnListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            if (editMatricula.getText() == null || editMatricula.getText().toString().isEmpty()
+                    || editConfMatricula.getText() == null || editConfMatricula.getText().toString().isEmpty()) {
+                Toast.makeText(getActivity(), ALERTA_VAZIO, Toast.LENGTH_SHORT).show();
+            } else if (!editMatricula.getText().toString().equals(editConfMatricula.getText().toString())) {
+                Toast.makeText(getActivity(), ALERTA_MATRICULA_DIFERENTE, Toast.LENGTH_SHORT).show();
+            } else {
+                listener.nextActivity(editConfMatricula.getText().toString());
+            }
+        }
+    };
+
     public static MatriculaDialogFragment newInstance(ClickButtonEntrar listenerEntrar) {
         MatriculaDialogFragment mdf = new MatriculaDialogFragment();
 
@@ -55,26 +73,23 @@ public class MatriculaDialogFragment extends DialogFragment {
         listener = (ClickButtonEntrar) getArguments().getSerializable("listener");
         builder.setView(v);
 
+        initFields(v, typeface);
+        return builder.create();
+    }
+
+    /**
+     * Inicializa os campos
+     * @param v
+     * @param typeface
+     */
+    private void initFields(View v, Typeface typeface) {
         editMatricula = (EditText) v.findViewById(R.id.matricula);
         editConfMatricula = (EditText) v.findViewById(R.id.conf_matricula);
         btnEntrar = (Button) v.findViewById(R.id.btn_entrar);
         editMatricula.setTypeface(typeface);
         editConfMatricula.setTypeface(typeface);
         btnEntrar.setTypeface(typeface);
-        btnEntrar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (editMatricula.getText() == null || editMatricula.getText().toString().isEmpty()
-                        || editConfMatricula.getText() == null || editConfMatricula.getText().toString().isEmpty()) {
-                    Toast.makeText(getActivity(), ALERTA_VAZIO, Toast.LENGTH_SHORT).show();
-                } else if (!editMatricula.getText().toString().equals(editConfMatricula.getText().toString())) {
-                    Toast.makeText(getActivity(), ALERTA_MATRICULA_DIFERENTE, Toast.LENGTH_SHORT).show();
-                } else {
-                    listener.nextActivity(editConfMatricula.getText().toString());
-                }
-            }
-        });
-        return builder.create();
+        btnEntrar.setOnClickListener(btnListener);
     }
 
     public interface ClickButtonEntrar extends Serializable {
