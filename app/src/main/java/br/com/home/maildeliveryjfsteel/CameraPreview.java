@@ -12,7 +12,7 @@ import java.io.IOException;
  * Created by Ronan.lima on 15/07/17.
  */
 
-public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback, Camera.PictureCallback {
+public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback {
     private static final String TAG = CameraPreview.class.getCanonicalName().toUpperCase();
 
     private Camera mCamera;
@@ -22,6 +22,10 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
         super(context);
 
         setmCamera(cameraInstance);
+        initHolder();
+    }
+
+    public void initHolder() {
         mHolder = getHolder();
         mHolder.addCallback(this);
         mHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
@@ -29,10 +33,10 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
 
     @Override
     public void surfaceCreated(SurfaceHolder surfaceHolder) {
-        if (mCamera != null) {
+        if (getmCamera() != null) {
             try {
-                mCamera.setPreviewDisplay(surfaceHolder);
-                mCamera.startPreview();
+                getmCamera().setPreviewDisplay(surfaceHolder);
+                getmCamera().startPreview();
             } catch (IOException e) {
                 Log.e(TAG, e.getMessage());
             }
@@ -46,14 +50,14 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
         }
 
         try {
-            mCamera.stopPreview();
+            getmCamera().stopPreview();
         } catch (Exception e) {
             Log.e(TAG, e.getMessage());
         }
 
         try {
-            mCamera.setPreviewDisplay(surfaceHolder);
-            mCamera.startPreview();
+            getmCamera().setPreviewDisplay(surfaceHolder);
+            getmCamera().startPreview();
         } catch (Exception e) {
             Log.e(TAG, "Erro ao startar o preview da câmera: " + e.getMessage());
         }
@@ -61,12 +65,7 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
 
     @Override
     public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
-        mCamera.release();
-    }
-
-    @Override
-    public void onPictureTaken(byte[] bytes, Camera camera) {
-
+        surfaceHolder.removeCallback(this);
     }
 
     public Camera getmCamera() {

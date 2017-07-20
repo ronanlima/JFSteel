@@ -6,7 +6,6 @@
     <string name="btn_capturar_foto">Foto</string>
     <string name="btn_capturar_qrcode">QR Code</string>
     <string name="btn_entrar">Entrar</string>
-
-    <!-- -->
     <string name="msg_permissao">Para utilizar esse aplicativo você precisa aceitar as permissões.</string>
+    <string name="msg_erro_gravar_arquivo">Houve uma falha para gravar a imagem no diretório %s. Tente novamente!</string>
 </resources>

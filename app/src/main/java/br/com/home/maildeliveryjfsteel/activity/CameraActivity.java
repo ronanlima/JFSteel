@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
+import android.graphics.ImageFormat;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.os.Environment;
@@ -23,6 +24,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 import br.com.home.maildeliveryjfsteel.BuildConfig;
 import br.com.home.maildeliveryjfsteel.CameraPreview;
@@ -45,6 +47,7 @@ public class CameraActivity extends AppCompatActivity {
     private CameraPreview cameraPreview;
     private Button btnPhoto, btnQrCode;
     private Camera.PictureCallback pictureCallback;
+    private int count = 0;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -54,11 +57,14 @@ public class CameraActivity extends AppCompatActivity {
 
         btnPhoto = (Button) findViewById(R.id.btn_capturar_foto);
         btnQrCode = (Button) findViewById(R.id.btn_capturar_qrcode);
-        if (PermissionUtils.validate(this, CAMERA_PERMISSION, Manifest.permission.CAMERA)) {
-            init();
-        }
     }
 
+    /**
+     * Verifica se o usuário concedeu a permissão solicitada.
+     *
+     * @param permissoes
+     * @return
+     */
     public boolean isPermissaoConcedida(int[] permissoes) {
         boolean isPermissaoConcedida = false;
 
@@ -81,18 +87,30 @@ public class CameraActivity extends AppCompatActivity {
                     }
                 });
             } else {
-                createAlertDialo("Ok", mContext.getResources().getString(R.string.msg_permissao)).show();
+                createAlertDialogFinish("Ok", mContext.getResources().getString(R.string.msg_permissao)).show();
+            }
+        } else if (requestCode == WRITE_EXTERNAL_STORAGE_PERMISSION) {
+            if (isPermissaoConcedida(grantResults)) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        camera.takePicture(null, null, pictureCallback);
+                    }
+                });
+            } else {
+                createAlertDialogFinish("Ok", mContext.getResources().getString(R.string.msg_permissao)).show();
             }
         }
     }
 
     /**
      * Cria alertDialog informativo para o usuário.
+     *
      * @param nameBtn
      * @param msg
      * @return
      */
-    private AlertDialog.Builder createAlertDialo(String nameBtn, String msg) {
+    private AlertDialog.Builder createAlertDialogFinish(String nameBtn, String msg) {
         return new AlertDialog.Builder(mContext)
                 .setCancelable(false)
                 .setMessage(msg)
@@ -107,25 +125,34 @@ public class CameraActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        Log.d(TAG, "onResume, qtd = " + ++count);
+        if (PermissionUtils.validate(this, CAMERA_PERMISSION, Manifest.permission.CAMERA)) {
+            init();
+        }
     }
 
     /**
      * Inicializa a os componentes para utilização da câmera.
      */
     private void init() {
-        releaseCameraAndPreview();
         FrameLayout frame = (FrameLayout) findViewById(R.id.camera_preview);
         getCameraInstance();
-        cameraPreview = new CameraPreview(this, camera);
-        frame.addView(cameraPreview);
-
-        btnPhoto.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                camera.takePicture(null, null, pictureCallback);
-            }
-        });
-        initPictureCallback();
+        if (cameraPreview == null) {
+            cameraPreview = new CameraPreview(this, camera);
+            frame.addView(cameraPreview);
+            btnPhoto.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (PermissionUtils.validate(CameraActivity.this, WRITE_EXTERNAL_STORAGE_PERMISSION, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                        camera.takePicture(null, null, pictureCallback);
+                    }
+                }
+            });
+            initPictureCallback();
+        } else {
+            cameraPreview.setmCamera(camera);
+            cameraPreview.initHolder();
+        }
     }
 
     /**
@@ -135,7 +162,7 @@ public class CameraActivity extends AppCompatActivity {
         pictureCallback = new Camera.PictureCallback() {
             @Override
             public void onPictureTaken(byte[] data, Camera camera) {
-                File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE);
+                final File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE);
                 if (pictureFile == null) {
                     Log.e(TAG, "Verifique a permissão de escrita para o app.");
                     return;
@@ -148,7 +175,20 @@ public class CameraActivity extends AppCompatActivity {
                 } catch (FileNotFoundException e) {
                     Log.e(TAG, "Arquivo não encontrado: " + e.getMessage());
                 } catch (IOException e) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            createAlertDialogFinish("Ok", String.format(mContext.getResources().getString(R.string.msg_erro_gravar_arquivo), pictureFile.getPath()));
+                        }
+                    });
+                    e.printStackTrace();
                     Log.e(TAG, "Falha ao escrever o arquivo de imagem: " + e.getMessage());
+                }
+                try {
+                    camera.reconnect();
+                    camera.startPreview();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
         };
@@ -163,7 +203,7 @@ public class CameraActivity extends AppCompatActivity {
     private File getOutputMediaFile(int type) {
         if (Environment.getExternalStorageState() != null && !Environment.getExternalStorageState().isEmpty()) {
             File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
-                    , String.valueOf(BuildConfig.APPLICATION_ID.lastIndexOf(".")));
+                    , BuildConfig.APPLICATION_ID.substring(BuildConfig.APPLICATION_ID.lastIndexOf(".") + 1, BuildConfig.APPLICATION_ID.length()));
             if (!mediaStorageDir.exists()) {
                 if (!mediaStorageDir.mkdirs()) {
                     Log.e(TAG, "Falha ao criar o diretório para salvar a imagem");
@@ -171,7 +211,6 @@ public class CameraActivity extends AppCompatActivity {
                 }
             }
 
-            //FIXME caso dê erro na formatação, remover o zz da String
             String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmsszz").format(new Date());
             if (type == MEDIA_TYPE_IMAGE) {
                 return new File(mediaStorageDir.getPath() + File.separator + "JFSteel_" + timeStamp + ".jpeg");
@@ -214,16 +253,39 @@ public class CameraActivity extends AppCompatActivity {
         try {
             camera = Camera.open(Camera.CameraInfo.CAMERA_FACING_BACK); //abre a câmera traseira
             camera.setDisplayOrientation(90); // exibe verticalmente
+            configParametersCamera();
         } catch (Exception e) {
             e.printStackTrace();
             Log.e(TAG, e.getMessage());
         }
     }
 
+    /**
+     * Configura parâmetros para uso da câmera
+     */
+    private void configParametersCamera() {
+        Camera.Parameters params = camera.getParameters();
+        params.setJpegQuality(100);
+        List<String> focusMode = params.getSupportedFocusModes();
+        if (focusMode.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)) {
+            params.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
+        }
+        List<String> flashMode = params.getSupportedFlashModes();
+        if (flashMode.contains(Camera.Parameters.FLASH_MODE_AUTO)) {
+            params.setFlashMode(Camera.Parameters.FLASH_MODE_AUTO);
+        }
+        List<Integer> pictureFormats = params.getSupportedPictureFormats();
+        if (pictureFormats.contains(ImageFormat.JPEG)) {
+            params.setPictureFormat(ImageFormat.JPEG);
+        }
+        List<Camera.Size> pictureSizes = params.getSupportedPictureSizes();
+        camera.setParameters(params);
+    }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        releaseCamera();
+        releaseCameraAndPreview();
     }
 
     @Override
