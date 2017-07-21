@@ -8,16 +8,13 @@ import android.graphics.ImageFormat;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
-import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
@@ -33,6 +30,7 @@ import br.com.home.maildeliveryjfsteel.BuildConfig;
 import br.com.home.maildeliveryjfsteel.CameraPreview;
 import br.com.home.maildeliveryjfsteel.R;
 import br.com.home.maildeliveryjfsteel.utils.PermissionUtils;
+import br.com.home.maildeliveryjfsteel.view.CameraImageView;
 
 /**
  * Created by Ronan.lima on 15/07/17.
@@ -50,32 +48,8 @@ public class CameraActivity extends AppCompatActivity {
     private Camera camera;
     private CameraPreview cameraPreview;
     private ImageView btnPhoto;
-    private ImageView btnFlash;
+    private CameraImageView btnFlash;
     private Camera.PictureCallback pictureCallback;
-    private int count = 0;
-    private boolean isFlashLigado = false;
-
-    View.OnClickListener listenerFlash = new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            new Handler().post(new Runnable() {
-                @Override
-                public void run() {
-                    Camera.Parameters params = camera.getParameters();
-                    if (!isFlashLigado) {
-                        params.setFlashMode(Camera.Parameters.FLASH_MODE_ON);
-                        btnFlash.setImageDrawable(ContextCompat.getDrawable(mContext, R.mipmap.ic_flash_on));
-                        isFlashLigado = true;
-                    } else {
-                        params.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
-                        btnFlash.setImageDrawable(ContextCompat.getDrawable(mContext, R.mipmap.ic_flash_off));
-                        isFlashLigado = false;
-                    }
-                    camera.setParameters(params);
-                }
-            });
-        }
-    };
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -84,7 +58,7 @@ public class CameraActivity extends AppCompatActivity {
         setContentView(R.layout.activity_camera);
 
         btnPhoto = (ImageView) findViewById(R.id.btn_capturar_foto);
-        btnFlash = (ImageView) findViewById(R.id.btn_flash);
+        btnFlash = (CameraImageView) findViewById(R.id.btn_flash);
     }
 
     /**
@@ -153,7 +127,6 @@ public class CameraActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        Log.d(TAG, "onResume, qtd = " + ++count);
         if (PermissionUtils.validate(this, CAMERA_PERMISSION, Manifest.permission.CAMERA)) {
             init();
         }
@@ -299,7 +272,8 @@ public class CameraActivity extends AppCompatActivity {
         }
         if (getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH)) {
             btnFlash.setVisibility(View.VISIBLE);
-            btnFlash.setOnClickListener(listenerFlash);
+            btnFlash.setmContext(this);
+            btnFlash.setCamera(camera);
         }
         List<String> flashMode = params.getSupportedFlashModes();
         if (flashMode.contains(Camera.Parameters.FLASH_MODE_OFF)) {

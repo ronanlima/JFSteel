@@ -10,34 +10,32 @@
 
     </FrameLayout>
 
-    <RelativeLayout
+    <br.com.home.maildeliveryjfsteel.view.CameraImageView
+        android:id="@+id/btn_flash"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_alignParentRight="true"
+        android:src="@drawable/ic_flash_off"
+        android:layout_marginTop="15dp"
+        android:layout_marginRight="15dp"
+        android:visibility="gone"
+        android:contextClickable="true"/>
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="horizontal"
         android:background="#000000"
-        android:layout_alignParentBottom="true">
+        android:layout_alignParentBottom="true"
+        android:gravity="center">
 
-        <ImageView android:id="@+id/btn_flash"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_alignParentRight="true"
-            android:src="@mipmap/ic_flash_off"
-            android:layout_marginTop="5dp"
-            android:visibility="gone"/>
+        <ImageView
+            android:id="@+id/btn_capturar_foto"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:src="@drawable/btn_shot"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="4dp"/>
+    </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center">
-
-            <ImageView
-                android:id="@+id/btn_capturar_foto"
-                android:layout_width="70dp"
-                android:layout_height="70dp"
-                android:src="@drawable/btn_shot"
-                android:layout_marginTop="4dp"
-                android:layout_marginBottom="4dp"/>
-        </LinearLayout>
-
-    </RelativeLayout>
 </RelativeLayout>
