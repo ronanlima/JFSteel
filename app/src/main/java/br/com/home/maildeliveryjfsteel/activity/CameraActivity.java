@@ -8,8 +8,10 @@ import android.graphics.ImageFormat;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -17,6 +19,7 @@ import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -41,13 +44,38 @@ public class CameraActivity extends AppCompatActivity {
     public static final int CAMERA_PERMISSION = 10;
     public static final int WRITE_EXTERNAL_STORAGE_PERMISSION = 11;
     public static final int READ_EXTERNAL_STORAGE_PERMISSION = 12;
+    public static final String APP_DIR = BuildConfig.APPLICATION_ID.substring(BuildConfig.APPLICATION_ID.lastIndexOf(".") + 1, BuildConfig.APPLICATION_ID.length());
 
     private Context mContext = this;
     private Camera camera;
     private CameraPreview cameraPreview;
-    private Button btnPhoto, btnQrCode;
+    private ImageView btnPhoto;
+    private ImageView btnFlash;
     private Camera.PictureCallback pictureCallback;
     private int count = 0;
+    private boolean isFlashLigado = false;
+
+    View.OnClickListener listenerFlash = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            new Handler().post(new Runnable() {
+                @Override
+                public void run() {
+                    Camera.Parameters params = camera.getParameters();
+                    if (!isFlashLigado) {
+                        params.setFlashMode(Camera.Parameters.FLASH_MODE_ON);
+                        btnFlash.setImageDrawable(ContextCompat.getDrawable(mContext, R.mipmap.ic_flash_on));
+                        isFlashLigado = true;
+                    } else {
+                        params.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
+                        btnFlash.setImageDrawable(ContextCompat.getDrawable(mContext, R.mipmap.ic_flash_off));
+                        isFlashLigado = false;
+                    }
+                    camera.setParameters(params);
+                }
+            });
+        }
+    };
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -55,8 +83,8 @@ public class CameraActivity extends AppCompatActivity {
         requestWindowFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
         setContentView(R.layout.activity_camera);
 
-        btnPhoto = (Button) findViewById(R.id.btn_capturar_foto);
-        btnQrCode = (Button) findViewById(R.id.btn_capturar_qrcode);
+        btnPhoto = (ImageView) findViewById(R.id.btn_capturar_foto);
+        btnFlash = (ImageView) findViewById(R.id.btn_flash);
     }
 
     /**
@@ -202,8 +230,7 @@ public class CameraActivity extends AppCompatActivity {
      */
     private File getOutputMediaFile(int type) {
         if (Environment.getExternalStorageState() != null && !Environment.getExternalStorageState().isEmpty()) {
-            File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
-                    , BuildConfig.APPLICATION_ID.substring(BuildConfig.APPLICATION_ID.lastIndexOf(".") + 1, BuildConfig.APPLICATION_ID.length()));
+            File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), APP_DIR);
             if (!mediaStorageDir.exists()) {
                 if (!mediaStorageDir.mkdirs()) {
                     Log.e(TAG, "Falha ao criar o diretório para salvar a imagem");
@@ -253,7 +280,7 @@ public class CameraActivity extends AppCompatActivity {
         try {
             camera = Camera.open(Camera.CameraInfo.CAMERA_FACING_BACK); //abre a câmera traseira
             camera.setDisplayOrientation(90); // exibe verticalmente
-            configParametersCamera();
+            configParametersCamera(1280, 720);
         } catch (Exception e) {
             e.printStackTrace();
             Log.e(TAG, e.getMessage());
@@ -263,22 +290,38 @@ public class CameraActivity extends AppCompatActivity {
     /**
      * Configura parâmetros para uso da câmera
      */
-    private void configParametersCamera() {
+    private void configParametersCamera(int width, int height) {
         Camera.Parameters params = camera.getParameters();
         params.setJpegQuality(100);
         List<String> focusMode = params.getSupportedFocusModes();
         if (focusMode.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)) {
             params.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
         }
+        if (getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH)) {
+            btnFlash.setVisibility(View.VISIBLE);
+            btnFlash.setOnClickListener(listenerFlash);
+        }
         List<String> flashMode = params.getSupportedFlashModes();
-        if (flashMode.contains(Camera.Parameters.FLASH_MODE_AUTO)) {
-            params.setFlashMode(Camera.Parameters.FLASH_MODE_AUTO);
+        if (flashMode.contains(Camera.Parameters.FLASH_MODE_OFF)) {
+            params.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
         }
         List<Integer> pictureFormats = params.getSupportedPictureFormats();
         if (pictureFormats.contains(ImageFormat.JPEG)) {
             params.setPictureFormat(ImageFormat.JPEG);
         }
-        List<Camera.Size> pictureSizes = params.getSupportedPictureSizes();
+        for (Camera.Size size : params.getSupportedPreviewSizes()) {
+            if(size.width == width && size.height == height) {
+                params.setPreviewSize(width, height);
+                break;
+            }
+        }
+        for (Camera.Size size : params.getSupportedPictureSizes()) {
+            if(size.width == width && size.height == height) {
+                params.setPictureSize(width, height);
+                break;
+            }
+        }
+
         camera.setParameters(params);
     }
 
