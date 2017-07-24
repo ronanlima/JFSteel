@@ -6,10 +6,12 @@ import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.graphics.ImageFormat;
 import android.hardware.Camera;
+import android.location.Location;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -17,6 +19,10 @@ import android.view.View;
 import android.view.Window;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationServices;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -36,12 +42,13 @@ import br.com.home.maildeliveryjfsteel.view.CameraImageView;
  * Created by Ronan.lima on 15/07/17.
  */
 
-public class CameraActivity extends AppCompatActivity {
+public class CameraActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
     private static final String TAG = CameraActivity.class.getCanonicalName().toUpperCase();
     private static final int MEDIA_TYPE_IMAGE = 1;
     public static final int CAMERA_PERMISSION = 10;
     public static final int WRITE_EXTERNAL_STORAGE_PERMISSION = 11;
     public static final int READ_EXTERNAL_STORAGE_PERMISSION = 12;
+    public static final int GPS_PERMISSION = 13;
     public static final String APP_DIR = BuildConfig.APPLICATION_ID.substring(BuildConfig.APPLICATION_ID.lastIndexOf(".") + 1, BuildConfig.APPLICATION_ID.length());
 
     private Context mContext = this;
@@ -50,6 +57,9 @@ public class CameraActivity extends AppCompatActivity {
     private ImageView btnPhoto;
     private CameraImageView btnFlash;
     private Camera.PictureCallback pictureCallback;
+    private GoogleApiClient apiClient;
+    private boolean isConnectWithApi = false;
+    private Location location;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -59,6 +69,24 @@ public class CameraActivity extends AppCompatActivity {
 
         btnPhoto = (ImageView) findViewById(R.id.btn_capturar_foto);
         btnFlash = (CameraImageView) findViewById(R.id.btn_flash);
+
+        apiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        apiClient.connect();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        apiClient.disconnect();
     }
 
     /**
@@ -97,6 +125,17 @@ public class CameraActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         camera.takePicture(null, null, pictureCallback);
+                    }
+                });
+            } else {
+                createAlertDialogFinish("Ok", mContext.getResources().getString(R.string.msg_permissao)).show();
+            }
+        } else if (requestCode == GPS_PERMISSION) {
+            if (isPermissaoConcedida(grantResults)) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        init();
                     }
                 });
             } else {
@@ -284,13 +323,13 @@ public class CameraActivity extends AppCompatActivity {
             params.setPictureFormat(ImageFormat.JPEG);
         }
         for (Camera.Size size : params.getSupportedPreviewSizes()) {
-            if(size.width == width && size.height == height) {
+            if (size.width == width && size.height == height) {
                 params.setPreviewSize(width, height);
                 break;
             }
         }
         for (Camera.Size size : params.getSupportedPictureSizes()) {
-            if(size.width == width && size.height == height) {
+            if (size.width == width && size.height == height) {
                 params.setPictureSize(width, height);
                 break;
             }
@@ -309,5 +348,34 @@ public class CameraActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         releaseCamera();
+    }
+
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+        isConnectWithApi = true;
+        if (!PermissionUtils.validate(this, GPS_PERMISSION, Manifest.permission.ACCESS_FINE_LOCATION)) {
+
+        }
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        location = LocationServices.FusedLocationApi.getLastLocation(apiClient);
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+        isConnectWithApi = false;
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+        isConnectWithApi = false;
     }
 }
