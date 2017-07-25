@@ -23,6 +23,34 @@ public class PermissionUtils {
      * @return
      */
     public static boolean validate(AppCompatActivity activity, int requestCode, String... permissions) {
+        List<String> list = justCheckPermission(activity, permissions);
+        if (list.isEmpty()) {
+            return true;
+        }
+        requestPermissions(activity, requestCode, list);
+        return false;
+    }
+
+    /**
+     *
+     * @param activity
+     * @param requestCode
+     * @param list
+     */
+    public static void requestPermissions(AppCompatActivity activity, int requestCode, List<String> list) {
+        String[] newPermissions = new String[list.size()];
+        list.toArray(newPermissions);
+        ActivityCompat.requestPermissions(activity, newPermissions, requestCode);
+    }
+
+    /**
+     * Apenas verifica se a permissão solicitada foi concedida, sem pedir acesso à ela caso a lista
+     * retornada seja diferente de vazia.
+     * @param activity
+     * @param permissions
+     * @return
+     */
+    public static List<String> justCheckPermission(AppCompatActivity activity, String... permissions) {
         List<String> list = new ArrayList<>();
         for (String perm : permissions) {
             boolean ok = ContextCompat.checkSelfPermission(activity, perm) == PackageManager.PERMISSION_GRANTED;
@@ -30,13 +58,7 @@ public class PermissionUtils {
                 list.add(perm);
             }
         }
-        if (list.isEmpty()) {
-            return true;
-        }
-        String[] newPermissions = new String[list.size()];
-        list.toArray(newPermissions);
-        ActivityCompat.requestPermissions(activity, newPermissions, requestCode);
-        return false;
+        return list;
     }
 
 }

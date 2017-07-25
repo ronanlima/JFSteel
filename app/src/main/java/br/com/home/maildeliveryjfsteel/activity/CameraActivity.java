@@ -29,6 +29,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -59,6 +60,7 @@ public class CameraActivity extends AppCompatActivity implements GoogleApiClient
     private Camera.PictureCallback pictureCallback;
     private GoogleApiClient apiClient;
     private boolean isConnectWithApi = false;
+    private boolean jaPediuPermLocation = false;
     private Location location;
 
     @Override
@@ -69,24 +71,22 @@ public class CameraActivity extends AppCompatActivity implements GoogleApiClient
 
         btnPhoto = (ImageView) findViewById(R.id.btn_capturar_foto);
         btnFlash = (CameraImageView) findViewById(R.id.btn_flash);
-
-        apiClient = new GoogleApiClient.Builder(this)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .addApi(LocationServices.API)
-                .build();
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        apiClient.connect();
+        if (apiClient != null) {
+            apiClient.connect();
+        }
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        apiClient.disconnect();
+        if (apiClient != null) {
+            apiClient.disconnect();
+        }
     }
 
     /**
@@ -108,40 +108,27 @@ public class CameraActivity extends AppCompatActivity implements GoogleApiClient
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == CAMERA_PERMISSION) {
-            if (isPermissaoConcedida(grantResults)) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        init();
-                    }
-                });
-            } else {
-                createAlertDialogFinish("Ok", mContext.getResources().getString(R.string.msg_permissao)).show();
-            }
-        } else if (requestCode == WRITE_EXTERNAL_STORAGE_PERMISSION) {
-            if (isPermissaoConcedida(grantResults)) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        camera.takePicture(null, null, pictureCallback);
-                    }
-                });
-            } else {
-                createAlertDialogFinish("Ok", mContext.getResources().getString(R.string.msg_permissao)).show();
-            }
-        } else if (requestCode == GPS_PERMISSION) {
-            if (isPermissaoConcedida(grantResults)) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        init();
-                    }
-                });
-            } else {
+        if (requestCode == CAMERA_PERMISSION || requestCode == WRITE_EXTERNAL_STORAGE_PERMISSION
+                || requestCode == GPS_PERMISSION) {
+            if (!isPermissaoConcedida(grantResults)) {
                 createAlertDialogFinish("Ok", mContext.getResources().getString(R.string.msg_permissao)).show();
             }
         }
+    }
+
+    /**
+     * Inicializa o objeto para recuperar a apiClient do Google, para utilizar as informações de gps.
+     */
+    private void initApiClient() {
+        if (apiClient == null) {
+            apiClient = new GoogleApiClient.Builder(mContext)
+                    .addConnectionCallbacks(this)
+                    .addOnConnectionFailedListener(this)
+                    .addApi(LocationServices.API)
+                    .build();
+            apiClient.connect();
+        }
+        init();
     }
 
     /**
@@ -166,8 +153,10 @@ public class CameraActivity extends AppCompatActivity implements GoogleApiClient
     @Override
     protected void onResume() {
         super.onResume();
-        if (PermissionUtils.validate(this, CAMERA_PERMISSION, Manifest.permission.CAMERA)) {
-            init();
+        if (PermissionUtils.validate(this, CAMERA_PERMISSION, Manifest.permission.CAMERA)
+                && PermissionUtils.validate(this, GPS_PERMISSION, Manifest.permission.ACCESS_FINE_LOCATION)
+                && PermissionUtils.validate(this, WRITE_EXTERNAL_STORAGE_PERMISSION, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            initApiClient();
         }
     }
 
@@ -352,20 +341,11 @@ public class CameraActivity extends AppCompatActivity implements GoogleApiClient
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-        isConnectWithApi = true;
-        if (!PermissionUtils.validate(this, GPS_PERMISSION, Manifest.permission.ACCESS_FINE_LOCATION)) {
-
-        }
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
+            PermissionUtils.requestPermissions(this, GPS_PERMISSION, Arrays.asList(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION));
             return;
         }
+        isConnectWithApi = true;
         location = LocationServices.FusedLocationApi.getLastLocation(apiClient);
     }
 
