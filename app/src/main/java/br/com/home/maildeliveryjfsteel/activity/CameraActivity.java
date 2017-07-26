@@ -19,9 +19,11 @@ import android.view.View;
 import android.view.Window;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationServices;
 
 import java.io.File;
@@ -43,7 +45,7 @@ import br.com.home.maildeliveryjfsteel.view.CameraImageView;
  * Created by Ronan.lima on 15/07/17.
  */
 
-public class CameraActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+public class CameraActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
     private static final String TAG = CameraActivity.class.getCanonicalName().toUpperCase();
     private static final int MEDIA_TYPE_IMAGE = 1;
     public static final int CAMERA_PERMISSION = 10;
@@ -51,6 +53,7 @@ public class CameraActivity extends AppCompatActivity implements GoogleApiClient
     public static final int READ_EXTERNAL_STORAGE_PERMISSION = 12;
     public static final int GPS_PERMISSION = 13;
     public static final String APP_DIR = BuildConfig.APPLICATION_ID.substring(BuildConfig.APPLICATION_ID.lastIndexOf(".") + 1, BuildConfig.APPLICATION_ID.length());
+    public static final String FILE_PREFIX = "JFSteel_";
 
     private Context mContext = this;
     private Camera camera;
@@ -59,8 +62,6 @@ public class CameraActivity extends AppCompatActivity implements GoogleApiClient
     private CameraImageView btnFlash;
     private Camera.PictureCallback pictureCallback;
     private GoogleApiClient apiClient;
-    private boolean isConnectWithApi = false;
-    private boolean jaPediuPermLocation = false;
     private Location location;
 
     @Override
@@ -154,7 +155,7 @@ public class CameraActivity extends AppCompatActivity implements GoogleApiClient
     protected void onResume() {
         super.onResume();
         if (PermissionUtils.validate(this, CAMERA_PERMISSION, Manifest.permission.CAMERA)
-                && PermissionUtils.validate(this, GPS_PERMISSION, Manifest.permission.ACCESS_FINE_LOCATION)
+                && PermissionUtils.validate(this, GPS_PERMISSION, Manifest.permission.ACCESS_COARSE_LOCATION)
                 && PermissionUtils.validate(this, WRITE_EXTERNAL_STORAGE_PERMISSION, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
             initApiClient();
         }
@@ -241,7 +242,7 @@ public class CameraActivity extends AppCompatActivity implements GoogleApiClient
 
             String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmsszz").format(new Date());
             if (type == MEDIA_TYPE_IMAGE) {
-                return new File(mediaStorageDir.getPath() + File.separator + "JFSteel_" + timeStamp + ".jpeg");
+                return new File(mediaStorageDir.getPath() + File.separator + FILE_PREFIX + timeStamp + ".jpeg");
             }
         }
         return null;
@@ -339,23 +340,48 @@ public class CameraActivity extends AppCompatActivity implements GoogleApiClient
         releaseCamera();
     }
 
+    /**
+     * Exibe toast
+     * @param s
+     */
+    private void showToast(String s) {
+        Toast.makeText(mContext, s, Toast.LENGTH_SHORT).show();
+    }
+
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            PermissionUtils.requestPermissions(this, GPS_PERMISSION, Arrays.asList(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION));
+            PermissionUtils.requestPermissions(this, GPS_PERMISSION, Arrays.asList(Manifest.permission.ACCESS_COARSE_LOCATION));
             return;
         }
-        isConnectWithApi = true;
+
         location = LocationServices.FusedLocationApi.getLastLocation(apiClient);
+        if (location == null) {
+            showToast(mContext.getResources().getString(R.string.msg_falha_pegar_localizacao));
+        } /**else {
+            if (camera != null) {
+                Camera.Parameters p = camera.getParameters();
+                p.setGpsLatitude(location.getLatitude());
+                p.setGpsLongitude(location.getLongitude());
+                p.setGpsProcessingMethod(Manifest.permission.ACCESS_COARSE_LOCATION);
+                camera.setParameters(p);
+            }
+        } */
     }
 
     @Override
     public void onConnectionSuspended(int i) {
-        isConnectWithApi = false;
+
     }
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        isConnectWithApi = false;
+        showToast(connectionResult.getErrorMessage());
     }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        this.location = location;
+    }
+
 }
