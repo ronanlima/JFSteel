@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "244362831104",
+    "firebase_url": "https://maildeliveryjfsteel.firebaseio.com",
+    "project_id": "maildeliveryjfsteel",
+    "storage_bucket": "maildeliveryjfsteel.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:244362831104:android:2f004c95c55f8c4e",
+        "android_client_info": {
+          "package_name": "br.com.home.maildeliveryjfsteel"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "244362831104-5l23votcsrica45qjb0l62oluhrplgar.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "br.com.home.maildeliveryjfsteel",
+            "certificate_hash": "ff9c3b7354e2603ee55221b19a601b852e1d64ba"
+          }
+        },
+        {
+          "client_id": "244362831104-03f4inua117ea6ga98phu15avetq6482.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDEmuA8DNWiqa0QuHzAQw-GmdE9exeegHQ"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "244362831104-03f4inua117ea6ga98phu15avetq6482.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

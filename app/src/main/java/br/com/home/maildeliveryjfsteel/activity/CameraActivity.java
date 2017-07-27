@@ -38,6 +38,8 @@ import java.util.List;
 import br.com.home.maildeliveryjfsteel.BuildConfig;
 import br.com.home.maildeliveryjfsteel.CameraPreview;
 import br.com.home.maildeliveryjfsteel.R;
+import br.com.home.maildeliveryjfsteel.persistence.MailDeliveryDB;
+import br.com.home.maildeliveryjfsteel.persistence.dto.ContaNormal;
 import br.com.home.maildeliveryjfsteel.utils.PermissionUtils;
 import br.com.home.maildeliveryjfsteel.view.CameraImageView;
 
@@ -63,12 +65,14 @@ public class CameraActivity extends AppCompatActivity implements GoogleApiClient
     private Camera.PictureCallback pictureCallback;
     private GoogleApiClient apiClient;
     private Location location;
+    private MailDeliveryDB db;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
         setContentView(R.layout.activity_camera);
+        db = new MailDeliveryDB(this);
 
         btnPhoto = (ImageView) findViewById(R.id.btn_capturar_foto);
         btnFlash = (CameraImageView) findViewById(R.id.btn_flash);
@@ -192,60 +196,59 @@ public class CameraActivity extends AppCompatActivity implements GoogleApiClient
         pictureCallback = new Camera.PictureCallback() {
             @Override
             public void onPictureTaken(byte[] data, Camera camera) {
-                final File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE);
-                if (pictureFile == null) {
-                    Log.e(TAG, "Verifique a permissão de escrita para o app.");
-                    return;
-                }
-
-                try {
-                    FileOutputStream fos = new FileOutputStream(pictureFile);
-                    fos.write(data);
-                    fos.close();
-                } catch (FileNotFoundException e) {
-                    Log.e(TAG, "Arquivo não encontrado: " + e.getMessage());
-                } catch (IOException e) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            createAlertDialogFinish("Ok", String.format(mContext.getResources().getString(R.string.msg_erro_gravar_arquivo), pictureFile.getPath()));
+                if (Environment.getExternalStorageState() != null && !Environment.getExternalStorageState().isEmpty()) {
+                    File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), APP_DIR);
+                    if (!mediaStorageDir.exists()) {
+                        if (!mediaStorageDir.mkdirs()) {
+                            Log.e(TAG, "Falha ao criar o diretório para salvar a imagem");
+                            return;
                         }
-                    });
-                    e.printStackTrace();
-                    Log.e(TAG, "Falha ao escrever o arquivo de imagem: " + e.getMessage());
-                }
-                try {
-                    camera.reconnect();
-                    camera.startPreview();
-                } catch (IOException e) {
-                    e.printStackTrace();
+                    }
+
+                    long dateTime = new Date().getTime();
+                    String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmsszz").format(dateTime);
+                    final File pictureFile = new File(mediaStorageDir.getPath() + File.separator + FILE_PREFIX + timeStamp + ".jpeg");
+
+                    try {
+                        FileOutputStream fos = new FileOutputStream(pictureFile);
+                        fos.write(data);
+                        fos.close();
+                    } catch (FileNotFoundException e) {
+                        Log.e(TAG, "Arquivo não encontrado: " + e.getMessage());
+                    } catch (IOException e) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                createAlertDialogFinish("Ok", String.format(mContext.getResources().getString(R.string.msg_erro_gravar_arquivo), pictureFile.getPath()));
+                            }
+                        });
+                        e.printStackTrace();
+                        Log.e(TAG, "Falha ao escrever o arquivo de imagem: " + e.getMessage());
+                    }
+                    try {
+                        camera.reconnect();
+                        camera.startPreview();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    saveIntoSqlite(pictureFile, dateTime);
+                } else {
+                    Log.e(TAG, "Verifique a permissão de escrita para o app.");
                 }
             }
         };
     }
 
-    /**
-     * Cria o arquivo de imagem com nomenclatura única e o retorna para escrita dos bytes
-     *
-     * @param type
-     * @return
-     */
-    private File getOutputMediaFile(int type) {
-        if (Environment.getExternalStorageState() != null && !Environment.getExternalStorageState().isEmpty()) {
-            File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), APP_DIR);
-            if (!mediaStorageDir.exists()) {
-                if (!mediaStorageDir.mkdirs()) {
-                    Log.e(TAG, "Falha ao criar o diretório para salvar a imagem");
-                    return null;
-                }
-            }
-
-            String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmsszz").format(new Date());
-            if (type == MEDIA_TYPE_IMAGE) {
-                return new File(mediaStorageDir.getPath() + File.separator + FILE_PREFIX + timeStamp + ".jpeg");
-            }
-        }
-        return null;
+    private void saveIntoSqlite(File file, long dateTime) {
+        ContaNormal r = new ContaNormal();
+        r.setIdFoto(file.getName().substring(0, file.getName().length() - 5));
+        r.setTimesTamp(dateTime);
+        r.setPrefixAgrupador("prefixo_qrcode");
+        r.setDadosQrCode("dados do qrcode");
+        r.setSitSalvoFirebase(0);
+//        db.findAll(MailDeliveryDB.TABLE_REGISTRO_ENTREGA);
+//        db.findByAgrupador(MailDeliveryDB.TABLE_REGISTRO_ENTREGA, "prefixo_qrcode");
+        db.save(r);
     }
 
     /**
@@ -342,6 +345,7 @@ public class CameraActivity extends AppCompatActivity implements GoogleApiClient
 
     /**
      * Exibe toast
+     *
      * @param s
      */
     private void showToast(String s) {
@@ -359,14 +363,14 @@ public class CameraActivity extends AppCompatActivity implements GoogleApiClient
         if (location == null) {
             showToast(mContext.getResources().getString(R.string.msg_falha_pegar_localizacao));
         } /**else {
-            if (camera != null) {
-                Camera.Parameters p = camera.getParameters();
-                p.setGpsLatitude(location.getLatitude());
-                p.setGpsLongitude(location.getLongitude());
-                p.setGpsProcessingMethod(Manifest.permission.ACCESS_COARSE_LOCATION);
-                camera.setParameters(p);
-            }
-        } */
+         if (camera != null) {
+         Camera.Parameters p = camera.getParameters();
+         p.setGpsLatitude(location.getLatitude());
+         p.setGpsLongitude(location.getLongitude());
+         p.setGpsProcessingMethod(Manifest.permission.ACCESS_COARSE_LOCATION);
+         camera.setParameters(p);
+         }
+         } */
     }
 
     @Override
