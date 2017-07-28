@@ -1,4 +1,4 @@
-package br.com.home.maildeliveryjfsteel.persistence;
+package br.com.home.maildeliveryjfsteel.persistence.impl;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -11,20 +11,19 @@ import android.database.sqlite.SQLiteOpenHelper;
 import java.util.ArrayList;
 import java.util.List;
 
+import br.com.home.maildeliveryjfsteel.persistence.MailDeliverDBService;
 import br.com.home.maildeliveryjfsteel.persistence.dto.ContaNormal;
 
 /**
  * Created by Ronan.lima on 27/07/17.
  */
 
-public class MailDeliveryDB extends SQLiteOpenHelper {
+public class MailDeliveryDBContaNormal extends SQLiteOpenHelper implements MailDeliverDBService<ContaNormal> {
 
-    public static final String TAG = MailDeliveryDB.class.getCanonicalName().toUpperCase();
-    public static final Integer DB_VERSION = 1;
-    public static final String DB_NAME = "jfsteel.sqlite";
+    public static final String TAG = MailDeliveryDBContaNormal.class.getCanonicalName().toUpperCase();
     public static final String TABLE_REGISTRO_ENTREGA = "registroEntrega";
 
-    public MailDeliveryDB(Context context) {
+    public MailDeliveryDBContaNormal(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
     }
 
@@ -36,7 +35,7 @@ public class MailDeliveryDB extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int i, int i1) {
-
+        // TODO encontrar um jeito de excluir o arquivo sqlite criado até o momento, para não ter que tratar atualização em desenvolvimento sem ter subido nenhuma versão release ainda.
     }
 
     /**
@@ -45,6 +44,7 @@ public class MailDeliveryDB extends SQLiteOpenHelper {
      * @param item
      * @return
      */
+    @Override
     public long save(ContaNormal item) {
         long id = 0;
         if (item.getId() != null) {
@@ -57,7 +57,12 @@ public class MailDeliveryDB extends SQLiteOpenHelper {
             values.put("dadosQrCode", item.getDadosQrCode());
             values.put("horaEntrega", item.getTimesTamp());
             values.put("prefixAgrupador", item.getPrefixAgrupador());
-            values.put("idFoto", item.getIdFoto());
+            String nomeFoto = item.getIdFoto().substring(0, item.getIdFoto().length() - 5);
+            values.put("idFoto", nomeFoto);
+            values.put("latitude", item.getLatitude());
+            values.put("longitude", item.getLongitude());
+            values.put("uriFotoDisp", item.getUriFotoDisp());
+            values.put("urlStorageFoto", item.getUrlStorageFoto());
             values.put("sitSalvoFirebase", item.getSitSalvoFirebase());
             if (id != 0) {
                 String _id = String.valueOf(id);
@@ -80,6 +85,7 @@ public class MailDeliveryDB extends SQLiteOpenHelper {
      * @param table
      * @return
      */
+    @Override
     public List<ContaNormal> findAll(String table) {
         SQLiteDatabase db = getReadableDatabase();
 
@@ -101,6 +107,7 @@ public class MailDeliveryDB extends SQLiteOpenHelper {
      * @param prefix
      * @return
      */
+    @Override
     public List<ContaNormal> findByAgrupador(String table, String prefix) {
         SQLiteDatabase db = getReadableDatabase();
 
@@ -121,7 +128,8 @@ public class MailDeliveryDB extends SQLiteOpenHelper {
      * @param c
      * @return
      */
-    private List<ContaNormal> toList(Cursor c) {
+    @Override
+    public List<ContaNormal> toList(Cursor c) {
         List<ContaNormal> list = new ArrayList<>();
         if (c.moveToFirst()) {
             do {
@@ -144,6 +152,7 @@ public class MailDeliveryDB extends SQLiteOpenHelper {
      * @param sql
      * @param args
      */
+    @Override
     public void execSql(String sql, Object[] args) {
         SQLiteDatabase db = getWritableDatabase();
 

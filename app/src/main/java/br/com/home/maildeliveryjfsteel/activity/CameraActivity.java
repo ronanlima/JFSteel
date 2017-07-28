@@ -4,6 +4,8 @@ import android.Manifest;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
 import android.hardware.Camera;
 import android.location.Location;
@@ -26,6 +28,8 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationServices;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -38,7 +42,8 @@ import java.util.List;
 import br.com.home.maildeliveryjfsteel.BuildConfig;
 import br.com.home.maildeliveryjfsteel.CameraPreview;
 import br.com.home.maildeliveryjfsteel.R;
-import br.com.home.maildeliveryjfsteel.persistence.MailDeliveryDB;
+import br.com.home.maildeliveryjfsteel.firebase.impl.FirebaseContaNormalImpl;
+import br.com.home.maildeliveryjfsteel.persistence.impl.MailDeliveryDBContaNormal;
 import br.com.home.maildeliveryjfsteel.persistence.dto.ContaNormal;
 import br.com.home.maildeliveryjfsteel.utils.PermissionUtils;
 import br.com.home.maildeliveryjfsteel.view.CameraImageView;
@@ -65,14 +70,14 @@ public class CameraActivity extends AppCompatActivity implements GoogleApiClient
     private Camera.PictureCallback pictureCallback;
     private GoogleApiClient apiClient;
     private Location location;
-    private MailDeliveryDB db;
+    private MailDeliveryDBContaNormal db;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
         setContentView(R.layout.activity_camera);
-        db = new MailDeliveryDB(this);
+        db = new MailDeliveryDBContaNormal(this);
 
         btnPhoto = (ImageView) findViewById(R.id.btn_capturar_foto);
         btnFlash = (CameraImageView) findViewById(R.id.btn_flash);
@@ -240,15 +245,27 @@ public class CameraActivity extends AppCompatActivity implements GoogleApiClient
     }
 
     private void saveIntoSqlite(File file, long dateTime) {
+        Bitmap bitmap = BitmapFactory.decodeFile(file.toURI().getPath());
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+        byte[] data = baos.toByteArray();
+        ByteArrayInputStream in = new ByteArrayInputStream(data);
+
         ContaNormal r = new ContaNormal();
-        r.setIdFoto(file.getName().substring(0, file.getName().length() - 5));
+        r.setUriFotoDisp(file.getAbsolutePath());
+        r.setIdFoto(file.getName());
         r.setTimesTamp(dateTime);
         r.setPrefixAgrupador("prefixo_qrcode");
         r.setDadosQrCode("dados do qrcode");
         r.setSitSalvoFirebase(0);
-//        db.findAll(MailDeliveryDB.TABLE_REGISTRO_ENTREGA);
-//        db.findByAgrupador(MailDeliveryDB.TABLE_REGISTRO_ENTREGA, "prefixo_qrcode");
+        if (location != null) {
+            r.setLatitude(location.getLatitude());
+            r.setLongitude(location.getLongitude());
+        }
+//        db.findAll(MailDeliveryDBContaNormal.TABLE_REGISTRO_ENTREGA);
+//        db.findByAgrupador(MailDeliveryDBContaNormal.TABLE_REGISTRO_ENTREGA, "prefixo_qrcode");
         db.save(r);
+        new FirebaseContaNormalImpl(this).save(db.findAll(db.TABLE_REGISTRO_ENTREGA));
     }
 
     /**

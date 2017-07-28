@@ -12,6 +12,8 @@ public class GenericDelivery {
     private String idFoto;
     private Double latitude;
     private Double longitude;
+    private String uriFotoDisp;
+    private String urlStorageFoto;
     private int sitSalvoFirebase;
 
     public GenericDelivery() {
@@ -79,5 +81,21 @@ public class GenericDelivery {
 
     public void setSitSalvoFirebase(int sitSalvoFirebase) {
         this.sitSalvoFirebase = sitSalvoFirebase;
+    }
+
+    public String getUriFotoDisp() {
+        return uriFotoDisp;
+    }
+
+    public void setUriFotoDisp(String uriFotoDisp) {
+        this.uriFotoDisp = uriFotoDisp;
+    }
+
+    public String getUrlStorageFoto() {
+        return urlStorageFoto;
+    }
+
+    public void setUrlStorageFoto(String urlStorageFoto) {
+        this.urlStorageFoto = urlStorageFoto;
     }
 }

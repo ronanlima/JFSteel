@@ -2,4 +2,10 @@
 <resources>
     <!-- Gerado do SHA1: FF:9C:3B:73:54:E2:60:3E:E5:52:21:B1:9A:60:1B:85:2E:1D:64:BA -->
     <string name="API_KEY">AIzaSyDqJgJgT5RBPfmhAhiEcepVFTw5rs7Ou3U</string>
+    <string name="sp_matricula" translatable="false">matricula</string>
+    <string name="firebase_no_contas" translatable="false">contas</string>
+    <string name="firebase_no_notas" translatable="false">notas</string>
+    <string name="firebase_no_noqrcode" translatable="false">noqrcode</string>
+
+    <string name="firebase_storage_conta" translatable="false">images/contas/</string>
 </resources>
