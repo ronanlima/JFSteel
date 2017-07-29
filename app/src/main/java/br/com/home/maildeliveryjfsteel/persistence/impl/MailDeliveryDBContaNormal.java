@@ -30,7 +30,8 @@ public class MailDeliveryDBContaNormal extends SQLiteOpenHelper implements MailD
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL("create table if not exists " + TABLE_REGISTRO_ENTREGA + " (_id integer primary key autoincrement," +
-                "dadosQrCode text, horaEntrega timestamp, prefixAgrupador text, idFoto text, sitSalvoFirebase integer)");
+                "dadosQrCode text, horaEntrega timestamp, prefixAgrupador text, idFoto text, latitude real, " +
+                "longitude real, uriFotoDisp text, urlStorageFoto text, sitSalvoFirebase integer)");
     }
 
     @Override
@@ -139,6 +140,10 @@ public class MailDeliveryDBContaNormal extends SQLiteOpenHelper implements MailD
                 r.setTimesTamp(c.getLong(c.getColumnIndex("horaEntrega")));
                 r.setPrefixAgrupador(c.getString(c.getColumnIndex("prefixAgrupador")));
                 r.setIdFoto(c.getString(c.getColumnIndex("idFoto")));
+                r.setLatitude(c.getDouble(c.getColumnIndex("latitude")));
+                r.setLongitude(c.getDouble(c.getColumnIndex("longitude")));
+                r.setUriFotoDisp(c.getString(c.getColumnIndex("uriFotoDisp")));
+                r.setUrlStorageFoto(c.getString(c.getColumnIndex("urlStorageFoto")));
                 r.setSitSalvoFirebase(c.getType(c.getColumnIndex("sitSalvoFirebase")));
                 list.add(r);
             } while (c.moveToNext());

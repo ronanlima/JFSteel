@@ -17,7 +17,7 @@ public class FirebaseNotaImpl implements FirebaseService<Nota> {
     }
 
     @Override
-    public void uploadPhoto(Nota obj, String uriPhotoDisp) {
+    public void uploadPhoto(Nota obj, String uriPhotoDisp, String namePhoto) {
 
     }
 

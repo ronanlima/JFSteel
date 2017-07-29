@@ -17,7 +17,7 @@ public class FirebaseNoQrCodeImpl implements FirebaseService<NoQrCode> {
     }
 
     @Override
-    public void uploadPhoto(NoQrCode obj, String uriPhotoDisp) {
+    public void uploadPhoto(NoQrCode obj, String uriPhotoDisp, String namePhoto) {
 
     }
 

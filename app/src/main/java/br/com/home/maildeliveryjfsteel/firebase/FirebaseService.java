@@ -14,6 +14,6 @@ public interface FirebaseService<T> {
     FirebaseStorage storage = FirebaseStorage.getInstance();
 
     void save(List<T> obj);
-    void uploadPhoto(T obj, String uriPhotoDisp);
+    void uploadPhoto(T obj, String uriPhotoDisp, String namePhoto);
     void updateFields(T obj, String downloadUrl);
 }

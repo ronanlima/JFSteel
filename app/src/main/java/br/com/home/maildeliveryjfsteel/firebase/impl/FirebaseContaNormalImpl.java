@@ -49,7 +49,7 @@ public class FirebaseContaNormalImpl implements FirebaseService<ContaNormal> {
                 public void onComplete(@NonNull Task<Void> task) {
                     if (task.isSuccessful() && task.isComplete()) {
                         if (ct.getUriFotoDisp() != null && !ct.getUriFotoDisp().isEmpty()) {
-                            uploadPhoto(ct, ct.getUriFotoDisp());
+                            uploadPhoto(ct, ct.getUriFotoDisp(), ct.getIdFoto());
                         } else {
                             updateFields(ct, null);
                         }
@@ -66,9 +66,8 @@ public class FirebaseContaNormalImpl implements FirebaseService<ContaNormal> {
     }
 
     @Override
-    public void uploadPhoto(final ContaNormal ct, String uriPhotoDisp) {
-        String nomeFoto = uriPhotoDisp.substring(0, uriPhotoDisp.length() - 5);
-        StorageReference storageReference = storage.getReference().child(mContext.getResources().getString(R.string.firebase_storage_conta)).child(nomeFoto);
+    public void uploadPhoto(final ContaNormal ct, String uriPhotoDisp, String namePhoto) {
+        StorageReference storageReference = storage.getReference().child(mContext.getResources().getString(R.string.firebase_storage_conta)).child(namePhoto);
 
         Bitmap bitmap = BitmapFactory.decodeFile(uriPhotoDisp);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();

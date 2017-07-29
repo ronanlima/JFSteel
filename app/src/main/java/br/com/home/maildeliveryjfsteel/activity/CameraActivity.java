@@ -43,6 +43,7 @@ import br.com.home.maildeliveryjfsteel.BuildConfig;
 import br.com.home.maildeliveryjfsteel.CameraPreview;
 import br.com.home.maildeliveryjfsteel.R;
 import br.com.home.maildeliveryjfsteel.firebase.impl.FirebaseContaNormalImpl;
+import br.com.home.maildeliveryjfsteel.persistence.MailDeliverDBService;
 import br.com.home.maildeliveryjfsteel.persistence.impl.MailDeliveryDBContaNormal;
 import br.com.home.maildeliveryjfsteel.persistence.dto.ContaNormal;
 import br.com.home.maildeliveryjfsteel.utils.PermissionUtils;
@@ -258,6 +259,7 @@ public class CameraActivity extends AppCompatActivity implements GoogleApiClient
         r.setPrefixAgrupador("prefixo_qrcode");
         r.setDadosQrCode("dados do qrcode");
         r.setSitSalvoFirebase(0);
+        deleteDatabase(MailDeliverDBService.DB_NAME);
         if (location != null) {
             r.setLatitude(location.getLatitude());
             r.setLongitude(location.getLongitude());
