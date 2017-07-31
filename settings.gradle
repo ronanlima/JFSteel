@@ -1,1 +1,2 @@
+include ':appWizards'
 include ':app'
