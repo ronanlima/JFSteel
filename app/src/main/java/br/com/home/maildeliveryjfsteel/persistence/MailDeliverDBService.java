@@ -11,12 +11,16 @@ import java.util.List;
 public interface MailDeliverDBService<T> {
     String DB_NAME = "jfsteel.sqlite";
     Integer DB_VERSION = 1;
+    Integer SIT_FALSE = 0;
+    Integer SIT_TRUE = 1;
 
     long save(T obj);
 
     List<T> findAll(String table);
 
     List<T> findByAgrupador(String table, String prefix);
+
+    List<T> findBySit(int situacao);
 
     List<T> toList(Cursor c);
 

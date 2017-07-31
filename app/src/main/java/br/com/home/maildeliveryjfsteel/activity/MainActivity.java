@@ -7,9 +7,22 @@ import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Window;
 
+import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
+import com.markosullivan.wizards.MainActivityWizard;
+
+import java.util.List;
+
 import br.com.home.maildeliveryjfsteel.BuildConfig;
 import br.com.home.maildeliveryjfsteel.R;
+import br.com.home.maildeliveryjfsteel.async.FirebaseAsyncParam;
+import br.com.home.maildeliveryjfsteel.async.SaveFirebaseAsync;
+import br.com.home.maildeliveryjfsteel.camera.HandlerQrCodeActivity;
+import br.com.home.maildeliveryjfsteel.firebase.impl.FirebaseContaNormalImpl;
 import br.com.home.maildeliveryjfsteel.fragment.MatriculaDialogFragment;
+import br.com.home.maildeliveryjfsteel.persistence.MailDeliverDBService;
+import br.com.home.maildeliveryjfsteel.persistence.dto.GenericDelivery;
+import br.com.home.maildeliveryjfsteel.persistence.impl.MailDeliveryDBContaNormal;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -23,9 +36,41 @@ public class MainActivity extends AppCompatActivity {
             dialog.setCancelable(false);
             dialog.show(getSupportFragmentManager(), "dialogMatricula");
         } else {
-            startActivity(new Intent(this, CameraActivity.class));
-            finish();
+            startActivity(new Intent(this, HandlerQrCodeActivity.class));
+//            startActivity(new Intent(this, MainActivityWizard.class));
+//            new SaveFirebaseAsync().execute(new FirebaseAsyncParam(new MailDeliveryDBContaNormal(this).findBySit(MailDeliverDBService.SIT_FALSE), new FirebaseContaNormalImpl(this)));
+////            new SaveFirebaseAsync().execute(new FirebaseAsyncParam(new MailDeliveryDBContaNormal(this).findBySit(MailDeliverDBService.SIT_FALSE), new FirebaseContaNormalImpl(this)));
+////            new SaveFirebaseAsync().execute(new FirebaseAsyncParam(new MailDeliveryDBContaNormal(this).findBySit(MailDeliverDBService.SIT_FALSE), new FirebaseContaNormalImpl(this)));
+//            startActivity(new Intent(this, CameraActivity.class));
+//            finish();
         }
+    }
+
+    @Override
+    protected void onActivityResult(int codigo, int codigoRetorno, Intent it) {
+        super.onActivityResult(codigo, codigoRetorno, it);
+        if (codigo == IntentIntegrator.REQUEST_CODE) {
+            IntentResult scanResult = IntentIntegrator.parseActivityResult(codigo, codigoRetorno, it);
+            if (scanResult == null || scanResult.getContents() == null) {
+                return;
+            }
+
+            final String codBarra = scanResult.getContents();
+
+//            Intent i = new Intent(getApplicationContext(), ConfirmarTransferenciaSegundoFator.class);
+//            i.putExtra("qrCodeContent", codBarra);
+//            i.putExtra("conta", conta_string);
+//            startActivity(i);
+//            overridePendingTransition(R.anim.para_cima_entra, R.anim.fica);
+        }
+    }
+
+    /**
+     * Recuperar os registros no db sqlite que tenham a coluna sitSalvoFirebase = 0
+     */
+    private List<GenericDelivery> getRegistersContaNormalNotSaved() {
+        MailDeliverDBService db = new MailDeliveryDBContaNormal(this);
+        return db.findBySit(MailDeliverDBService.SIT_FALSE);
     }
 
     public MatriculaDialogFragment.ClickButtonEntrar setListener() {

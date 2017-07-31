@@ -267,7 +267,7 @@ public class CameraActivity extends AppCompatActivity implements GoogleApiClient
 //        db.findAll(MailDeliveryDBContaNormal.TABLE_REGISTRO_ENTREGA);
 //        db.findByAgrupador(MailDeliveryDBContaNormal.TABLE_REGISTRO_ENTREGA, "prefixo_qrcode");
         db.save(r);
-        new FirebaseContaNormalImpl(this).save(db.findAll(db.TABLE_REGISTRO_ENTREGA));
+//        new FirebaseContaNormalImpl(this).save(db.findAll(db.TABLE_REGISTRO_ENTREGA));
     }
 
     /**

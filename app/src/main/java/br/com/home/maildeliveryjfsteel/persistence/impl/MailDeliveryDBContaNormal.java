@@ -124,6 +124,26 @@ public class MailDeliveryDBContaNormal extends SQLiteOpenHelper implements MailD
     }
 
     /**
+     * Recuperar os registros conforme situacao passada.
+     * @param situacao
+     * @return
+     */
+    @Override
+    public List<ContaNormal> findBySit(int situacao) {
+        SQLiteDatabase db = getReadableDatabase();
+
+        try {
+            Cursor c = db.query(TABLE_REGISTRO_ENTREGA, null, "sitSalvoFirebase = " + situacao + "", null, null, null, null);
+            return toList(c);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        } finally {
+            db.close();
+        }
+    }
+
+    /**
      * Retorna uma lista de registros
      *
      * @param c
