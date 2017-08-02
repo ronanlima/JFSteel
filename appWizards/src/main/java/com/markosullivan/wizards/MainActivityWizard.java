@@ -1,9 +1,7 @@
 package com.markosullivan.wizards;
 
-import android.app.AlertDialog;
-import android.app.Dialog;
+import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -16,10 +14,12 @@ import android.widget.Button;
 import com.markosullivan.wizards.wizard.model.AbstractWizardModel;
 import com.markosullivan.wizards.wizard.model.ModelCallbacks;
 import com.markosullivan.wizards.wizard.model.Page;
+import com.markosullivan.wizards.wizard.model.ReviewItem;
 import com.markosullivan.wizards.wizard.ui.PageFragmentCallbacks;
 import com.markosullivan.wizards.wizard.ui.ReviewFragment;
 import com.markosullivan.wizards.wizard.ui.StepPagerStrip;
 
+import java.io.Serializable;
 import java.util.List;
 
 public class MainActivityWizard extends FragmentActivity implements
@@ -28,18 +28,19 @@ public class MainActivityWizard extends FragmentActivity implements
         ModelCallbacks {
     private ViewPager mPager;
     private MyPagerAdapter mPagerAdapter;
-
     private boolean mEditingAfterReview;
-
-    private AbstractWizardModel mWizardModel = new PresentWizardModel(this);
-
+    private AbstractWizardModel mWizardModel = new WizardContaNormal(this);
     private boolean mConsumePageSelectedEvent;
-
     private Button mNextButton;
     private Button mPrevButton;
-
     private List<Page> mCurrentPageSequence;
     private StepPagerStrip mStepPagerStrip;
+    private List<ReviewItem> itensSelecteds;
+    private CallbackWizard listenerCallback;
+
+    public MainActivityWizard(CallbackWizard listenerCallback) {
+        this.listenerCallback = listenerCallback;
+    }
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -87,17 +88,22 @@ public class MainActivityWizard extends FragmentActivity implements
             @Override
             public void onClick(View view) {
                 if (mPager.getCurrentItem() == mCurrentPageSequence.size()) {
-                    DialogFragment dg = new DialogFragment() {
-                        @Override
-                        public Dialog onCreateDialog(Bundle savedInstanceState) {
-                            return new AlertDialog.Builder(getActivity())
-                                    .setMessage(R.string.submit_confirm_message)
-                                    .setPositiveButton(R.string.submit_confirm_button, null)
-                                    .setNegativeButton(android.R.string.cancel, null)
-                                    .create();
+                    if (getItensSelecteds() != null && getItensSelecteds().size() > 0) {
+                        boolean isContaProcotolada = false;
+                        boolean isContaColetiva = false;
+                        if (getItensSelecteds().get(1) != null && getItensSelecteds().get(1).getDisplayValue().contains(WizardContaNormal.choicesSobreConta[0])) {
+                            isContaProcotolada = true;
                         }
-                    };
-                    dg.show(getSupportFragmentManager(), "place_order_dialog");
+                        if (getItensSelecteds().get(1) != null && getItensSelecteds().get(1).getDisplayValue().contains(WizardContaNormal.choicesSobreConta[1])) {
+                            isContaColetiva = true;
+                        }
+                        Bundle b = new Bundle();
+                        b.putBoolean("contaProtocolada", isContaProcotolada);
+                        b.putBoolean("contaColetiva", isContaColetiva);
+                        b.putString("localEntrega", getItensSelecteds().get(0).getDisplayValue());
+                        listenerCallback.backToMainApplication(b);
+                    }
+                    finish();
                 } else {
                     if (mEditingAfterReview) {
                         mPager.setCurrentItem(mPagerAdapter.getCount() - 1);
@@ -117,6 +123,25 @@ public class MainActivityWizard extends FragmentActivity implements
 
         onPageTreeChanged();
         updateBottomBar();
+    }
+
+    public interface CallbackWizard extends Serializable {
+        void backToMainApplication(Bundle bundle);
+    }
+
+    /**
+     * Listener utilizado para recuperar os itens marcados no passo onde o usuário informa se a conta
+     * está protocolada e/ou é coletiva
+     *
+     * @return
+     */
+    private ReviewFragment.ListenerConta retrieveListenerConta() {
+        return new ReviewFragment.ListenerConta() {
+            @Override
+            public void getInfoAboutConta(List<ReviewItem> itensSelecteds) {
+                setItensSelecteds(itensSelecteds);
+            }
+        };
     }
 
     @Override
@@ -205,6 +230,14 @@ public class MainActivityWizard extends FragmentActivity implements
         return false;
     }
 
+    public List<ReviewItem> getItensSelecteds() {
+        return itensSelecteds;
+    }
+
+    public void setItensSelecteds(List<ReviewItem> itensSelecteds) {
+        this.itensSelecteds = itensSelecteds;
+    }
+
     public class MyPagerAdapter extends FragmentStatePagerAdapter {
         private int mCutOffPage;
         private Fragment mPrimaryItem;
@@ -216,7 +249,7 @@ public class MainActivityWizard extends FragmentActivity implements
         @Override
         public Fragment getItem(int i) {
             if (i >= mCurrentPageSequence.size()) {
-                return new ReviewFragment();
+                return new ReviewFragment(retrieveListenerConta());
             }
 
             return mCurrentPageSequence.get(i).createFragment();

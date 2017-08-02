@@ -14,6 +14,11 @@ import java.util.List;
 
 public class PermissionUtils {
 
+    public static final int CAMERA_PERMISSION = 10;
+    public static final int WRITE_EXTERNAL_STORAGE_PERMISSION = 11;
+    public static final int READ_EXTERNAL_STORAGE_PERMISSION = 12;
+    public static final int GPS_PERMISSION = 13;
+
     /**
      * Verifica se o usuário já concedeu permissão para a funcionalidade solicitada.
      *
@@ -59,6 +64,23 @@ public class PermissionUtils {
             }
         }
         return list;
+    }
+
+    /**
+     * Verifica se o usuário concedeu a permissão solicitada.
+     *
+     * @param permissoes
+     * @return
+     */
+    public static boolean isPermissaoConcedida(int[] permissoes) {
+        boolean isPermissaoConcedida = false;
+
+        for (int i = 0; i < permissoes.length; i++) {
+            if (permissoes[i] > PackageManager.PERMISSION_DENIED) {
+                isPermissaoConcedida = true;
+            }
+        }
+        return isPermissaoConcedida;
     }
 
 }

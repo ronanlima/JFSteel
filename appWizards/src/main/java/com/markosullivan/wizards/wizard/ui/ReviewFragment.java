@@ -33,6 +33,7 @@ import com.markosullivan.wizards.wizard.model.ModelCallbacks;
 import com.markosullivan.wizards.wizard.model.Page;
 import com.markosullivan.wizards.wizard.model.ReviewItem;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -42,10 +43,14 @@ public class ReviewFragment extends ListFragment implements ModelCallbacks {
     private Callbacks mCallbacks;
     private AbstractWizardModel mWizardModel;
     private List<ReviewItem> mCurrentReviewItems;
-
     private ReviewAdapter mReviewAdapter;
+    private ListenerConta listenerConta;
 
     public ReviewFragment() {
+    }
+
+    public ReviewFragment(ListenerConta listenerConta) {
+        this.listenerConta = listenerConta;
     }
 
     @Override
@@ -56,7 +61,7 @@ public class ReviewFragment extends ListFragment implements ModelCallbacks {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
+                             Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_page, container, false);
 
         TextView titleView = (TextView) rootView.findViewById(android.R.id.title);
@@ -67,6 +72,10 @@ public class ReviewFragment extends ListFragment implements ModelCallbacks {
         setListAdapter(mReviewAdapter);
         listView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         return rootView;
+    }
+
+    public interface ListenerConta extends Serializable {
+        void getInfoAboutConta(List<ReviewItem> itensSelecteds);
     }
 
     @Override
@@ -123,6 +132,7 @@ public class ReviewFragment extends ListFragment implements ModelCallbacks {
 
     public interface Callbacks {
         AbstractWizardModel onGetModel();
+
         void onEditScreenAfterReview(String pageKey);
     }
 
@@ -165,10 +175,14 @@ public class ReviewFragment extends ListFragment implements ModelCallbacks {
             ReviewItem reviewItem = mCurrentReviewItems.get(position);
             String value = reviewItem.getDisplayValue();
             if (TextUtils.isEmpty(value)) {
-                value = "(None)";
+                value = getResources().getString(R.string.nenhuma_opcao_selecionada);
             }
             ((TextView) rootView.findViewById(android.R.id.text1)).setText(reviewItem.getTitle());
             ((TextView) rootView.findViewById(android.R.id.text2)).setText(value);
+
+            if (reviewItem.getTitle().equalsIgnoreCase("sobre a conta")) {
+                listenerConta.getInfoAboutConta(mCurrentReviewItems);
+            }
             return rootView;
         }
 

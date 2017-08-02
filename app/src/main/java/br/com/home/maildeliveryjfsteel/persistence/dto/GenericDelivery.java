@@ -14,6 +14,7 @@ public class GenericDelivery {
     private Double longitude;
     private String uriFotoDisp;
     private String urlStorageFoto;
+    private String enderecoManual;
     private int sitSalvoFirebase;
 
     public GenericDelivery() {
@@ -97,5 +98,13 @@ public class GenericDelivery {
 
     public void setUrlStorageFoto(String urlStorageFoto) {
         this.urlStorageFoto = urlStorageFoto;
+    }
+
+    public String getEnderecoManual() {
+        return enderecoManual;
+    }
+
+    public void setEnderecoManual(String enderecoManual) {
+        this.enderecoManual = enderecoManual;
     }
 }

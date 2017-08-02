@@ -31,7 +31,7 @@ public class MailDeliveryDBContaNormal extends SQLiteOpenHelper implements MailD
     public void onCreate(SQLiteDatabase db) {
         db.execSQL("create table if not exists " + TABLE_REGISTRO_ENTREGA + " (_id integer primary key autoincrement," +
                 "dadosQrCode text, horaEntrega timestamp, prefixAgrupador text, idFoto text, latitude real, " +
-                "longitude real, uriFotoDisp text, urlStorageFoto text, sitSalvoFirebase integer)");
+                "longitude real, uriFotoDisp text, urlStorageFoto text, enderecoManual text, sitSalvoFirebase integer)");
     }
 
     @Override
@@ -64,6 +64,7 @@ public class MailDeliveryDBContaNormal extends SQLiteOpenHelper implements MailD
             values.put("longitude", item.getLongitude());
             values.put("uriFotoDisp", item.getUriFotoDisp());
             values.put("urlStorageFoto", item.getUrlStorageFoto());
+            values.put("enderecoManual", item.getEnderecoManual());
             values.put("sitSalvoFirebase", item.getSitSalvoFirebase());
             if (id != 0) {
                 String _id = String.valueOf(id);
@@ -164,6 +165,7 @@ public class MailDeliveryDBContaNormal extends SQLiteOpenHelper implements MailD
                 r.setLongitude(c.getDouble(c.getColumnIndex("longitude")));
                 r.setUriFotoDisp(c.getString(c.getColumnIndex("uriFotoDisp")));
                 r.setUrlStorageFoto(c.getString(c.getColumnIndex("urlStorageFoto")));
+                r.setEnderecoManual(c.getString(c.getColumnIndex("enderecoManual")));
                 r.setSitSalvoFirebase(c.getType(c.getColumnIndex("sitSalvoFirebase")));
                 list.add(r);
             } while (c.moveToNext());

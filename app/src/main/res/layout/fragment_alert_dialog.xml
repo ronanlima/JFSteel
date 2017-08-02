@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorBackgroundDialog"
+    android:orientation="vertical">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.2"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/titulo"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_marginBottom="10dp"
+                android:background="@color/colorAlertInfo"
+                android:fontFamily="Roboto Regular"
+                android:gravity="center"
+                android:text="TITULO"
+                android:textColor="@color/colorBackgroundDialog"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:id="@+id/layout_text_alert"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:orientation="horizontal"
+                android:paddingLeft="8dp"
+                android:paddingRight="8dp">
+
+                <ImageView
+                    android:id="@+id/img_alert"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginRight="8dp"
+                    android:src="@mipmap/ic_alert" />
+
+                <TextView
+                    android:id="@+id/descricao_alerta"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:gravity="left|center_vertical"
+                    android:padding="4dp"
+                    android:text="Alerta descrição Alerta descrição Alerta descrição Alerta descrição"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:textColor="@color/colorForeground"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:id="@+id/layout_entrada_dados"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <EditText
+                    android:id="@+id/edit_dados"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="4dp"
+                    android:padding="10dp"
+                    android:hint="@string/hint_endereco"
+                    android:textStyle="bold"
+                    android:ellipsize="end" />
+
+            </LinearLayout>
+
+            <!--<LinearLayout android:id="@+id/layout_opcoes_exportar"-->
+            <!--android:orientation="vertical"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:padding="16dp">-->
+
+
+            <!--<Button android:id="@+id/bt_pdf"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:textColor="@color/cardview_light_background"-->
+            <!--android:text="PDF"-->
+            <!--android:textStyle="bold"-->
+            <!--android:layout_margin="4dp"-->
+            <!--android:padding="10dp"-->
+            <!--android:background="@color/colorPrimary"/>-->
+
+            <!--<Button android:id="@+id/bt_img"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:background="@color/colorPrimary"-->
+            <!--android:textColor="@color/cardview_light_background"-->
+            <!--android:text="Imagem"-->
+            <!--android:textStyle="bold"-->
+            <!--android:layout_margin="4dp"-->
+            <!--android:padding="10dp"-->
+            <!--/>-->
+
+            <!--</LinearLayout>-->
+
+        </LinearLayout>
+
+    </ScrollView>
+
+    <LinearLayout
+        android:id="@+id/layout_actions_buttons"
+        style="?android:attr/buttonBarStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.2"
+        android:gravity="bottom"
+        android:orientation="horizontal"
+        android:paddingBottom="4dp"
+        android:paddingEnd="12dp"
+        android:paddingStart="12dp"
+        android:paddingTop="4dp">
+
+        <Space
+            android:id="@+id/spacer"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:visibility="invisible" />
+
+        <Button
+            android:id="@+id/bt_sim"
+            style="?android:attr/buttonBarNegativeButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="SIM" />
+
+        <Button
+            android:id="@+id/bt_nao"
+            style="?android:attr/buttonBarPositiveButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="NÃO" />
+
+        <Button
+            android:id="@+id/bt_neutro"
+            style="?android:attr/buttonBarPositiveButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="DEPOIS"
+            android:visibility="gone" />
+    </LinearLayout>
+
+</LinearLayout>
+

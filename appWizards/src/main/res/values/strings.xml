@@ -17,10 +17,12 @@
 <resources>
     <string name="app_name">Wizards</string>
 
-    <string name="next">Next</string>
-    <string name="prev">Previous</string>
-    <string name="finish">Submit</string>
-    <string name="review">Review</string>
+    <string name="next">Próxima</string>
+    <string name="prev">Voltar</string>
+    <string name="finish">Continuar</string>
+    <string name="review">Confirma?</string>
+    <string name="fim">Finalizar</string>
+    <string name="nenhuma_opcao_selecionada">Nenhuma opção selecionada</string>
 
     <string name="label_your_name">Name</string>
     <string name="label_your_email">Email</string>

@@ -8,12 +8,10 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
 import android.hardware.Camera;
-import android.location.Location;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -21,12 +19,6 @@ import android.view.View;
 import android.view.Window;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.Toast;
-
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.LocationListener;
-import com.google.android.gms.location.LocationServices;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -35,31 +27,29 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
 import br.com.home.maildeliveryjfsteel.BuildConfig;
 import br.com.home.maildeliveryjfsteel.CameraPreview;
 import br.com.home.maildeliveryjfsteel.R;
-import br.com.home.maildeliveryjfsteel.firebase.impl.FirebaseContaNormalImpl;
 import br.com.home.maildeliveryjfsteel.persistence.MailDeliverDBService;
-import br.com.home.maildeliveryjfsteel.persistence.impl.MailDeliveryDBContaNormal;
 import br.com.home.maildeliveryjfsteel.persistence.dto.ContaNormal;
+import br.com.home.maildeliveryjfsteel.persistence.impl.MailDeliveryDBContaNormal;
 import br.com.home.maildeliveryjfsteel.utils.PermissionUtils;
 import br.com.home.maildeliveryjfsteel.view.CameraImageView;
+
+import static br.com.home.maildeliveryjfsteel.utils.PermissionUtils.CAMERA_PERMISSION;
+import static br.com.home.maildeliveryjfsteel.utils.PermissionUtils.GPS_PERMISSION;
+import static br.com.home.maildeliveryjfsteel.utils.PermissionUtils.WRITE_EXTERNAL_STORAGE_PERMISSION;
 
 /**
  * Created by Ronan.lima on 15/07/17.
  */
 
-public class CameraActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
+public class CameraActivity extends AppCompatActivity {
     private static final String TAG = CameraActivity.class.getCanonicalName().toUpperCase();
-    private static final int MEDIA_TYPE_IMAGE = 1;
-    public static final int CAMERA_PERMISSION = 10;
-    public static final int WRITE_EXTERNAL_STORAGE_PERMISSION = 11;
-    public static final int READ_EXTERNAL_STORAGE_PERMISSION = 12;
-    public static final int GPS_PERMISSION = 13;
+
     public static final String APP_DIR = BuildConfig.APPLICATION_ID.substring(BuildConfig.APPLICATION_ID.lastIndexOf(".") + 1, BuildConfig.APPLICATION_ID.length());
     public static final String FILE_PREFIX = "JFSteel_";
 
@@ -69,8 +59,6 @@ public class CameraActivity extends AppCompatActivity implements GoogleApiClient
     private ImageView btnPhoto;
     private CameraImageView btnFlash;
     private Camera.PictureCallback pictureCallback;
-    private GoogleApiClient apiClient;
-    private Location location;
     private MailDeliveryDBContaNormal db;
 
     @Override
@@ -85,61 +73,13 @@ public class CameraActivity extends AppCompatActivity implements GoogleApiClient
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-        if (apiClient != null) {
-            apiClient.connect();
-        }
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        if (apiClient != null) {
-            apiClient.disconnect();
-        }
-    }
-
-    /**
-     * Verifica se o usuário concedeu a permissão solicitada.
-     *
-     * @param permissoes
-     * @return
-     */
-    public boolean isPermissaoConcedida(int[] permissoes) {
-        boolean isPermissaoConcedida = false;
-
-        for (int i = 0; i < permissoes.length; i++) {
-            if (permissoes[i] > PackageManager.PERMISSION_DENIED) {
-                isPermissaoConcedida = true;
-            }
-        }
-        return isPermissaoConcedida;
-    }
-
-    @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == CAMERA_PERMISSION || requestCode == WRITE_EXTERNAL_STORAGE_PERMISSION
                 || requestCode == GPS_PERMISSION) {
-            if (!isPermissaoConcedida(grantResults)) {
+            if (!PermissionUtils.isPermissaoConcedida(grantResults)) {
                 createAlertDialogFinish("Ok", mContext.getResources().getString(R.string.msg_permissao)).show();
             }
         }
-    }
-
-    /**
-     * Inicializa o objeto para recuperar a apiClient do Google, para utilizar as informações de gps.
-     */
-    private void initApiClient() {
-        if (apiClient == null) {
-            apiClient = new GoogleApiClient.Builder(mContext)
-                    .addConnectionCallbacks(this)
-                    .addOnConnectionFailedListener(this)
-                    .addApi(LocationServices.API)
-                    .build();
-            apiClient.connect();
-        }
-        init();
     }
 
     /**
@@ -165,9 +105,8 @@ public class CameraActivity extends AppCompatActivity implements GoogleApiClient
     protected void onResume() {
         super.onResume();
         if (PermissionUtils.validate(this, CAMERA_PERMISSION, Manifest.permission.CAMERA)
-                && PermissionUtils.validate(this, GPS_PERMISSION, Manifest.permission.ACCESS_COARSE_LOCATION)
                 && PermissionUtils.validate(this, WRITE_EXTERNAL_STORAGE_PERMISSION, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-            initApiClient();
+            init();
         }
     }
 
@@ -260,10 +199,6 @@ public class CameraActivity extends AppCompatActivity implements GoogleApiClient
         r.setDadosQrCode("dados do qrcode");
         r.setSitSalvoFirebase(0);
         deleteDatabase(MailDeliverDBService.DB_NAME);
-        if (location != null) {
-            r.setLatitude(location.getLatitude());
-            r.setLongitude(location.getLongitude());
-        }
 //        db.findAll(MailDeliveryDBContaNormal.TABLE_REGISTRO_ENTREGA);
 //        db.findByAgrupador(MailDeliveryDBContaNormal.TABLE_REGISTRO_ENTREGA, "prefixo_qrcode");
         db.save(r);
@@ -360,51 +295,6 @@ public class CameraActivity extends AppCompatActivity implements GoogleApiClient
     protected void onPause() {
         super.onPause();
         releaseCamera();
-    }
-
-    /**
-     * Exibe toast
-     *
-     * @param s
-     */
-    private void showToast(String s) {
-        Toast.makeText(mContext, s, Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public void onConnected(@Nullable Bundle bundle) {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            PermissionUtils.requestPermissions(this, GPS_PERMISSION, Arrays.asList(Manifest.permission.ACCESS_COARSE_LOCATION));
-            return;
-        }
-
-        location = LocationServices.FusedLocationApi.getLastLocation(apiClient);
-        if (location == null) {
-            showToast(mContext.getResources().getString(R.string.msg_falha_pegar_localizacao));
-        } /**else {
-         if (camera != null) {
-         Camera.Parameters p = camera.getParameters();
-         p.setGpsLatitude(location.getLatitude());
-         p.setGpsLongitude(location.getLongitude());
-         p.setGpsProcessingMethod(Manifest.permission.ACCESS_COARSE_LOCATION);
-         camera.setParameters(p);
-         }
-         } */
-    }
-
-    @Override
-    public void onConnectionSuspended(int i) {
-
-    }
-
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        showToast(connectionResult.getErrorMessage());
-    }
-
-    @Override
-    public void onLocationChanged(Location location) {
-        this.location = location;
     }
 
 }
