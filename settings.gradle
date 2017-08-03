@@ -1,2 +1,2 @@
-include ':appWizards'
+include ':appWizards', ':jfsteelbase'
 include ':app'

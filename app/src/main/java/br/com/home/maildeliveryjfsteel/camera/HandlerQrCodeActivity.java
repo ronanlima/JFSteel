@@ -25,6 +25,7 @@ import com.markosullivan.wizards.MainActivityWizard;
 import java.util.Arrays;
 import java.util.Date;
 
+import br.com.home.jfsteelbase.CallbackWizard;
 import br.com.home.maildeliveryjfsteel.R;
 import br.com.home.maildeliveryjfsteel.activity.CameraActivity;
 import br.com.home.maildeliveryjfsteel.fragment.JFSteelDialog;
@@ -40,7 +41,7 @@ import static br.com.home.maildeliveryjfsteel.utils.PermissionUtils.WRITE_EXTERN
  * Created by ronanlima on 17/05/17.
  */
 
-public class HandlerQrCodeActivity extends AppCompatActivity implements MainActivityWizard.CallbackWizard,
+public class HandlerQrCodeActivity extends AppCompatActivity implements
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
     private Context mContext = this;
@@ -48,11 +49,13 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements MainActi
     private String resultQrCode;
     private GoogleApiClient apiClient;
     private Location location;
+    private MainActivityWizard mainWizard;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        mainWizard = MainActivityWizard.newInstance(listenerTest(), resultQrCode);
         intentIntegrator = new IntentIntegrator(HandlerQrCodeActivity.this);
         intentIntegrator.setCaptureActivity(QrCodeActivity.class);
         intentIntegrator.addExtra("SCAN_MODE", "QR_CODE_MODE");
@@ -91,7 +94,6 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements MainActi
     }
 
     /**
-     *
      * @param titulo
      * @param msg
      * @param tipo
@@ -152,71 +154,78 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements MainActi
                 resultQrCode = result.getContents();
                 if (!resultQrCode.isEmpty()) {
                     Toast.makeText(getApplicationContext(), resultQrCode, Toast.LENGTH_LONG).show();
-                    Log.d("TAG", resultQrCode);
-                    startActivity(new Intent(this, MainActivityWizard.class));
+                    Log.d("HandlerQrCodeActivity", resultQrCode);
+
+                    Intent i = mainWizard.getIntent();
+//                    Intent i = new Intent(this, mainWizard.getClass());
+                    i.putExtra("dadosQrCode", resultQrCode);
+                    startActivity(i);
                 }
             }
         }
     }
 
-    @Override
-    public void backToMainApplication(final Bundle bundle) {
-        if (bundle.getBoolean("contaProtocolada") || bundle.getBoolean("contaColetiva")) {
-            if (location != null) {
-                startCameraActivity(bundle);
-            } else {
-                JFSteelDialog alert = criarAlerta(mContext.getResources().getString(R.string.titulo_pedido_localizacao),
-                        mContext.getResources().getString(R.string.msg_falha_pegar_localizacao),
-                        JFSteelDialog.TipoAlertaEnum.ALERTA, true, new JFSteelDialog.OnClickDialog() {
-                            @Override
-                            public void onClickPositive(View v, String tag) {
+    private CallbackWizard listenerTest() {
+        return new CallbackWizard() {
+            @Override
+            public void backToMainApplication(final Bundle bundle) {
+                if (bundle.getBoolean("contaProtocolada") || bundle.getBoolean("contaColetiva")) {
+                    if (location != null) {
+                        startCameraActivity(bundle);
+                    } else {
+                        JFSteelDialog alert = criarAlerta(mContext.getResources().getString(R.string.titulo_pedido_localizacao),
+                                mContext.getResources().getString(R.string.msg_falha_pegar_localizacao),
+                                JFSteelDialog.TipoAlertaEnum.ALERTA, true, new JFSteelDialog.OnClickDialog() {
+                                    @Override
+                                    public void onClickPositive(View v, String tag) {
 
-                            }
+                                    }
 
-                            @Override
-                            public void onClickNegative(View v, String tag) {
-                                bundle.putString("enderecoManual", tag);
-                                startCameraActivity(bundle);
-                            }
+                                    @Override
+                                    public void onClickNegative(View v, String tag) {
+                                        bundle.putString("enderecoManual", tag);
+                                        startCameraActivity(bundle);
+                                    }
 
-                            @Override
-                            public void onClickNeutral(View v, String tag) {
+                                    @Override
+                                    public void onClickNeutral(View v, String tag) {
 
-                            }
-                        });
-                alert.show(getSupportFragmentManager(), "alert");
-            }
-        } else {
-            if (resultQrCode.startsWith("contaNormal")) {
-                if (location != null) {
-                    saveRegistroEntrega(location.getLatitude(), location.getLongitude(), null);
+                                    }
+                                });
+                        alert.show(getSupportFragmentManager(), "alert");
+                    }
+                } else {
+                    if (resultQrCode.startsWith("contaNormal")) {
+                        if (location != null) {
+                            saveRegistroEntrega(location.getLatitude(), location.getLongitude(), null);
+                        }
+                    } else {
+                        JFSteelDialog alert = criarAlerta(mContext.getResources().getString(R.string.titulo_pedido_localizacao),
+                                mContext.getResources().getString(R.string.msg_falha_pegar_localizacao),
+                                JFSteelDialog.TipoAlertaEnum.ALERTA, true, new JFSteelDialog.OnClickDialog() {
+                                    @Override
+                                    public void onClickPositive(View v, String tag) {
+
+                                    }
+
+                                    @Override
+                                    public void onClickNegative(View v, String tag) {
+                                        saveRegistroEntrega(0d, 0d, tag);
+                                    }
+
+                                    @Override
+                                    public void onClickNeutral(View v, String tag) {
+
+                                    }
+                                });
+                        alert.show(getSupportFragmentManager(), "alert");
+                    }
                 }
-            } else {
-                JFSteelDialog alert = criarAlerta(mContext.getResources().getString(R.string.titulo_pedido_localizacao),
-                        mContext.getResources().getString(R.string.msg_falha_pegar_localizacao),
-                        JFSteelDialog.TipoAlertaEnum.ALERTA, true, new JFSteelDialog.OnClickDialog() {
-                            @Override
-                            public void onClickPositive(View v, String tag) {
-
-                            }
-
-                            @Override
-                            public void onClickNegative(View v, String tag) {
-                                saveRegistroEntrega(0d, 0d, tag);
-                            }
-
-                            @Override
-                            public void onClickNeutral(View v, String tag) {
-
-                            }
-                        });
-                alert.show(getSupportFragmentManager(), "alert");
             }
-        }
+        };
     }
 
     /**
-     *
      * @param latitude
      * @param longitude
      */
@@ -237,7 +246,6 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements MainActi
     }
 
     /**
-     *
      * @param bundle
      */
     private void startCameraActivity(Bundle bundle) {

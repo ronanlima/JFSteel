@@ -22,6 +22,8 @@ import com.markosullivan.wizards.wizard.ui.StepPagerStrip;
 import java.io.Serializable;
 import java.util.List;
 
+import br.com.home.jfsteelbase.CallbackWizard;
+
 public class MainActivityWizard extends FragmentActivity implements
         PageFragmentCallbacks,
         ReviewFragment.Callbacks,
@@ -29,7 +31,7 @@ public class MainActivityWizard extends FragmentActivity implements
     private ViewPager mPager;
     private MyPagerAdapter mPagerAdapter;
     private boolean mEditingAfterReview;
-    private AbstractWizardModel mWizardModel = new WizardContaNormal(this);
+    private AbstractWizardModel mWizardModel;// = new WizardContaNormal(this);
     private boolean mConsumePageSelectedEvent;
     private Button mNextButton;
     private Button mPrevButton;
@@ -38,13 +40,34 @@ public class MainActivityWizard extends FragmentActivity implements
     private List<ReviewItem> itensSelecteds;
     private CallbackWizard listenerCallback;
 
+    public static MainActivityWizard newInstance(CallbackWizard listener, String dadosQrCode) {
+        Bundle b = new Bundle();
+        b.putSerializable("listenerCallback", listener);
+        b.putString("dadosQrCode", dadosQrCode);
+
+        Intent i  = new Intent();
+        i.putExtras(b);
+
+        MainActivityWizard fragment = new MainActivityWizard();
+        fragment.setIntent(i);
+        return fragment;
+    }
+
     public MainActivityWizard(CallbackWizard listenerCallback) {
         this.listenerCallback = listenerCallback;
+    }
+
+    public MainActivityWizard() {
     }
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_wizard);
+
+//        listenerCallback = (CallbackWizard) getIntent().getSerializableExtra("listenerCallback");
+        if (getIntent().getStringExtra("dadosQrCode").split(";")[0].equals("contaNormal")) {
+            mWizardModel = new WizardContaNormal(this);
+        }
 
         if (savedInstanceState != null) {
             mWizardModel.load(savedInstanceState.getBundle("model"));
@@ -123,10 +146,6 @@ public class MainActivityWizard extends FragmentActivity implements
 
         onPageTreeChanged();
         updateBottomBar();
-    }
-
-    public interface CallbackWizard extends Serializable {
-        void backToMainApplication(Bundle bundle);
     }
 
     /**
