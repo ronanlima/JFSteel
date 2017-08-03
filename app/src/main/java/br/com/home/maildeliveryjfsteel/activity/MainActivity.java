@@ -7,6 +7,8 @@ import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Window;
 
+import com.airbnb.lottie.LottieAnimationView;
+
 import br.com.home.maildeliveryjfsteel.BuildConfig;
 import br.com.home.maildeliveryjfsteel.R;
 import br.com.home.maildeliveryjfsteel.async.FirebaseAsyncParam;
@@ -19,19 +21,29 @@ import br.com.home.maildeliveryjfsteel.persistence.impl.MailDeliveryDBContaNorma
 
 public class MainActivity extends AppCompatActivity {
 
+    private LottieAnimationView lottieAnimation;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
+//        setContentView(R.layout.activity_main);
+//
+//        lottieAnimation = new LottieAnimationView(this);
+//        lottieAnimation.setAnimation("mailsent.json");
+//        lottieAnimation.loop(true);
+//        lottieAnimation.playAnimation();
 
         if (!isMatriculaNotNull()) {
             DialogFragment dialog = MatriculaDialogFragment.newInstance(setListener());
             dialog.setCancelable(false);
+//            lottieAnimation.pauseAnimation();
             dialog.show(getSupportFragmentManager(), "dialogMatricula");
         } else {
             startActivity(new Intent(this, HandlerQrCodeActivity.class));
-            deleteDatabase(MailDeliverDBService.DB_NAME); // FIXME remover esta linha
+//            deleteDatabase(MailDeliverDBService.DB_NAME); // FIXME remover esta linha
             new SaveFirebaseAsync().execute(new FirebaseAsyncParam(new MailDeliveryDBContaNormal(this).findBySit(MailDeliverDBService.SIT_FALSE), new FirebaseContaNormalImpl(this)));
+//            lottieAnimation.pauseAnimation();
 //            new SaveFirebaseAsync().execute(new FirebaseAsyncParam(new MailDeliveryDBContaNormal(this).findBySit(MailDeliverDBService.SIT_FALSE), new FirebaseContaNormalImpl(this)));
 //            new SaveFirebaseAsync().execute(new FirebaseAsyncParam(new MailDeliveryDBContaNormal(this).findBySit(MailDeliverDBService.SIT_FALSE), new FirebaseContaNormalImpl(this)));
 //            startActivity(new Intent(this, CameraActivity.class));

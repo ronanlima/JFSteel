@@ -1,5 +1,6 @@
 package com.markosullivan.wizards;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -19,7 +20,6 @@ import com.markosullivan.wizards.wizard.ui.PageFragmentCallbacks;
 import com.markosullivan.wizards.wizard.ui.ReviewFragment;
 import com.markosullivan.wizards.wizard.ui.StepPagerStrip;
 
-import java.io.Serializable;
 import java.util.List;
 
 import br.com.home.jfsteelbase.CallbackWizard;
@@ -38,23 +38,18 @@ public class MainActivityWizard extends FragmentActivity implements
     private List<Page> mCurrentPageSequence;
     private StepPagerStrip mStepPagerStrip;
     private List<ReviewItem> itensSelecteds;
-    private CallbackWizard listenerCallback;
 
     public static MainActivityWizard newInstance(CallbackWizard listener, String dadosQrCode) {
         Bundle b = new Bundle();
         b.putSerializable("listenerCallback", listener);
         b.putString("dadosQrCode", dadosQrCode);
 
-        Intent i  = new Intent();
+        Intent i = new Intent();
         i.putExtras(b);
 
         MainActivityWizard fragment = new MainActivityWizard();
         fragment.setIntent(i);
         return fragment;
-    }
-
-    public MainActivityWizard(CallbackWizard listenerCallback) {
-        this.listenerCallback = listenerCallback;
     }
 
     public MainActivityWizard() {
@@ -64,7 +59,6 @@ public class MainActivityWizard extends FragmentActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_wizard);
 
-//        listenerCallback = (CallbackWizard) getIntent().getSerializableExtra("listenerCallback");
         if (getIntent().getStringExtra("dadosQrCode").split(";")[0].equals("contaNormal")) {
             mWizardModel = new WizardContaNormal(this);
         }
@@ -124,7 +118,10 @@ public class MainActivityWizard extends FragmentActivity implements
                         b.putBoolean("contaProtocolada", isContaProcotolada);
                         b.putBoolean("contaColetiva", isContaColetiva);
                         b.putString("localEntrega", getItensSelecteds().get(0).getDisplayValue());
-                        listenerCallback.backToMainApplication(b);
+                        Intent i = new Intent();
+                        i.putExtras(b);
+                        setResult(Activity.RESULT_OK, i);
+//                        listenerCallback.backToMainApplication(b);
                     }
                     finish();
                 } else {
@@ -146,6 +143,12 @@ public class MainActivityWizard extends FragmentActivity implements
 
         onPageTreeChanged();
         updateBottomBar();
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+//        listenerActionButton.backButtonListener(); TODO os listeners não estão chegando nesta Activity. Corrigir
     }
 
     /**

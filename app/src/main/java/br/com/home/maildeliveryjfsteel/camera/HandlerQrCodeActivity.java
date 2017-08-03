@@ -1,6 +1,7 @@
 package br.com.home.maildeliveryjfsteel.camera;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -25,7 +26,6 @@ import com.markosullivan.wizards.MainActivityWizard;
 import java.util.Arrays;
 import java.util.Date;
 
-import br.com.home.jfsteelbase.CallbackWizard;
 import br.com.home.maildeliveryjfsteel.R;
 import br.com.home.maildeliveryjfsteel.activity.CameraActivity;
 import br.com.home.maildeliveryjfsteel.fragment.JFSteelDialog;
@@ -35,7 +35,6 @@ import br.com.home.maildeliveryjfsteel.utils.PermissionUtils;
 
 import static br.com.home.maildeliveryjfsteel.utils.PermissionUtils.CAMERA_PERMISSION;
 import static br.com.home.maildeliveryjfsteel.utils.PermissionUtils.GPS_PERMISSION;
-import static br.com.home.maildeliveryjfsteel.utils.PermissionUtils.WRITE_EXTERNAL_STORAGE_PERMISSION;
 
 /**
  * Created by ronanlima on 17/05/17.
@@ -44,52 +43,61 @@ import static br.com.home.maildeliveryjfsteel.utils.PermissionUtils.WRITE_EXTERN
 public class HandlerQrCodeActivity extends AppCompatActivity implements
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
+    public static final int REQUEST_CODE_WIZARD = 999;
+
     private Context mContext = this;
     private IntentIntegrator intentIntegrator;
     private String resultQrCode;
     private GoogleApiClient apiClient;
     private Location location;
-    private MainActivityWizard mainWizard;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mainWizard = MainActivityWizard.newInstance(listenerTest(), resultQrCode);
-        intentIntegrator = new IntentIntegrator(HandlerQrCodeActivity.this);
-        intentIntegrator.setCaptureActivity(QrCodeActivity.class);
-        intentIntegrator.addExtra("SCAN_MODE", "QR_CODE_MODE");
-        intentIntegrator.addExtra("SCAN_WIDTH", 50);
-        intentIntegrator.addExtra("SCAN_HEIGHT", 75);
-        intentIntegrator.setDesiredBarcodeFormats(IntentIntegrator.QR_CODE_TYPES);
+        if (PermissionUtils.validate(this, CAMERA_PERMISSION, Manifest.permission.CAMERA, Manifest.permission.ACCESS_FINE_LOCATION)) {
+            initIntentIntegrator();
+            initApiClient();
+        }
+    }
+
+    /**
+     *
+     */
+    private void initIntentIntegrator() {
+        if (intentIntegrator == null) {
+            intentIntegrator = new IntentIntegrator(HandlerQrCodeActivity.this);
+            intentIntegrator.setCaptureActivity(QrCodeActivity.class);
+            intentIntegrator.addExtra("SCAN_MODE", "QR_CODE_MODE");
+            intentIntegrator.addExtra("SCAN_WIDTH", 50);
+            intentIntegrator.addExtra("SCAN_HEIGHT", 75);
+            intentIntegrator.setDesiredBarcodeFormats(IntentIntegrator.QR_CODE_TYPES);
+        }
+        intentIntegrator.initiateScan();
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == CAMERA_PERMISSION || requestCode == GPS_PERMISSION) {
-            if (!PermissionUtils.isPermissaoConcedida(grantResults)) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        criarAlerta(mContext.getResources().getString(R.string.titulo_alerta_permissoes), mContext.getResources().getString(R.string.msg_permissao), JFSteelDialog.TipoAlertaEnum.ALERTA, true, new JFSteelDialog.OnClickDialog() {
-                            @Override
-                            public void onClickPositive(View v, String tag) {
+        if (!PermissionUtils.isPermissaoConcedida(grantResults)) {
+            JFSteelDialog dialog = criarAlerta(mContext.getResources().getString(R.string.titulo_alerta_permissoes), mContext.getResources().getString(R.string.msg_permissao), JFSteelDialog.TipoAlertaEnum.ALERTA, false, new JFSteelDialog.OnClickDialog() {
+                @Override
+                public void onClickPositive(View v, String tag) {
 
-                            }
+                }
 
-                            @Override
-                            public void onClickNegative(View v, String tag) {
-                                finish();
-                            }
+                @Override
+                public void onClickNegative(View v, String tag) {
+                    finish();
+                }
 
-                            @Override
-                            public void onClickNeutral(View v, String tag) {
+                @Override
+                public void onClickNeutral(View v, String tag) {
 
-                            }
-                        });
-                    }
-                });
-            }
+                }
+            });
+            dialog.show(getSupportFragmentManager(), "dialog");
+        } else if (requestCode == CAMERA_PERMISSION) {
+            initIntentIntegrator();
         }
     }
 
@@ -127,16 +135,6 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        if (PermissionUtils.validate(this, CAMERA_PERMISSION, Manifest.permission.CAMERA)
-                && PermissionUtils.validate(this, WRITE_EXTERNAL_STORAGE_PERMISSION, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-            initApiClient();
-            intentIntegrator.initiateScan();
-        }
-    }
-
-    @Override
     protected void onStop() {
         super.onStop();
         if (apiClient != null) {
@@ -146,83 +144,85 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
-        if (result != null) {
-            if (result.getContents() == null) {
-                Toast.makeText(getApplicationContext(), getResources().getString(R.string.msg_falha_leitura_qrcode), Toast.LENGTH_LONG).show();
-            } else {
-                resultQrCode = result.getContents();
-                if (!resultQrCode.isEmpty()) {
-                    Toast.makeText(getApplicationContext(), resultQrCode, Toast.LENGTH_LONG).show();
-                    Log.d("HandlerQrCodeActivity", resultQrCode);
-
-                    Intent i = mainWizard.getIntent();
-//                    Intent i = new Intent(this, mainWizard.getClass());
-                    i.putExtra("dadosQrCode", resultQrCode);
-                    startActivity(i);
+        if (requestCode == REQUEST_CODE_WIZARD && resultCode == Activity.RESULT_CANCELED) {
+            Log.d("TAG", data.getData().toString());
+            continueProccess(data.getExtras());
+        } else {
+            IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
+            if (result != null) {
+                if (result.getContents() == null) {
+                    Toast.makeText(getApplicationContext(), getResources().getString(R.string.msg_falha_leitura_qrcode), Toast.LENGTH_LONG).show();
+                } else {
+                    resultQrCode = result.getContents();
+                    if (!resultQrCode.isEmpty()) {
+//                        Toast.makeText(getApplicationContext(), resultQrCode, Toast.LENGTH_LONG).show();
+                        Log.d("HandlerQrCodeActivity", resultQrCode);
+                        Intent i = new Intent(this, MainActivityWizard.class);
+                        i.putExtra("dadosQrCode", resultQrCode);
+                        startActivityForResult(i, 999);
+                    }
                 }
             }
         }
     }
 
-    private CallbackWizard listenerTest() {
-        return new CallbackWizard() {
-            @Override
-            public void backToMainApplication(final Bundle bundle) {
-                if (bundle.getBoolean("contaProtocolada") || bundle.getBoolean("contaColetiva")) {
-                    if (location != null) {
-                        startCameraActivity(bundle);
-                    } else {
-                        JFSteelDialog alert = criarAlerta(mContext.getResources().getString(R.string.titulo_pedido_localizacao),
-                                mContext.getResources().getString(R.string.msg_falha_pegar_localizacao),
-                                JFSteelDialog.TipoAlertaEnum.ALERTA, true, new JFSteelDialog.OnClickDialog() {
-                                    @Override
-                                    public void onClickPositive(View v, String tag) {
+    /**
+     * Continua o fluxo de registro de entrega, redirecionando para tirar foto ou já salvar na base.
+     * @param bundle
+     */
+    private void continueProccess(final Bundle bundle) {
+        if (bundle.getBoolean("contaProtocolada") || bundle.getBoolean("contaColetiva")) {
+            if (location != null) {
+                startCameraActivity(bundle);
+            } else {
+                JFSteelDialog alert = criarAlerta(mContext.getResources().getString(R.string.titulo_pedido_localizacao),
+                        mContext.getResources().getString(R.string.msg_falha_pegar_localizacao),
+                        JFSteelDialog.TipoAlertaEnum.ALERTA, true, new JFSteelDialog.OnClickDialog() {
+                            @Override
+                            public void onClickPositive(View v, String tag) {
 
-                                    }
+                            }
 
-                                    @Override
-                                    public void onClickNegative(View v, String tag) {
-                                        bundle.putString("enderecoManual", tag);
-                                        startCameraActivity(bundle);
-                                    }
+                            @Override
+                            public void onClickNegative(View v, String tag) {
+                                bundle.putString("enderecoManual", tag);
+                                startCameraActivity(bundle);
+                            }
 
-                                    @Override
-                                    public void onClickNeutral(View v, String tag) {
+                            @Override
+                            public void onClickNeutral(View v, String tag) {
 
-                                    }
-                                });
-                        alert.show(getSupportFragmentManager(), "alert");
-                    }
+                            }
+                        });
+                alert.show(getSupportFragmentManager(), "alert");
+            }
+        } else {
+            if (resultQrCode.startsWith("contaNormal")) {
+                if (location != null) {
+                    saveRegistroEntrega(location.getLatitude(), location.getLongitude(), null);
                 } else {
-                    if (resultQrCode.startsWith("contaNormal")) {
-                        if (location != null) {
-                            saveRegistroEntrega(location.getLatitude(), location.getLongitude(), null);
-                        }
-                    } else {
-                        JFSteelDialog alert = criarAlerta(mContext.getResources().getString(R.string.titulo_pedido_localizacao),
-                                mContext.getResources().getString(R.string.msg_falha_pegar_localizacao),
-                                JFSteelDialog.TipoAlertaEnum.ALERTA, true, new JFSteelDialog.OnClickDialog() {
-                                    @Override
-                                    public void onClickPositive(View v, String tag) {
+                    JFSteelDialog alert = criarAlerta(mContext.getResources().getString(R.string.titulo_pedido_localizacao),
+                            mContext.getResources().getString(R.string.msg_falha_pegar_localizacao),
+                            JFSteelDialog.TipoAlertaEnum.ALERTA, true, new JFSteelDialog.OnClickDialog() {
+                                @Override
+                                public void onClickPositive(View v, String tag) {
 
-                                    }
+                                }
 
-                                    @Override
-                                    public void onClickNegative(View v, String tag) {
-                                        saveRegistroEntrega(0d, 0d, tag);
-                                    }
+                                @Override
+                                public void onClickNegative(View v, String tag) {
+                                    saveRegistroEntrega(0d, 0d, tag);
+                                }
 
-                                    @Override
-                                    public void onClickNeutral(View v, String tag) {
+                                @Override
+                                public void onClickNeutral(View v, String tag) {
 
-                                    }
-                                });
-                        alert.show(getSupportFragmentManager(), "alert");
-                    }
+                                }
+                            });
+                    alert.show(getSupportFragmentManager(), "alert");
                 }
             }
-        };
+        }
     }
 
     /**

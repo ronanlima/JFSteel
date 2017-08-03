@@ -78,6 +78,8 @@ public class PermissionUtils {
         for (int i = 0; i < permissoes.length; i++) {
             if (permissoes[i] > PackageManager.PERMISSION_DENIED) {
                 isPermissaoConcedida = true;
+            } else {
+                isPermissaoConcedida = false;
             }
         }
         return isPermissaoConcedida;

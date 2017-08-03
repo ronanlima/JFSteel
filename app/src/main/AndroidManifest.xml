@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-sdk tools:overrideLibrary="
+        com.airbnb.lottie,
         com.markosullivan.wizards,
         com.google.firebase,
         com.google.firebase.firebase_core,
@@ -94,6 +95,12 @@
             android:windowSoftInputMode="stateHidden"
             android:screenOrientation="portrait"/>
         <activity android:name=".camera.HandlerQrCodeActivity"/>
+        <activity android:name=".test.GerenciaQrCodeTest">
+            <!--<intent-filter>-->
+                <!--<action android:name="android.intent.action.MAIN" />-->
+                <!--<category android:name="android.intent.category.LAUNCHER" />-->
+            <!--</intent-filter>-->
+        </activity>
         <activity android:name=".camera.QrCodeActivity"/>
     </application>
 

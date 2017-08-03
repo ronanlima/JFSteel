@@ -96,6 +96,18 @@ public class JFSteelDialog extends DialogFragment {
             @Override
             public void onClick(View v) {
 
+                if (tipoAlertaEnum == TipoAlertaEnum.ENTRADA_DADOS) {
+                    if (!getEnderecoEditText().getText().toString().isEmpty()) {
+                        onClickDialog.onClickNeutral(v, getEnderecoEditText().getText().toString());
+                        dismiss();
+                    } else {
+                        getEnderecoEditText().setHint(getResources().getString(R.string.hint_alert_endereco));
+                    }
+                } else {
+                    onClickDialog.onClickNeutral(v, getTag());
+                    dismiss();
+                }
+
                 if (onClickDialog != null) {
                     onClickDialog.onClickNegative(v, getTag());
                 }
@@ -116,18 +128,10 @@ public class JFSteelDialog extends DialogFragment {
         neutroButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 if (onClickDialog != null) {
-                    if (tipoAlertaEnum == TipoAlertaEnum.ENTRADA_DADOS) {
-                        if (!getEnderecoEditText().getText().toString().isEmpty()) {
-                            onClickDialog.onClickNeutral(v, getEnderecoEditText().getText().toString());
-                            dismiss();
-                        } else {
-                            getEnderecoEditText().setHint(getResources().getString(R.string.hint_alert_endereco));
-                        }
-                    } else {
-                        onClickDialog.onClickNeutral(v, getTag());
-                        dismiss();
-                    }
+                    onClickDialog.onClickNeutral(v, getTag());
+                    dismiss();
                 }
             }
         });
@@ -164,7 +168,7 @@ public class JFSteelDialog extends DialogFragment {
             }
             case ALERTA: {
                 alertaImageView.setImageResource(R.mipmap.ic_alert);
-                alertaImageView.setColorFilter(ContextCompat.getColor(getActivity().getBaseContext(), R.color.colorAlert));
+//                alertaImageView.setColorFilter(ContextCompat.getColor(getActivity().getBaseContext(), R.color.colorAlert));
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
                     tituloTextView.setBackground(ContextCompat.getDrawable(getActivity().getBaseContext(), R.color.colorAlert));
                 }
@@ -172,7 +176,7 @@ public class JFSteelDialog extends DialogFragment {
             }
             case EXPORTAR: {
                 alertaImageView.setImageResource(R.mipmap.ic_alert);
-                alertaImageView.setColorFilter(ContextCompat.getColor(getActivity().getBaseContext(), R.color.colorAlert));
+//                alertaImageView.setColorFilter(ContextCompat.getColor(getActivity().getBaseContext(), R.color.colorAlert));
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
                     tituloTextView.setBackground(ContextCompat.getDrawable(getActivity().getBaseContext(), R.color.colorAlert));
                 }
@@ -181,7 +185,7 @@ public class JFSteelDialog extends DialogFragment {
             }
             case INFORMACAO: {
                 alertaImageView.setImageResource(R.mipmap.ic_alert);
-                alertaImageView.setColorFilter(ContextCompat.getColor(getActivity().getBaseContext(), R.color.colorAlertInfo));
+//                alertaImageView.setColorFilter(ContextCompat.getColor(getActivity().getBaseContext(), R.color.colorAlertInfo));
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
                     tituloTextView.setBackground(ContextCompat.getDrawable(getActivity().getBaseContext(), R.color.colorAlertInfo));
                 }
@@ -189,7 +193,7 @@ public class JFSteelDialog extends DialogFragment {
             }
             case ERRO: {
                 alertaImageView.setImageResource(R.mipmap.ic_alert);
-                alertaImageView.setColorFilter(ContextCompat.getColor(getActivity().getBaseContext(), R.color.colorAlertErro));
+//                alertaImageView.setColorFilter(ContextCompat.getColor(getActivity().getBaseContext(), R.color.colorAlertErro));
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
                     tituloTextView.setBackground(ContextCompat.getDrawable(getActivity().getBaseContext(), R.color.colorAlertErro));
                 }
@@ -197,7 +201,7 @@ public class JFSteelDialog extends DialogFragment {
             }
             case ENTRADA_DADOS: {
                 alertaImageView.setImageResource(R.mipmap.ic_alert);
-                alertaImageView.setColorFilter(ContextCompat.getColor(getActivity().getBaseContext(), R.color.colorAlertErro));
+//                alertaImageView.setColorFilter(ContextCompat.getColor(getActivity().getBaseContext(), R.color.colorAlertErro));
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
                     tituloTextView.setBackground(ContextCompat.getDrawable(getActivity().getBaseContext(), R.color.colorAlertErro));
                 }
