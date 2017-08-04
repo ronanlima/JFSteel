@@ -2,9 +2,9 @@ package br.com.home.maildeliveryjfsteel.camera;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
 
+import com.journeyapps.barcodescanner.CaptureActivity;
 import com.journeyapps.barcodescanner.CaptureManager;
 import com.journeyapps.barcodescanner.CompoundBarcodeView;
 
@@ -14,7 +14,7 @@ import br.com.home.maildeliveryjfsteel.R;
  * Created by ronanlima on 16/05/17.
  */
 
-public class QrCodeActivity extends AppCompatActivity implements CompoundBarcodeView.TorchListener {
+public class QrCodeActivity extends CaptureActivity implements CompoundBarcodeView.TorchListener {
 
     private CaptureManager captureManager;
     private CompoundBarcodeView barcodeView;
@@ -47,6 +47,7 @@ public class QrCodeActivity extends AppCompatActivity implements CompoundBarcode
     protected void onDestroy() {
         super.onDestroy();
         captureManager.onDestroy();
+        finish();
     }
 
     @Override
@@ -57,8 +58,8 @@ public class QrCodeActivity extends AppCompatActivity implements CompoundBarcode
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
         captureManager.onSaveInstanceState(outState);
+        super.onSaveInstanceState(outState);
     }
 
     @Override
@@ -70,4 +71,5 @@ public class QrCodeActivity extends AppCompatActivity implements CompoundBarcode
     public void onTorchOff() {
 
     }
+
 }

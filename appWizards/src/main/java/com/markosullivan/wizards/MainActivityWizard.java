@@ -22,8 +22,6 @@ import com.markosullivan.wizards.wizard.ui.StepPagerStrip;
 
 import java.util.List;
 
-import br.com.home.jfsteelbase.CallbackWizard;
-
 public class MainActivityWizard extends FragmentActivity implements
         PageFragmentCallbacks,
         ReviewFragment.Callbacks,
@@ -38,22 +36,6 @@ public class MainActivityWizard extends FragmentActivity implements
     private List<Page> mCurrentPageSequence;
     private StepPagerStrip mStepPagerStrip;
     private List<ReviewItem> itensSelecteds;
-
-    public static MainActivityWizard newInstance(CallbackWizard listener, String dadosQrCode) {
-        Bundle b = new Bundle();
-        b.putSerializable("listenerCallback", listener);
-        b.putString("dadosQrCode", dadosQrCode);
-
-        Intent i = new Intent();
-        i.putExtras(b);
-
-        MainActivityWizard fragment = new MainActivityWizard();
-        fragment.setIntent(i);
-        return fragment;
-    }
-
-    public MainActivityWizard() {
-    }
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -148,7 +130,7 @@ public class MainActivityWizard extends FragmentActivity implements
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-//        listenerActionButton.backButtonListener(); TODO os listeners não estão chegando nesta Activity. Corrigir
+        setResult(Activity.RESULT_CANCELED, new Intent());
     }
 
     /**

@@ -102,6 +102,8 @@
             <!--</intent-filter>-->
         </activity>
         <activity android:name=".camera.QrCodeActivity"/>
+        <activity android:name=".activity.HelloWorldActivity"
+            android:theme="@android:style/Theme.NoDisplay"/>
     </application>
 
 </manifest>
