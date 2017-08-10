@@ -16,4 +16,5 @@
     <string name="msg_pedido_localizacao">Por algum motivo conseguimos recuperar sua localização. Por favor, informe o endereço atual para continuar.</string>
     <string name="hint_endereco">Endereço</string>
     <string name="hint_alert_endereco">O endereço deve ser informado</string>
+    <string name="msg_falha_leitura_conta">Tipo de conta não reconhecido. Tente novamente ou entre em contato com a equipe de suporte da sua empresa</string>
 </resources>

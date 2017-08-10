@@ -20,9 +20,13 @@ public interface MailDeliverDBService<T> {
 
     List<T> findByAgrupador(String table, String prefix);
 
+    List<T> findByQrCode(String table, String qrCode);
+
     List<T> findBySit(int situacao);
 
     List<T> toList(Cursor c);
 
     void execSql(String sql, Object[] args);
+
+    String getTable();
 }

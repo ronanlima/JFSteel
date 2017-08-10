@@ -13,6 +13,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -52,9 +53,12 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        setSupportActionBar(null);
 
         if (PermissionUtils.validate(this, CAMERA_PERMISSION, Manifest.permission.CAMERA, Manifest.permission.ACCESS_FINE_LOCATION)) {
             initIntentIntegrator();
+//            initIntegratorTest(); // FIXME a chamada à este método consegue ler o qrcode AZTEC
             initApiClient();
         }
     }
@@ -73,6 +77,27 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements
         }
         intentIntegrator.initiateScan();
     }
+
+//    private void initIntegratorTest() {
+//        final MaterialBarcodeScanner materialBarcodeScanner = new MaterialBarcodeScannerBuilder()
+//                .withActivity(HandlerQrCodeActivity.this)
+//                .withCenterTracker()
+//                .withEnableAutoFocus(true)
+//                .withBarcodeFormats(Barcode.AZTEC)
+//                .withBleepEnabled(true)
+//                .withBackfacingCamera()
+//                .withText("Procurando...")
+//                .withResultListener(new MaterialBarcodeScanner.OnResultListener() {
+//                    @Override
+//                    public void onResult(Barcode barcode) {
+//                        Log.d("HandlerQrCodeActivity", barcode.displayValue);
+////                        barcodeResult = barcode;
+////                        result.setText(barcode.rawValue);
+//                    }
+//                })
+//                .build();
+//        materialBarcodeScanner.startScan();
+//    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -117,7 +142,9 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements
 
     @Override
     protected void onDestroy() {
-        apiClient.unregisterConnectionCallbacks(this);
+        if (apiClient != null) {
+            apiClient.unregisterConnectionCallbacks(this);
+        }
         apiClient = null;
         intentIntegrator = null;
         super.onDestroy();
@@ -146,12 +173,15 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements
                 } else {
                     resultQrCode = result.getContents();
                     if (!resultQrCode.isEmpty()) {
-                        Toast.makeText(getApplicationContext(), resultQrCode, Toast.LENGTH_LONG).show();
-                        Log.d("HandlerQrCodeActivity", resultQrCode);
-                        Intent i = new Intent(this, MainActivityWizard.class);
-                        i.putExtra("dadosQrCode", resultQrCode);
-                        intentIntegrator = null;
-                        startActivityForResult(i, 999);
+                        if (resultQrCode.startsWith("contaNormal")) {
+                            iniciarFluxoContaNormal();
+                        } else if (resultQrCode.startsWith("notaServico")) {
+                            // TODO criar fluxo para esse tipo de nota
+                        } else if (resultQrCode.startsWith("noQrCode")) {
+                            // TODO criar fluxo para esse tipo de conta
+                        } else {
+                            Toast.makeText(getApplicationContext(), getResources().getString(R.string.msg_falha_leitura_conta), Toast.LENGTH_LONG).show();
+                        }
                     }
                 }
             } else {
@@ -159,6 +189,18 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements
                 super.onActivityResult(requestCode, resultCode, data);
             }
         }
+    }
+
+    /**
+     * Inicia o fluxo de leitura de conta normal
+     */
+    private void iniciarFluxoContaNormal() {
+        Toast.makeText(getApplicationContext(), resultQrCode, Toast.LENGTH_LONG).show();
+        Log.d("HandlerQrCodeActivity", resultQrCode);
+        Intent i = new Intent(this, MainActivityWizard.class);
+        i.putExtra("dadosQrCode", resultQrCode);
+        intentIntegrator = null;
+        startActivityForResult(i, 999);
     }
 
     @Override

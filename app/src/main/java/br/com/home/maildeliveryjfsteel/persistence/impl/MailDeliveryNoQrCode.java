@@ -12,41 +12,35 @@ import java.util.ArrayList;
 import java.util.List;
 
 import br.com.home.maildeliveryjfsteel.persistence.MailDeliverDBService;
-import br.com.home.maildeliveryjfsteel.persistence.dto.ContaNormal;
+import br.com.home.maildeliveryjfsteel.persistence.dto.NoQrCode;
 
 /**
- * Created by Ronan.lima on 27/07/17.
+ * Created by Ronan.lima on 10/08/17.
  */
 
-public class MailDeliveryDBContaNormal extends SQLiteOpenHelper implements MailDeliverDBService<ContaNormal> {
+public class MailDeliveryNoQrCode extends SQLiteOpenHelper implements MailDeliverDBService<NoQrCode> {
 
-    public static final String TAG = MailDeliveryDBContaNormal.class.getCanonicalName().toUpperCase();
-    public static final String TABLE_REGISTRO_ENTREGA = "registroEntrega";
+    public static final String TAG = MailDeliveryNoQrCode.class.getCanonicalName().toUpperCase();
+    public static final String TABLE_REGISTRO_ENTREGA = "noQrCode";
 
-    public MailDeliveryDBContaNormal(Context context) {
+    public MailDeliveryNoQrCode(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
     }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL("create table if not exists " + TABLE_REGISTRO_ENTREGA + " (_id integer primary key autoincrement," +
-                "dadosQrCode text, horaEntrega timestamp, prefixAgrupador text, idFoto text, latitude real, " +
-                "longitude real, uriFotoDisp text, urlStorageFoto text, enderecoManual text, sitSalvoFirebase integer)");
+                "medidor text, horaEntrega timestamp, endereco text, existeConta integer, latitude real, " +
+                "longitude real, comentario integer, enderecoManual text, sitSalvoFirebase integer)");
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int i, int i1) {
-        // TODO encontrar um jeito de excluir o arquivo sqlite criado até o momento, para não ter que tratar atualização em desenvolvimento sem ter subido nenhuma versão release ainda.
+
     }
 
-    /**
-     * Salva ou atualiza registro no banco de dados sqlite
-     *
-     * @param item
-     * @return
-     */
     @Override
-    public long save(ContaNormal item) {
+    public long save(NoQrCode item) {
         long id = 0;
         if (item.getId() != null) {
             id = item.getId();
@@ -55,16 +49,13 @@ public class MailDeliveryDBContaNormal extends SQLiteOpenHelper implements MailD
         SQLiteDatabase db = getWritableDatabase();
         try {
             ContentValues values = new ContentValues();
-            values.put("dadosQrCode", item.getDadosQrCode());
+            values.put("medidor", item.getMedidor());
             values.put("horaEntrega", item.getTimesTamp());
-            values.put("prefixAgrupador", item.getPrefixAgrupador());
-            String nomeFoto = item.getIdFoto().substring(0, item.getIdFoto().length() - 5);
-            values.put("idFoto", nomeFoto);
+            values.put("enderecoManual", item.getEnderecoManual());
             values.put("latitude", item.getLatitude());
             values.put("longitude", item.getLongitude());
-            values.put("uriFotoDisp", item.getUriFotoDisp());
-            values.put("urlStorageFoto", item.getUrlStorageFoto());
-            values.put("enderecoManual", item.getEnderecoManual());
+            values.put("existeConta", item.getExisteConta());
+            values.put("comentario", item.getComentario());
             values.put("sitSalvoFirebase", item.getSitSalvoFirebase());
             if (id != 0) {
                 String _id = String.valueOf(id);
@@ -88,7 +79,7 @@ public class MailDeliveryDBContaNormal extends SQLiteOpenHelper implements MailD
      * @return
      */
     @Override
-    public List<ContaNormal> findAll(String table) {
+    public List<NoQrCode> findAll(String table) {
         SQLiteDatabase db = getReadableDatabase();
 
         try {
@@ -110,7 +101,7 @@ public class MailDeliveryDBContaNormal extends SQLiteOpenHelper implements MailD
      * @return
      */
     @Override
-    public List<ContaNormal> findByAgrupador(String table, String prefix) {
+    public List<NoQrCode> findByAgrupador(String table, String prefix) {
         SQLiteDatabase db = getReadableDatabase();
 
         try {
@@ -132,7 +123,7 @@ public class MailDeliveryDBContaNormal extends SQLiteOpenHelper implements MailD
      * @return
      */
     @Override
-    public List<ContaNormal> findByQrCode(String table, String qrCode) {
+    public List<NoQrCode> findByQrCode(String table, String qrCode) {
         SQLiteDatabase db = getReadableDatabase();
 
         try {
@@ -152,7 +143,7 @@ public class MailDeliveryDBContaNormal extends SQLiteOpenHelper implements MailD
      * @return
      */
     @Override
-    public List<ContaNormal> findBySit(int situacao) {
+    public List<NoQrCode> findBySit(int situacao) {
         SQLiteDatabase db = getReadableDatabase();
 
         try {
@@ -173,21 +164,20 @@ public class MailDeliveryDBContaNormal extends SQLiteOpenHelper implements MailD
      * @return
      */
     @Override
-    public List<ContaNormal> toList(Cursor c) {
-        List<ContaNormal> list = new ArrayList<>();
+    public List<NoQrCode> toList(Cursor c) {
+        List<NoQrCode> list = new ArrayList<>();
         if (c.moveToFirst()) {
             do {
-                ContaNormal r = new ContaNormal();
+                NoQrCode r = new NoQrCode();
                 r.setId(c.getLong(c.getColumnIndex("_id")));
-                r.setDadosQrCode(c.getString(c.getColumnIndex("dadosQrCode")));
                 r.setTimesTamp(c.getLong(c.getColumnIndex("horaEntrega")));
                 r.setPrefixAgrupador(c.getString(c.getColumnIndex("prefixAgrupador")));
-                r.setIdFoto(c.getString(c.getColumnIndex("idFoto")));
                 r.setLatitude(c.getDouble(c.getColumnIndex("latitude")));
                 r.setLongitude(c.getDouble(c.getColumnIndex("longitude")));
-                r.setUriFotoDisp(c.getString(c.getColumnIndex("uriFotoDisp")));
-                r.setUrlStorageFoto(c.getString(c.getColumnIndex("urlStorageFoto")));
                 r.setEnderecoManual(c.getString(c.getColumnIndex("enderecoManual")));
+                r.setExisteConta(c.getInt(c.getColumnIndex("existeConta")));
+                r.setMedidor(c.getString(c.getColumnIndex("medidor")));
+                r.setComentario(c.getString(c.getColumnIndex("comentario")));
                 r.setSitSalvoFirebase(c.getType(c.getColumnIndex("sitSalvoFirebase")));
                 list.add(r);
             } while (c.moveToNext());

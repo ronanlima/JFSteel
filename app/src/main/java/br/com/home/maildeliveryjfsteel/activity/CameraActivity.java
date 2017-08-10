@@ -4,8 +4,6 @@ import android.Manifest;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
 import android.hardware.Camera;
 import android.os.Bundle;
@@ -20,8 +18,6 @@ import android.view.Window;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -33,9 +29,12 @@ import java.util.List;
 import br.com.home.maildeliveryjfsteel.BuildConfig;
 import br.com.home.maildeliveryjfsteel.CameraPreview;
 import br.com.home.maildeliveryjfsteel.R;
+import br.com.home.maildeliveryjfsteel.firebase.impl.FirebaseContaNormalImpl;
 import br.com.home.maildeliveryjfsteel.persistence.MailDeliverDBService;
 import br.com.home.maildeliveryjfsteel.persistence.dto.ContaNormal;
 import br.com.home.maildeliveryjfsteel.persistence.impl.MailDeliveryDBContaNormal;
+import br.com.home.maildeliveryjfsteel.persistence.impl.MailDeliveryDBNotaServico;
+import br.com.home.maildeliveryjfsteel.persistence.impl.MailDeliveryNoQrCode;
 import br.com.home.maildeliveryjfsteel.utils.PermissionUtils;
 import br.com.home.maildeliveryjfsteel.view.CameraImageView;
 
@@ -56,19 +55,27 @@ public class CameraActivity extends AppCompatActivity {
     private Context mContext = this;
     private Camera camera;
     private CameraPreview cameraPreview;
-    private ImageView btnPhoto;
+    private ImageView btnPhoto, btnFinalizarCaptura;
     private CameraImageView btnFlash;
     private Camera.PictureCallback pictureCallback;
-    private MailDeliveryDBContaNormal db;
+    private MailDeliverDBService db;
+    private int countPhoto = 0;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
         setContentView(R.layout.activity_camera);
-        db = new MailDeliveryDBContaNormal(this);
+        if (getIntent().getExtras() != null && getIntent().getStringExtra("dadosQrCode").startsWith("contaNormal")) {
+            db = new MailDeliveryDBContaNormal(this);
+        } else if (getIntent().getExtras() != null && getIntent().getStringExtra("dadosQrCode").startsWith("notaServico")) {
+            db = new MailDeliveryDBNotaServico(this);
+        } else {
+            db = new MailDeliveryNoQrCode(this);
+        }
 
         btnPhoto = (ImageView) findViewById(R.id.btn_capturar_foto);
+        btnFinalizarCaptura = (ImageView) findViewById(R.id.btn_finalizar_captura);
         btnFlash = (CameraImageView) findViewById(R.id.btn_flash);
     }
 
@@ -127,6 +134,15 @@ public class CameraActivity extends AppCompatActivity {
                 }
             });
             initPictureCallback();
+            btnFinalizarCaptura.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (countPhoto != 0) {
+                        new FirebaseContaNormalImpl(CameraActivity.this).save(
+                                db.findByQrCode(db.getTable(), getIntent().getStringExtra("dadosQrCode")));
+                    }
+                }
+            });
         } else {
             cameraPreview.setmCamera(camera);
             cameraPreview.initHolder();
@@ -157,6 +173,7 @@ public class CameraActivity extends AppCompatActivity {
                         FileOutputStream fos = new FileOutputStream(pictureFile);
                         fos.write(data);
                         fos.close();
+                        countPhoto++;
                     } catch (FileNotFoundException e) {
                         Log.e(TAG, "Arquivo não encontrado: " + e.getMessage());
                     } catch (IOException e) {
@@ -184,24 +201,28 @@ public class CameraActivity extends AppCompatActivity {
     }
 
     private void saveIntoSqlite(File file, long dateTime) {
-        Bitmap bitmap = BitmapFactory.decodeFile(file.toURI().getPath());
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-        byte[] data = baos.toByteArray();
-        ByteArrayInputStream in = new ByteArrayInputStream(data);
+        /** A conversão para bitmap abaixo está sendo usada aqui somente para efeito de testes. */
+//        Bitmap bitmap = BitmapFactory.decodeFile(file.toURI().getPath());
+//        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+//        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+//        byte[] data = baos.toByteArray();
+//        ByteArrayInputStream in = new ByteArrayInputStream(data);
 
         ContaNormal r = new ContaNormal();
         r.setUriFotoDisp(file.getAbsolutePath());
         r.setIdFoto(file.getName());
         r.setTimesTamp(dateTime);
         r.setPrefixAgrupador("prefixo_qrcode");
-        r.setDadosQrCode("dados do qrcode");
+        r.setDadosQrCode(getIntent().getStringExtra("dadosQrCode"));
+        if (getIntent().getDoubleExtra("latitude", 0d) != 0d) {
+            r.setLatitude(getIntent().getDoubleExtra("latitude", 0d));
+            r.setLongitude(getIntent().getDoubleExtra("longitude", 0d));
+        } else {
+            r.setEnderecoManual(getIntent().getStringExtra("enderecoManual"));
+        }
         r.setSitSalvoFirebase(0);
-        deleteDatabase(MailDeliverDBService.DB_NAME);
-//        db.findAll(MailDeliveryDBContaNormal.TABLE_REGISTRO_ENTREGA);
-//        db.findByAgrupador(MailDeliveryDBContaNormal.TABLE_REGISTRO_ENTREGA, "prefixo_qrcode");
+//        deleteDatabase(MailDeliverDBService.DB_NAME);
         db.save(r);
-//        new FirebaseContaNormalImpl(this).save(db.findAll(db.TABLE_REGISTRO_ENTREGA));
     }
 
     /**

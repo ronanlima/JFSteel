@@ -6,8 +6,7 @@ package br.com.home.maildeliveryjfsteel.persistence.dto;
 
 public class NoQrCode extends GenericDelivery {
     private String medidor;
-    private String endereco;
-    private boolean existeConta;
+    private int existeConta;
     private String comentario;
 
     public NoQrCode() {
@@ -21,19 +20,11 @@ public class NoQrCode extends GenericDelivery {
         this.medidor = medidor;
     }
 
-    public String getEndereco() {
-        return endereco;
-    }
-
-    public void setEndereco(String endereco) {
-        this.endereco = endereco;
-    }
-
-    public boolean isExisteConta() {
+    public int getExisteConta() {
         return existeConta;
     }
 
-    public void setExisteConta(boolean existeConta) {
+    public void setExisteConta(int existeConta) {
         this.existeConta = existeConta;
     }
 

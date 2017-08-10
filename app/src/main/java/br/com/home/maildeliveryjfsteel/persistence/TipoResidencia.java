@@ -15,6 +15,21 @@ public enum TipoResidencia {
         this.desc = desc;
     }
 
+    /**
+     * Retorna o tipo de residencia de acordo com o index recuperado do arquivo sqlite
+     *
+     * @param index
+     * @return
+     */
+    public static TipoResidencia getByIndex(int index) {
+        for (TipoResidencia r : values()) {
+            if (index == r.getId()) {
+                return r;
+            }
+        }
+        return RESIDENCIAL;
+    }
+
     public Integer getId() {
         return id;
     }

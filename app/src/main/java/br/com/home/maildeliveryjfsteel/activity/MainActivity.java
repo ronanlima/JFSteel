@@ -27,7 +27,6 @@ public class MainActivity extends AppCompatActivity {
         if (!isMatriculaNotNull()) {
             DialogFragment dialog = MatriculaDialogFragment.newInstance(setListener());
             dialog.setCancelable(false);
-//            lottieAnimation.pauseAnimation();
             dialog.show(getSupportFragmentManager(), "dialogMatricula");
         } else {
             startActivity(new Intent(this, HandlerQrCodeActivity.class));

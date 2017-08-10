@@ -9,7 +9,7 @@ import br.com.home.maildeliveryjfsteel.persistence.TipoResidencia;
 public class Nota extends GenericDelivery {
     private String leitura;
     private String medidorVisivel;
-    private boolean medidorExterno;
+    private int medidorExterno;
     private TipoResidencia tipoResidencia;
 
     public Nota() {
@@ -31,11 +31,11 @@ public class Nota extends GenericDelivery {
         this.medidorVisivel = medidorVisivel;
     }
 
-    public boolean isMedidorExterno() {
+    public int getMedidorExterno() {
         return medidorExterno;
     }
 
-    public void setMedidorExterno(boolean medidorExterno) {
+    public void setMedidorExterno(int medidorExterno) {
         this.medidorExterno = medidorExterno;
     }
 
