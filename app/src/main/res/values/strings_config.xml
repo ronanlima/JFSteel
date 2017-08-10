@@ -22,7 +22,7 @@
     <string name="sit_salvo_firebase" translatable="false">sitSalvoFirebase</string>
 
     <string name="leitura" translatable="false">leitura</string>
-    <string name="medidor_visivel" translatable="false">medidorVisivel</string>
+    <string name="medidor_vizinho" translatable="false">medidorVizinho</string>
     <string name="medidor_externo" translatable="false">medidorExterno</string>
     <string name="tipo_residencia" translatable="false">tipoResidencia</string>
 

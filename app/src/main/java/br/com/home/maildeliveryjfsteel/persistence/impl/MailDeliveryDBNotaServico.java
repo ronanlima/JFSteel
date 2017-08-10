@@ -45,7 +45,7 @@ public class MailDeliveryDBNotaServico extends SQLiteOpenHelper implements MailD
         builder.append(mContext.getResources().getString(R.string.url_storage_foto)).append(" text, ");
         builder.append(mContext.getResources().getString(R.string.endereco_manual)).append(" text, ");
         builder.append(mContext.getResources().getString(R.string.leitura)).append(" text, ");
-        builder.append(mContext.getResources().getString(R.string.medidor_visivel)).append(" text, ");
+        builder.append(mContext.getResources().getString(R.string.medidor_vizinho)).append(" text, ");
         builder.append(mContext.getResources().getString(R.string.medidor_externo)).append(" integer, ");
         builder.append(mContext.getResources().getString(R.string.tipo_residencia)).append(" integer, ");
         builder.append(mContext.getResources().getString(R.string.sit_salvo_firebase)).append(" integer)");
@@ -84,7 +84,7 @@ public class MailDeliveryDBNotaServico extends SQLiteOpenHelper implements MailD
             values.put(mContext.getResources().getString(R.string.url_storage_foto), item.getUrlStorageFoto());
             values.put(mContext.getResources().getString(R.string.endereco_manual), item.getEnderecoManual());
             values.put(mContext.getResources().getString(R.string.leitura), item.getLeitura());
-            values.put(mContext.getResources().getString(R.string.medidor_visivel), item.getMedidorVisivel());
+            values.put(mContext.getResources().getString(R.string.medidor_vizinho), item.getMedidorVisivel());
             values.put(mContext.getResources().getString(R.string.medidor_externo), item.getMedidorExterno());
             values.put(mContext.getResources().getString(R.string.tipo_residencia), item.getTipoResidencia().ordinal());
             values.put(mContext.getResources().getString(R.string.sit_salvo_firebase), item.getSitSalvoFirebase());
@@ -212,7 +212,7 @@ public class MailDeliveryDBNotaServico extends SQLiteOpenHelper implements MailD
                 r.setUrlStorageFoto(c.getString(c.getColumnIndex(mContext.getResources().getString(R.string.url_storage_foto))));
                 r.setEnderecoManual(c.getString(c.getColumnIndex(mContext.getResources().getString(R.string.endereco_manual))));
                 r.setLeitura(c.getString(c.getColumnIndex(mContext.getResources().getString(R.string.leitura))));
-                r.setMedidorVisivel(c.getString(c.getColumnIndex(mContext.getResources().getString(R.string.medidor_visivel))));
+                r.setMedidorVisivel(c.getString(c.getColumnIndex(mContext.getResources().getString(R.string.medidor_vizinho))));
                 r.setMedidorExterno(c.getInt(c.getColumnIndex(mContext.getResources().getString(R.string.medidor_externo))));
                 r.setTipoResidencia(TipoResidencia.getByIndex(c.getInt(c.getColumnIndex(mContext.getResources().getString(R.string.tipo_residencia)))));
                 r.setSitSalvoFirebase(c.getType(c.getColumnIndex(mContext.getResources().getString(R.string.sit_salvo_firebase))));

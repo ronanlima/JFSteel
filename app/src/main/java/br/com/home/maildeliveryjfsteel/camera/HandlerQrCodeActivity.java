@@ -20,17 +20,22 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationServices;
-import com.google.zxing.integration.android.IntentIntegrator;
-import com.google.zxing.integration.android.IntentResult;
+//import com.google.zxing.integration.android.IntentIntegrator;
+//import com.google.zxing.integration.android.IntentResult;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.Result;
 import com.markosullivan.wizards.MainActivityWizard;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import br.com.home.maildeliveryjfsteel.R;
 import br.com.home.maildeliveryjfsteel.activity.HelloWorldActivity;
 import br.com.home.maildeliveryjfsteel.fragment.JFSteelDialog;
 import br.com.home.maildeliveryjfsteel.utils.AlertUtils;
 import br.com.home.maildeliveryjfsteel.utils.PermissionUtils;
+import me.dm7.barcodescanner.zxing.ZXingScannerView;
 
 import static br.com.home.maildeliveryjfsteel.utils.PermissionUtils.CAMERA_PERMISSION;
 import static br.com.home.maildeliveryjfsteel.utils.PermissionUtils.GPS_PERMISSION;
@@ -40,12 +45,14 @@ import static br.com.home.maildeliveryjfsteel.utils.PermissionUtils.GPS_PERMISSI
  */
 
 public class HandlerQrCodeActivity extends AppCompatActivity implements
-        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
+        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener,
+        ZXingScannerView.ResultHandler {
 
     public static final int REQUEST_CODE_WIZARD = 999;
 
     private Context mContext = this;
-    private IntentIntegrator intentIntegrator;
+//    private IntentIntegrator intentIntegrator;
+    private ZXingScannerView scannerView;
     private String resultQrCode;
     private GoogleApiClient apiClient;
     private Location location;
@@ -54,50 +61,47 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-        setSupportActionBar(null);
 
         if (PermissionUtils.validate(this, CAMERA_PERMISSION, Manifest.permission.CAMERA, Manifest.permission.ACCESS_FINE_LOCATION)) {
-            initIntentIntegrator();
+//            initIntentIntegrator();
 //            initIntegratorTest(); // FIXME a chamada à este método consegue ler o qrcode AZTEC
+            initScanner();
             initApiClient();
         }
     }
 
-    /**
-     * Inicia a leitura do qr code
-     */
-    private void initIntentIntegrator() {
-        if (intentIntegrator == null) {
-            intentIntegrator = new IntentIntegrator(HandlerQrCodeActivity.this);
-            intentIntegrator.setCaptureActivity(QrCodeActivity.class);
-            intentIntegrator.addExtra("SCAN_MODE", "QR_CODE_MODE");
-            intentIntegrator.addExtra("SCAN_WIDTH", 50);
-            intentIntegrator.addExtra("SCAN_HEIGHT", 75);
-            intentIntegrator.setDesiredBarcodeFormats(IntentIntegrator.QR_CODE_TYPES);
+    @Override
+    public void handleResult(Result result) {
+        if (result != null) {
+            resultQrCode = result.getText();
+            Log.d("HandlerQrCodeActivity", resultQrCode);
+            if (resultQrCode != null && !resultQrCode.isEmpty()) {
+                iniciarFluxoWizard();
+                /** FIXME Enquanto não especificarem como reconhcer os tipos de conta, manter o bloco comentado
+                if (resultQrCode.startsWith(getResources().getString(R.string.tipo_conta_normal))
+                        || resultQrCode.startsWith(getResources().getString(R.string.tipo_conta_nota))) {
+                    iniciarFluxoWizard();
+                } else if (resultQrCode.startsWith(getResources().getString(R.string.tipo_conta_no_qrcode))) {
+                    // TODO criar fluxo para esse tipo de conta
+                } else {
+                    Toast.makeText(getApplicationContext(), getResources().getString(R.string.msg_falha_leitura_conta), Toast.LENGTH_LONG).show();
+                }
+                 */
+            }
+        } else {
+            Toast.makeText(getApplicationContext(), getResources().getString(R.string.msg_falha_leitura_qrcode), Toast.LENGTH_LONG).show();
         }
-        intentIntegrator.initiateScan();
     }
 
-//    private void initIntegratorTest() {
-//        final MaterialBarcodeScanner materialBarcodeScanner = new MaterialBarcodeScannerBuilder()
-//                .withActivity(HandlerQrCodeActivity.this)
-//                .withCenterTracker()
-//                .withEnableAutoFocus(true)
-//                .withBarcodeFormats(Barcode.AZTEC)
-//                .withBleepEnabled(true)
-//                .withBackfacingCamera()
-//                .withText("Procurando...")
-//                .withResultListener(new MaterialBarcodeScanner.OnResultListener() {
-//                    @Override
-//                    public void onResult(Barcode barcode) {
-//                        Log.d("HandlerQrCodeActivity", barcode.displayValue);
-////                        barcodeResult = barcode;
-////                        result.setText(barcode.rawValue);
-//                    }
-//                })
-//                .build();
-//        materialBarcodeScanner.startScan();
-//    }
+    private void initScanner() {
+        if (scannerView == null) {
+            scannerView = new ZXingScannerView(this);
+            List<BarcodeFormat> formatList = new ArrayList<>();
+            formatList.add(BarcodeFormat.AZTEC);
+            scannerView.setFormats(formatList);
+            setContentView(scannerView);
+        }
+    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -119,9 +123,9 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements
                 }
             });
             dialog.show(getSupportFragmentManager(), "dialog");
-        } else if (requestCode == CAMERA_PERMISSION) {
+        } /**else if (requestCode == CAMERA_PERMISSION) {
             initIntentIntegrator();
-        }
+        }*/
     }
 
     @Override
@@ -146,7 +150,7 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements
             apiClient.unregisterConnectionCallbacks(this);
         }
         apiClient = null;
-        intentIntegrator = null;
+//        intentIntegrator = null;
         super.onDestroy();
     }
 
@@ -167,7 +171,7 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements
             startActivity(data);
         } else if (Activity.RESULT_CANCELED == resultCode) {
             onBackPressed();
-        } else {
+        } /**else {
             IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
             if (result != null) {
                 if (result.getContents() == null) {
@@ -176,7 +180,7 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements
                     resultQrCode = result.getContents();
                     if (!resultQrCode.isEmpty()) {
                         if (resultQrCode.startsWith(getResources().getString(R.string.tipo_conta_normal))) {
-                            iniciarFluxoContaNormal();
+                            iniciarFluxoWizard();
                         } else if (resultQrCode.startsWith(getResources().getString(R.string.tipo_conta_nota))) {
                             // TODO criar fluxo para esse tipo de nota
                         } else if (resultQrCode.startsWith(getResources().getString(R.string.tipo_conta_no_qrcode))) {
@@ -190,24 +194,31 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements
                 // This is important, otherwise the result will not be passed to the fragment
                 super.onActivityResult(requestCode, resultCode, data);
             }
-        }
+        }*/
     }
 
     /**
      * Inicia o fluxo de leitura de conta normal
      */
-    private void iniciarFluxoContaNormal() {
+    private void iniciarFluxoWizard() {
         Toast.makeText(getApplicationContext(), resultQrCode, Toast.LENGTH_LONG).show();
         Log.d("HandlerQrCodeActivity", resultQrCode);
         Intent i = new Intent(this, MainActivityWizard.class);
         i.putExtra(getResources().getString(R.string.dados_qr_code), resultQrCode);
-        intentIntegrator = null;
+//        intentIntegrator = null;
         startActivityForResult(i, 999);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+
+        if (scannerView != null && PermissionUtils.validate(this, CAMERA_PERMISSION, Manifest.permission.CAMERA)) {
+            scannerView.setResultHandler(this);
+            scannerView.startCamera();
+        } else {
+            setContentView(0); //FIXME criar layout de falha na concessão de permissão
+        }
 //        if (intentIntegrator == null && qrCodeRead) {
 //            initIntentIntegrator();
 //            qrCodeRead = false;

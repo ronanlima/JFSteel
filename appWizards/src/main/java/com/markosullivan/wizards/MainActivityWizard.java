@@ -41,9 +41,11 @@ public class MainActivityWizard extends FragmentActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_wizard);
 
-        if (getIntent().getStringExtra(getResources().getString(R.string.dadosQrCode)).split(";")[0].equals(getResources().getString(R.string.tipo_conta_normal))) {
-            mWizardModel = new WizardContaNormal(this);
-        }
+        mWizardModel = new WizardNotaServico(this);
+        //FIXME descomentar bloco abaixo
+//        if (getIntent().getStringExtra(getResources().getString(R.string.dados_qr_code)).split(";")[0].equals(getResources().getString(R.string.tipo_conta_normal))) {
+//            mWizardModel = new WizardContaNormal(this);
+//        }
 
         if (savedInstanceState != null) {
             mWizardModel.load(savedInstanceState.getBundle("model"));
