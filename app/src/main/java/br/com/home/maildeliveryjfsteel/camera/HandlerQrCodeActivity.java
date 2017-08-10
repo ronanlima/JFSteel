@@ -153,14 +153,16 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_CODE_WIZARD && resultCode == Activity.RESULT_OK) {
+            String strLatitude = getResources().getString(R.string.latitude);
+            String strLongitude = getResources().getString(R.string.longitude);
             if (location != null) {
-                data.putExtra("latitude", location.getLatitude());
-                data.putExtra("longitude", location.getLongitude());
+                data.putExtra(strLatitude, location.getLatitude());
+                data.putExtra(strLongitude, location.getLongitude());
             } else {
-                data.putExtra("latitude", 0d);
-                data.putExtra("longitude", 0d);
+                data.putExtra(strLatitude, 0d);
+                data.putExtra(strLongitude, 0d);
             }
-            data.putExtra("dadosQrCode", resultQrCode);
+            data.putExtra(getResources().getString(R.string.dadosQrCode), resultQrCode);
             data.setClass(this, HelloWorldActivity.class);
             startActivity(data);
         } else if (Activity.RESULT_CANCELED == resultCode) {
@@ -173,11 +175,11 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements
                 } else {
                     resultQrCode = result.getContents();
                     if (!resultQrCode.isEmpty()) {
-                        if (resultQrCode.startsWith("contaNormal")) {
+                        if (resultQrCode.startsWith(getResources().getString(R.string.tipo_conta_normal))) {
                             iniciarFluxoContaNormal();
-                        } else if (resultQrCode.startsWith("notaServico")) {
+                        } else if (resultQrCode.startsWith(getResources().getString(R.string.tipo_conta_nota))) {
                             // TODO criar fluxo para esse tipo de nota
-                        } else if (resultQrCode.startsWith("noQrCode")) {
+                        } else if (resultQrCode.startsWith(getResources().getString(R.string.tipo_conta_no_qrcode))) {
                             // TODO criar fluxo para esse tipo de conta
                         } else {
                             Toast.makeText(getApplicationContext(), getResources().getString(R.string.msg_falha_leitura_conta), Toast.LENGTH_LONG).show();
@@ -198,7 +200,7 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements
         Toast.makeText(getApplicationContext(), resultQrCode, Toast.LENGTH_LONG).show();
         Log.d("HandlerQrCodeActivity", resultQrCode);
         Intent i = new Intent(this, MainActivityWizard.class);
-        i.putExtra("dadosQrCode", resultQrCode);
+        i.putExtra(getResources().getString(R.string.dadosQrCode), resultQrCode);
         intentIntegrator = null;
         startActivityForResult(i, 999);
     }

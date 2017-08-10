@@ -1,11 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Gerado do SHA1: FF:9C:3B:73:54:E2:60:3E:E5:52:21:B1:9A:60:1B:85:2E:1D:64:BA -->
-    <string name="API_KEY">AIzaSyDqJgJgT5RBPfmhAhiEcepVFTw5rs7Ou3U</string>
+    <string name="API_KEY" translatable="false">AIzaSyDqJgJgT5RBPfmhAhiEcepVFTw5rs7Ou3U</string>
     <string name="sp_matricula" translatable="false">matricula</string>
     <string name="firebase_no_contas" translatable="false">contas</string>
     <string name="firebase_no_notas" translatable="false">notas</string>
     <string name="firebase_no_noqrcode" translatable="false">noqrcode</string>
 
     <string name="firebase_storage_conta" translatable="false">images/contas/</string>
+
+    <!-- campos firebase -->
+    <string name="dadosQrCode" translatable="false">dadosQrCode</string>
+    <string name="horaEntrega" translatable="false">horaEntrega</string>
+    <string name="prefixAgrupador" translatable="false">prefixAgrupador</string>
+    <string name="idFoto" translatable="false">idFoto</string>
+    <string name="latitude" translatable="false">latitude</string>
+    <string name="longitude" translatable="false">longitude</string>
+    <string name="uriFotoDisp" translatable="false">uriFotoDisp</string>
+    <string name="urlStorageFoto" translatable="false">urlStorageFoto</string>
+    <string name="enderecoManual" translatable="false">enderecoManual</string>
+    <string name="sitSalvoFirebase" translatable="false">sitSalvoFirebase</string>
+
+    <string name="leitura" translatable="false">leitura</string>
+    <string name="medidorVisivel" translatable="false">medidorVisivel</string>
+    <string name="medidorExterno" translatable="false">medidorExterno</string>
+    <string name="tipoResidencia" translatable="false">tipoResidencia</string>
+
+    <string name="medidor" translatable="false">medidor</string>
+    <string name="existeConta" translatable="false">existeConta</string>
+    <string name="comentario" translatable="false">comentario</string>
+
+    <string name="tipo_conta_normal" translatable="false">contaNormal</string>
+    <string name="tipo_conta_nota" translatable="false">notaServico</string>
+    <string name="tipo_conta_no_qrcode" translatable="false">noQrCode</string>
 </resources>

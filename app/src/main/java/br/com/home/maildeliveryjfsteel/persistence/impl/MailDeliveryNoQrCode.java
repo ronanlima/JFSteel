@@ -30,8 +30,8 @@ public class MailDeliveryNoQrCode extends SQLiteOpenHelper implements MailDelive
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL("create table if not exists " + TABLE_REGISTRO_ENTREGA + " (_id integer primary key autoincrement," +
-                "medidor text, horaEntrega timestamp, endereco text, existeConta integer, latitude real, " +
-                "longitude real, comentario integer, enderecoManual text, sitSalvoFirebase integer)");
+                "medidor text, horaEntrega timestamp, enderecoManual text, existeConta integer, latitude real, " +
+                "longitude real, comentario text, sitSalvoFirebase integer)");
     }
 
     @Override

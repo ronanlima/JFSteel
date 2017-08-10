@@ -66,9 +66,9 @@ public class CameraActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
         setContentView(R.layout.activity_camera);
-        if (getIntent().getExtras() != null && getIntent().getStringExtra("dadosQrCode").startsWith("contaNormal")) {
+        if (getIntent().getExtras() != null && getIntent().getStringExtra(getResources().getString(R.string.dadosQrCode)).startsWith(getResources().getString(R.string.tipo_conta_normal))) {
             db = new MailDeliveryDBContaNormal(this);
-        } else if (getIntent().getExtras() != null && getIntent().getStringExtra("dadosQrCode").startsWith("notaServico")) {
+        } else if (getIntent().getExtras() != null && getIntent().getStringExtra(getResources().getString(R.string.dadosQrCode)).startsWith(getResources().getString(R.string.tipo_conta_nota))) {
             db = new MailDeliveryDBNotaServico(this);
         } else {
             db = new MailDeliveryNoQrCode(this);
@@ -139,7 +139,7 @@ public class CameraActivity extends AppCompatActivity {
                 public void onClick(View view) {
                     if (countPhoto != 0) {
                         new FirebaseContaNormalImpl(CameraActivity.this).save(
-                                db.findByQrCode(db.getTable(), getIntent().getStringExtra("dadosQrCode")));
+                                db.findByQrCode(db.getTable(), getIntent().getStringExtra(getResources().getString(R.string.dadosQrCode))));
                     }
                 }
             });
@@ -212,13 +212,13 @@ public class CameraActivity extends AppCompatActivity {
         r.setUriFotoDisp(file.getAbsolutePath());
         r.setIdFoto(file.getName());
         r.setTimesTamp(dateTime);
-        r.setPrefixAgrupador("prefixo_qrcode");
-        r.setDadosQrCode(getIntent().getStringExtra("dadosQrCode"));
-        if (getIntent().getDoubleExtra("latitude", 0d) != 0d) {
-            r.setLatitude(getIntent().getDoubleExtra("latitude", 0d));
-            r.setLongitude(getIntent().getDoubleExtra("longitude", 0d));
+        r.setPrefixAgrupador(getResources().getString(R.string.prefixAgrupador));
+        r.setDadosQrCode(getIntent().getStringExtra(getResources().getString(R.string.dadosQrCode)));
+        if (getIntent().getDoubleExtra(getResources().getString(R.string.latitude), 0d) != 0d) {
+            r.setLatitude(getIntent().getDoubleExtra(getResources().getString(R.string.latitude), 0d));
+            r.setLongitude(getIntent().getDoubleExtra(getResources().getString(R.string.longitude), 0d));
         } else {
-            r.setEnderecoManual(getIntent().getStringExtra("enderecoManual"));
+            r.setEnderecoManual(getIntent().getStringExtra(getResources().getString(R.string.enderecoManual)));
         }
         r.setSitSalvoFirebase(0);
 //        deleteDatabase(MailDeliverDBService.DB_NAME);

@@ -25,8 +25,10 @@ public class HelloWorldActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         final Bundle extras = getIntent().getExtras();
+        String strLatitude = getResources().getString(R.string.latitude);
+
         if (extras.getBoolean("contaProtocolada") || extras.getBoolean("contaColetiva")) {
-            if (extras.getDouble("latitude") != 0d) {
+            if (extras.getDouble(strLatitude) != 0d) {
                 startCameraActivity(extras);
             } else {
                 JFSteelDialog alert = AlertUtils.criarAlerta(getResources().getString(R.string.titulo_pedido_localizacao),
@@ -39,7 +41,7 @@ public class HelloWorldActivity extends AppCompatActivity {
 
                             @Override
                             public void onClickNegative(View v, String tag) {
-                                extras.putString("enderecoManual", tag);
+                                extras.putString(getResources().getString(R.string.enderecoManual), tag);
                                 startCameraActivity(extras);
                             }
 
@@ -51,9 +53,11 @@ public class HelloWorldActivity extends AppCompatActivity {
                 alert.show(getSupportFragmentManager(), "alert");
             }
         } else {
-            if (extras.getString("dadosQrCode").startsWith("contaNormal")) {
-                if (extras.getDouble("latitude") != 0d) {
-                    saveRegistroEntrega(extras.getDouble("latitude"), extras.getDouble("longitude"), null, extras.getString("dadosQrCode"));
+            final String strDadosQrCode = getResources().getString(R.string.dadosQrCode);
+            if (extras.getString(strDadosQrCode)
+                    .startsWith(getResources().getString(R.string.tipo_conta_normal))) {
+                if (extras.getDouble(strLatitude) != 0d) {
+                    saveRegistroEntrega(extras.getDouble(strLatitude), extras.getDouble(getResources().getString(R.string.longitude)), null, extras.getString(strDadosQrCode));
                 } else {
                     JFSteelDialog alert = AlertUtils.criarAlerta(getResources().getString(R.string.titulo_pedido_localizacao),
                             getResources().getString(R.string.msg_falha_pegar_localizacao),
@@ -65,7 +69,7 @@ public class HelloWorldActivity extends AppCompatActivity {
 
                                 @Override
                                 public void onClickNegative(View v, String tag) {
-                                    saveRegistroEntrega(0d, 0d, tag, extras.getString("dadosQrCode"));
+                                    saveRegistroEntrega(0d, 0d, tag, extras.getString(strDadosQrCode));
                                 }
 
                                 @Override
@@ -94,7 +98,7 @@ public class HelloWorldActivity extends AppCompatActivity {
             ct.setEnderecoManual(endereco);
         }
         ct.setDadosQrCode(qrCode);
-        ct.setPrefixAgrupador("prefixAgrupador");
+        ct.setPrefixAgrupador(getResources().getString(R.string.prefixAgrupador));
         ct.setTimesTamp(new Date().getTime());
         db.save(ct);
     }

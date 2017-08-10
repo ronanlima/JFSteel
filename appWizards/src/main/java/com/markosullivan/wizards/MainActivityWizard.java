@@ -41,7 +41,7 @@ public class MainActivityWizard extends FragmentActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_wizard);
 
-        if (getIntent().getStringExtra("dadosQrCode").split(";")[0].equals("contaNormal")) {
+        if (getIntent().getStringExtra(getResources().getString(R.string.dadosQrCode)).split(";")[0].equals(getResources().getString(R.string.tipo_conta_normal))) {
             mWizardModel = new WizardContaNormal(this);
         }
 
