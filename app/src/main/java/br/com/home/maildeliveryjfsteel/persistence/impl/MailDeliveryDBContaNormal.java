@@ -11,6 +11,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import java.util.ArrayList;
 import java.util.List;
 
+import br.com.home.maildeliveryjfsteel.R;
 import br.com.home.maildeliveryjfsteel.persistence.MailDeliverDBService;
 import br.com.home.maildeliveryjfsteel.persistence.dto.ContaNormal;
 
@@ -22,16 +23,29 @@ public class MailDeliveryDBContaNormal extends SQLiteOpenHelper implements MailD
 
     public static final String TAG = MailDeliveryDBContaNormal.class.getCanonicalName().toUpperCase();
     public static final String TABLE_REGISTRO_ENTREGA = "registroEntrega";
+    protected Context mContext;
 
     public MailDeliveryDBContaNormal(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
+        this.mContext = context;
     }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL("create table if not exists " + TABLE_REGISTRO_ENTREGA + " (_id integer primary key autoincrement," +
-                "dadosQrCode text, horaEntrega timestamp, prefixAgrupador text, idFoto text, latitude real, " +
-                "longitude real, uriFotoDisp text, urlStorageFoto text, enderecoManual text, sitSalvoFirebase integer)");
+        StringBuilder builder = new StringBuilder("create table if not exists ");
+        builder.append(TABLE_REGISTRO_ENTREGA);
+        builder.append(" (_id integer primary key autoincrement, ");
+        builder.append(mContext.getResources().getString(R.string.dados_qr_code)).append(" text, ");
+        builder.append(mContext.getResources().getString(R.string.hora_entrega)).append(" timestamp, ");
+        builder.append(mContext.getResources().getString(R.string.prefix_agrupador)).append(" text, ");
+        builder.append(mContext.getResources().getString(R.string.id_foto)).append(" text, ");
+        builder.append(mContext.getResources().getString(R.string.latitude)).append(" real, ");
+        builder.append(mContext.getResources().getString(R.string.longitude)).append(" real, ");
+        builder.append(mContext.getResources().getString(R.string.uri_foto_disp)).append(" text, ");
+        builder.append(mContext.getResources().getString(R.string.url_storage_foto)).append(" text, ");
+        builder.append(mContext.getResources().getString(R.string.endereco_manual)).append(" text, ");
+        builder.append(mContext.getResources().getString(R.string.sit_salvo_firebase)).append(" integer)");
+        db.execSQL(builder.toString());
     }
 
     @Override
@@ -55,17 +69,17 @@ public class MailDeliveryDBContaNormal extends SQLiteOpenHelper implements MailD
         SQLiteDatabase db = getWritableDatabase();
         try {
             ContentValues values = new ContentValues();
-            values.put("dadosQrCode", item.getDadosQrCode());
-            values.put("horaEntrega", item.getTimesTamp());
-            values.put("prefixAgrupador", item.getPrefixAgrupador());
+            values.put(mContext.getResources().getString(R.string.dados_qr_code), item.getDadosQrCode());
+            values.put(mContext.getResources().getString(R.string.hora_entrega), item.getTimesTamp());
+            values.put(mContext.getResources().getString(R.string.prefix_agrupador), item.getPrefixAgrupador());
             String nomeFoto = item.getIdFoto().substring(0, item.getIdFoto().length() - 5);
-            values.put("idFoto", nomeFoto);
-            values.put("latitude", item.getLatitude());
-            values.put("longitude", item.getLongitude());
-            values.put("uriFotoDisp", item.getUriFotoDisp());
-            values.put("urlStorageFoto", item.getUrlStorageFoto());
-            values.put("enderecoManual", item.getEnderecoManual());
-            values.put("sitSalvoFirebase", item.getSitSalvoFirebase());
+            values.put(mContext.getResources().getString(R.string.dados_qr_code), nomeFoto);
+            values.put(mContext.getResources().getString(R.string.latitude), item.getLatitude());
+            values.put(mContext.getResources().getString(R.string.longitude), item.getLongitude());
+            values.put(mContext.getResources().getString(R.string.uri_foto_disp), item.getUriFotoDisp());
+            values.put(mContext.getResources().getString(R.string.url_storage_foto), item.getUrlStorageFoto());
+            values.put(mContext.getResources().getString(R.string.endereco_manual), item.getEnderecoManual());
+            values.put(mContext.getResources().getString(R.string.sit_salvo_firebase), item.getSitSalvoFirebase());
             if (id != 0) {
                 String _id = String.valueOf(id);
                 String[] whereArgs = new String[]{_id};
@@ -114,7 +128,7 @@ public class MailDeliveryDBContaNormal extends SQLiteOpenHelper implements MailD
         SQLiteDatabase db = getReadableDatabase();
 
         try {
-            Cursor c = db.query(table, null, "prefixAgrupador like '" + prefix + "%'", null, null, null, null);
+            Cursor c = db.query(table, null, mContext.getResources().getString(R.string.prefix_agrupador) + " like '" + prefix + "%'", null, null, null, null);
             return toList(c);
         } catch (SQLException e) {
             e.printStackTrace();
@@ -136,7 +150,7 @@ public class MailDeliveryDBContaNormal extends SQLiteOpenHelper implements MailD
         SQLiteDatabase db = getReadableDatabase();
 
         try {
-            Cursor c = db.query(table, null, "dadosQrCode = " + qrCode + "", null, null, null, null);
+            Cursor c = db.query(table, null, mContext.getResources().getString(R.string.dados_qr_code) + " = " + qrCode + "", null, null, null, null);
             return toList(c);
         } catch (SQLException e) {
             e.printStackTrace();
@@ -148,6 +162,7 @@ public class MailDeliveryDBContaNormal extends SQLiteOpenHelper implements MailD
 
     /**
      * Recuperar os registros conforme situacao passada.
+     *
      * @param situacao
      * @return
      */
@@ -156,7 +171,7 @@ public class MailDeliveryDBContaNormal extends SQLiteOpenHelper implements MailD
         SQLiteDatabase db = getReadableDatabase();
 
         try {
-            Cursor c = db.query(TABLE_REGISTRO_ENTREGA, null, "sitSalvoFirebase = " + situacao + "", null, null, null, null);
+            Cursor c = db.query(TABLE_REGISTRO_ENTREGA, null, mContext.getResources().getString(R.string.sit_salvo_firebase) + " = " + situacao + "", null, null, null, null);
             return toList(c);
         } catch (SQLException e) {
             e.printStackTrace();
@@ -179,16 +194,16 @@ public class MailDeliveryDBContaNormal extends SQLiteOpenHelper implements MailD
             do {
                 ContaNormal r = new ContaNormal();
                 r.setId(c.getLong(c.getColumnIndex("_id")));
-                r.setDadosQrCode(c.getString(c.getColumnIndex("dadosQrCode")));
-                r.setTimesTamp(c.getLong(c.getColumnIndex("horaEntrega")));
-                r.setPrefixAgrupador(c.getString(c.getColumnIndex("prefixAgrupador")));
-                r.setIdFoto(c.getString(c.getColumnIndex("idFoto")));
-                r.setLatitude(c.getDouble(c.getColumnIndex("latitude")));
-                r.setLongitude(c.getDouble(c.getColumnIndex("longitude")));
-                r.setUriFotoDisp(c.getString(c.getColumnIndex("uriFotoDisp")));
-                r.setUrlStorageFoto(c.getString(c.getColumnIndex("urlStorageFoto")));
-                r.setEnderecoManual(c.getString(c.getColumnIndex("enderecoManual")));
-                r.setSitSalvoFirebase(c.getType(c.getColumnIndex("sitSalvoFirebase")));
+                r.setDadosQrCode(c.getString(c.getColumnIndex(mContext.getResources().getString(R.string.dados_qr_code))));
+                r.setTimesTamp(c.getLong(c.getColumnIndex(mContext.getResources().getString(R.string.hora_entrega))));
+                r.setPrefixAgrupador(c.getString(c.getColumnIndex(mContext.getResources().getString(R.string.prefix_agrupador))));
+                r.setIdFoto(c.getString(c.getColumnIndex(mContext.getResources().getString(R.string.id_foto))));
+                r.setLatitude(c.getDouble(c.getColumnIndex(mContext.getResources().getString(R.string.latitude))));
+                r.setLongitude(c.getDouble(c.getColumnIndex(mContext.getResources().getString(R.string.longitude))));
+                r.setUriFotoDisp(c.getString(c.getColumnIndex(mContext.getResources().getString(R.string.uri_foto_disp))));
+                r.setUrlStorageFoto(c.getString(c.getColumnIndex(mContext.getResources().getString(R.string.url_storage_foto))));
+                r.setEnderecoManual(c.getString(c.getColumnIndex(mContext.getResources().getString(R.string.endereco_manual))));
+                r.setSitSalvoFirebase(c.getType(c.getColumnIndex(mContext.getResources().getString(R.string.sit_salvo_firebase))));
                 list.add(r);
             } while (c.moveToNext());
         }

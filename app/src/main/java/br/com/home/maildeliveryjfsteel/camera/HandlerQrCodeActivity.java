@@ -162,7 +162,7 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements
                 data.putExtra(strLatitude, 0d);
                 data.putExtra(strLongitude, 0d);
             }
-            data.putExtra(getResources().getString(R.string.dadosQrCode), resultQrCode);
+            data.putExtra(getResources().getString(R.string.dados_qr_code), resultQrCode);
             data.setClass(this, HelloWorldActivity.class);
             startActivity(data);
         } else if (Activity.RESULT_CANCELED == resultCode) {
@@ -200,7 +200,7 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements
         Toast.makeText(getApplicationContext(), resultQrCode, Toast.LENGTH_LONG).show();
         Log.d("HandlerQrCodeActivity", resultQrCode);
         Intent i = new Intent(this, MainActivityWizard.class);
-        i.putExtra(getResources().getString(R.string.dadosQrCode), resultQrCode);
+        i.putExtra(getResources().getString(R.string.dados_qr_code), resultQrCode);
         intentIntegrator = null;
         startActivityForResult(i, 999);
     }

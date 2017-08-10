@@ -10,24 +10,24 @@
     <string name="firebase_storage_conta" translatable="false">images/contas/</string>
 
     <!-- campos firebase -->
-    <string name="dadosQrCode" translatable="false">dadosQrCode</string>
-    <string name="horaEntrega" translatable="false">horaEntrega</string>
-    <string name="prefixAgrupador" translatable="false">prefixAgrupador</string>
-    <string name="idFoto" translatable="false">idFoto</string>
+    <string name="dados_qr_code" translatable="false">dadosQrCode</string>
+    <string name="hora_entrega" translatable="false">horaEntrega</string>
+    <string name="prefix_agrupador" translatable="false">prefixAgrupador</string>
+    <string name="id_foto" translatable="false">idFoto</string>
     <string name="latitude" translatable="false">latitude</string>
     <string name="longitude" translatable="false">longitude</string>
-    <string name="uriFotoDisp" translatable="false">uriFotoDisp</string>
-    <string name="urlStorageFoto" translatable="false">urlStorageFoto</string>
-    <string name="enderecoManual" translatable="false">enderecoManual</string>
-    <string name="sitSalvoFirebase" translatable="false">sitSalvoFirebase</string>
+    <string name="uri_foto_disp" translatable="false">uriFotoDisp</string>
+    <string name="url_storage_foto" translatable="false">urlStorageFoto</string>
+    <string name="endereco_manual" translatable="false">enderecoManual</string>
+    <string name="sit_salvo_firebase" translatable="false">sitSalvoFirebase</string>
 
     <string name="leitura" translatable="false">leitura</string>
-    <string name="medidorVisivel" translatable="false">medidorVisivel</string>
-    <string name="medidorExterno" translatable="false">medidorExterno</string>
-    <string name="tipoResidencia" translatable="false">tipoResidencia</string>
+    <string name="medidor_visivel" translatable="false">medidorVisivel</string>
+    <string name="medidor_externo" translatable="false">medidorExterno</string>
+    <string name="tipo_residencia" translatable="false">tipoResidencia</string>
 
     <string name="medidor" translatable="false">medidor</string>
-    <string name="existeConta" translatable="false">existeConta</string>
+    <string name="existe_conta" translatable="false">existeConta</string>
     <string name="comentario" translatable="false">comentario</string>
 
     <string name="tipo_conta_normal" translatable="false">contaNormal</string>

@@ -11,6 +11,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import java.util.ArrayList;
 import java.util.List;
 
+import br.com.home.maildeliveryjfsteel.R;
 import br.com.home.maildeliveryjfsteel.persistence.MailDeliverDBService;
 import br.com.home.maildeliveryjfsteel.persistence.dto.NoQrCode;
 
@@ -22,16 +23,26 @@ public class MailDeliveryNoQrCode extends SQLiteOpenHelper implements MailDelive
 
     public static final String TAG = MailDeliveryNoQrCode.class.getCanonicalName().toUpperCase();
     public static final String TABLE_REGISTRO_ENTREGA = "noQrCode";
+    protected Context mContext;
 
     public MailDeliveryNoQrCode(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
+        this.mContext = context;
     }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL("create table if not exists " + TABLE_REGISTRO_ENTREGA + " (_id integer primary key autoincrement," +
-                "medidor text, horaEntrega timestamp, enderecoManual text, existeConta integer, latitude real, " +
-                "longitude real, comentario text, sitSalvoFirebase integer)");
+        StringBuilder builder = new StringBuilder("create table if not exists ");
+        builder.append(TABLE_REGISTRO_ENTREGA).append(" (_id integer primary key autoincrement, ");
+        builder.append(mContext.getResources().getString(R.string.medidor)).append(" text, ");
+        builder.append(mContext.getResources().getString(R.string.hora_entrega)).append(" timestamp, ");
+        builder.append(mContext.getResources().getString(R.string.endereco_manual)).append(" text, ");
+        builder.append(mContext.getResources().getString(R.string.existe_conta)).append(" integer, ");
+        builder.append(mContext.getResources().getString(R.string.latitude)).append(" real, ");
+        builder.append(mContext.getResources().getString(R.string.longitude)).append(" real, ");
+        builder.append(mContext.getResources().getString(R.string.comentario)).append(" text, ");
+        builder.append(mContext.getResources().getString(R.string.sit_salvo_firebase)).append(" integer)");
+        db.execSQL(builder.toString());
     }
 
     @Override
@@ -49,14 +60,14 @@ public class MailDeliveryNoQrCode extends SQLiteOpenHelper implements MailDelive
         SQLiteDatabase db = getWritableDatabase();
         try {
             ContentValues values = new ContentValues();
-            values.put("medidor", item.getMedidor());
-            values.put("horaEntrega", item.getTimesTamp());
-            values.put("enderecoManual", item.getEnderecoManual());
-            values.put("latitude", item.getLatitude());
-            values.put("longitude", item.getLongitude());
-            values.put("existeConta", item.getExisteConta());
-            values.put("comentario", item.getComentario());
-            values.put("sitSalvoFirebase", item.getSitSalvoFirebase());
+            values.put(mContext.getResources().getString(R.string.medidor), item.getMedidor());
+            values.put(mContext.getResources().getString(R.string.hora_entrega), item.getTimesTamp());
+            values.put(mContext.getResources().getString(R.string.endereco_manual), item.getEnderecoManual());
+            values.put(mContext.getResources().getString(R.string.existe_conta), item.getExisteConta());
+            values.put(mContext.getResources().getString(R.string.latitude), item.getLatitude());
+            values.put(mContext.getResources().getString(R.string.longitude), item.getLongitude());
+            values.put(mContext.getResources().getString(R.string.comentario), item.getComentario());
+            values.put(mContext.getResources().getString(R.string.sit_salvo_firebase), item.getSitSalvoFirebase());
             if (id != 0) {
                 String _id = String.valueOf(id);
                 String[] whereArgs = new String[]{_id};
@@ -102,17 +113,7 @@ public class MailDeliveryNoQrCode extends SQLiteOpenHelper implements MailDelive
      */
     @Override
     public List<NoQrCode> findByAgrupador(String table, String prefix) {
-        SQLiteDatabase db = getReadableDatabase();
-
-        try {
-            Cursor c = db.query(table, null, "prefixAgrupador like '" + prefix + "%'", null, null, null, null);
-            return toList(c);
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return null;
-        } finally {
-            db.close();
-        }
+        return null;
     }
 
     /**
@@ -124,21 +125,12 @@ public class MailDeliveryNoQrCode extends SQLiteOpenHelper implements MailDelive
      */
     @Override
     public List<NoQrCode> findByQrCode(String table, String qrCode) {
-        SQLiteDatabase db = getReadableDatabase();
-
-        try {
-            Cursor c = db.query(table, null, "dadosQrCode = " + qrCode + "", null, null, null, null);
-            return toList(c);
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return null;
-        } finally {
-            db.close();
-        }
+        return null;
     }
 
     /**
      * Recuperar os registros conforme situacao passada.
+     *
      * @param situacao
      * @return
      */
@@ -147,7 +139,7 @@ public class MailDeliveryNoQrCode extends SQLiteOpenHelper implements MailDelive
         SQLiteDatabase db = getReadableDatabase();
 
         try {
-            Cursor c = db.query(TABLE_REGISTRO_ENTREGA, null, "sitSalvoFirebase = " + situacao + "", null, null, null, null);
+            Cursor c = db.query(TABLE_REGISTRO_ENTREGA, null, mContext.getResources().getString(R.string.sit_salvo_firebase) + " = " + situacao + "", null, null, null, null);
             return toList(c);
         } catch (SQLException e) {
             e.printStackTrace();
@@ -170,15 +162,14 @@ public class MailDeliveryNoQrCode extends SQLiteOpenHelper implements MailDelive
             do {
                 NoQrCode r = new NoQrCode();
                 r.setId(c.getLong(c.getColumnIndex("_id")));
-                r.setTimesTamp(c.getLong(c.getColumnIndex("horaEntrega")));
-                r.setPrefixAgrupador(c.getString(c.getColumnIndex("prefixAgrupador")));
-                r.setLatitude(c.getDouble(c.getColumnIndex("latitude")));
-                r.setLongitude(c.getDouble(c.getColumnIndex("longitude")));
-                r.setEnderecoManual(c.getString(c.getColumnIndex("enderecoManual")));
-                r.setExisteConta(c.getInt(c.getColumnIndex("existeConta")));
-                r.setMedidor(c.getString(c.getColumnIndex("medidor")));
-                r.setComentario(c.getString(c.getColumnIndex("comentario")));
-                r.setSitSalvoFirebase(c.getType(c.getColumnIndex("sitSalvoFirebase")));
+                r.setMedidor(c.getString(c.getColumnIndex(mContext.getResources().getString(R.string.medidor))));
+                r.setTimesTamp(c.getLong(c.getColumnIndex(mContext.getResources().getString(R.string.hora_entrega))));
+                r.setEnderecoManual(c.getString(c.getColumnIndex(mContext.getResources().getString(R.string.endereco_manual))));
+                r.setExisteConta(c.getInt(c.getColumnIndex(mContext.getResources().getString(R.string.existe_conta))));
+                r.setLatitude(c.getDouble(c.getColumnIndex(mContext.getResources().getString(R.string.latitude))));
+                r.setLongitude(c.getDouble(c.getColumnIndex(mContext.getResources().getString(R.string.longitude))));
+                r.setComentario(c.getString(c.getColumnIndex(mContext.getResources().getString(R.string.comentario))));
+                r.setSitSalvoFirebase(c.getType(c.getColumnIndex(mContext.getResources().getString(R.string.sit_salvo_firebase))));
                 list.add(r);
             } while (c.moveToNext());
         }

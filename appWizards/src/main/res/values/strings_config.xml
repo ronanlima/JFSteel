@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="dadosQrCode" translatable="false">dadosQrCode</string>
+    <string name="dados_qr_code" translatable="false">dadosQrCode</string>
     <string name="tipo_conta_normal" translatable="false">contaNormal</string>
     <string name="tipo_conta_nota" translatable="false">notaServico</string>
     <string name="tipo_conta_no_qrcode" translatable="false">noQrCode</string>

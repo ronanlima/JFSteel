@@ -41,7 +41,7 @@ public class HelloWorldActivity extends AppCompatActivity {
 
                             @Override
                             public void onClickNegative(View v, String tag) {
-                                extras.putString(getResources().getString(R.string.enderecoManual), tag);
+                                extras.putString(getResources().getString(R.string.endereco_manual), tag);
                                 startCameraActivity(extras);
                             }
 
@@ -53,7 +53,7 @@ public class HelloWorldActivity extends AppCompatActivity {
                 alert.show(getSupportFragmentManager(), "alert");
             }
         } else {
-            final String strDadosQrCode = getResources().getString(R.string.dadosQrCode);
+            final String strDadosQrCode = getResources().getString(R.string.dados_qr_code);
             if (extras.getString(strDadosQrCode)
                     .startsWith(getResources().getString(R.string.tipo_conta_normal))) {
                 if (extras.getDouble(strLatitude) != 0d) {
@@ -98,7 +98,7 @@ public class HelloWorldActivity extends AppCompatActivity {
             ct.setEnderecoManual(endereco);
         }
         ct.setDadosQrCode(qrCode);
-        ct.setPrefixAgrupador(getResources().getString(R.string.prefixAgrupador));
+        ct.setPrefixAgrupador(getResources().getString(R.string.prefix_agrupador));
         ct.setTimesTamp(new Date().getTime());
         db.save(ct);
     }
