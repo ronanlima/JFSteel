@@ -41,7 +41,7 @@ public class MainActivityWizard extends FragmentActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_wizard);
 
-        mWizardModel = new WizardNotaServico(this);
+        mWizardModel = new WizardContaNormal(this);
         //FIXME descomentar bloco abaixo
 //        if (getIntent().getStringExtra(getResources().getString(R.string.dados_qr_code)).split(";")[0].equals(getResources().getString(R.string.tipo_conta_normal))) {
 //            mWizardModel = new WizardContaNormal(this);
@@ -92,19 +92,14 @@ public class MainActivityWizard extends FragmentActivity implements
                     if (getItensSelecteds() != null && getItensSelecteds().size() > 0) {
                         boolean isContaProcotolada = false;
                         boolean isContaColetiva = false;
-                        if (getItensSelecteds().get(1) != null && getItensSelecteds().get(1).getDisplayValue().contains(WizardContaNormal.choicesSobreConta[0])) {
-                            isContaProcotolada = true;
+                        finalizaFluxoContaNormal(isContaProcotolada, isContaColetiva); //FIXME remover esta linha após validar os tipos de conta
+                        if (getIntent().getStringExtra(getResources().getString(R.string.dados_qr_code)).split(";")[0].equals(getResources().getString(R.string.tipo_conta_normal))) {
+                            finalizaFluxoContaNormal(isContaProcotolada, isContaColetiva);
+                        } else if (getIntent().getStringExtra(getResources().getString(R.string.dados_qr_code)).split(";")[0].equals(getResources().getString(R.string.tipo_conta_nota))) {
+
+                        } else {
+
                         }
-                        if (getItensSelecteds().get(1) != null && getItensSelecteds().get(1).getDisplayValue().contains(WizardContaNormal.choicesSobreConta[1])) {
-                            isContaColetiva = true;
-                        }
-                        Bundle b = new Bundle();
-                        b.putBoolean("contaProtocolada", isContaProcotolada);
-                        b.putBoolean("contaColetiva", isContaColetiva);
-                        b.putString("localEntrega", getItensSelecteds().get(0).getDisplayValue());
-                        Intent i = new Intent();
-                        i.putExtras(b);
-                        setResult(Activity.RESULT_OK, i);
 //                        listenerCallback.backToMainApplication(b);
                     }
                     finish();
@@ -127,6 +122,28 @@ public class MainActivityWizard extends FragmentActivity implements
 
         onPageTreeChanged();
         updateBottomBar();
+    }
+
+    /**
+     * Finaliza o fluxo para o tipo de qr code 'conta normal'.
+     *
+     * @param isContaProcotolada
+     * @param isContaColetiva
+     */
+    private void finalizaFluxoContaNormal(boolean isContaProcotolada, boolean isContaColetiva) {
+        if (getItensSelecteds().get(1) != null && getItensSelecteds().get(1).getDisplayValue().contains(WizardContaNormal.choicesSobreConta[0])) {
+            isContaProcotolada = true;
+        }
+        if (getItensSelecteds().get(1) != null && getItensSelecteds().get(1).getDisplayValue().contains(WizardContaNormal.choicesSobreConta[1])) {
+            isContaColetiva = true;
+        }
+        Bundle b = new Bundle();
+        b.putBoolean("contaProtocolada", isContaProcotolada);
+        b.putBoolean("contaColetiva", isContaColetiva);
+        b.putString("localEntrega", getItensSelecteds().get(0).getDisplayValue());
+        Intent i = new Intent();
+        i.putExtras(b);
+        setResult(Activity.RESULT_OK, i);
     }
 
     @Override

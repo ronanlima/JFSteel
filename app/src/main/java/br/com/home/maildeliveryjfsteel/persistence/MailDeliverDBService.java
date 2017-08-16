@@ -16,9 +16,9 @@ public interface MailDeliverDBService<T> {
 
     long save(T obj);
 
-    List<T> findAll(String table);
+    List<T> findAll();
 
-    List<T> findByAgrupador(String table, String prefix);
+    List<T> findByAgrupador(String prefix);
 
     List<T> findByQrCode(String table, String qrCode);
 

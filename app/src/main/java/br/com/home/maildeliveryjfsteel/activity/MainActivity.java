@@ -13,9 +13,13 @@ import br.com.home.maildeliveryjfsteel.async.FirebaseAsyncParam;
 import br.com.home.maildeliveryjfsteel.async.SaveFirebaseAsync;
 import br.com.home.maildeliveryjfsteel.camera.HandlerQrCodeActivity;
 import br.com.home.maildeliveryjfsteel.firebase.impl.FirebaseContaNormalImpl;
+import br.com.home.maildeliveryjfsteel.firebase.impl.FirebaseNoQrCodeImpl;
+import br.com.home.maildeliveryjfsteel.firebase.impl.FirebaseNotaImpl;
 import br.com.home.maildeliveryjfsteel.fragment.MatriculaDialogFragment;
 import br.com.home.maildeliveryjfsteel.persistence.MailDeliverDBService;
 import br.com.home.maildeliveryjfsteel.persistence.impl.MailDeliveryDBContaNormal;
+import br.com.home.maildeliveryjfsteel.persistence.impl.MailDeliveryDBNotaServico;
+import br.com.home.maildeliveryjfsteel.persistence.impl.MailDeliveryNoQrCode;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -30,10 +34,10 @@ public class MainActivity extends AppCompatActivity {
             dialog.show(getSupportFragmentManager(), "dialogMatricula");
         } else {
             startActivity(new Intent(this, HandlerQrCodeActivity.class));
-            deleteDatabase(MailDeliverDBService.DB_NAME); // FIXME remover esta linha
-            new SaveFirebaseAsync().execute(new FirebaseAsyncParam(new MailDeliveryDBContaNormal(this).findBySit(MailDeliverDBService.SIT_FALSE), new FirebaseContaNormalImpl(this)));
-//            new SaveFirebaseAsync().execute(new FirebaseAsyncParam(new MailDeliveryDBContaNormal(this).findBySit(MailDeliverDBService.SIT_FALSE), new FirebaseContaNormalImpl(this)));
-//            new SaveFirebaseAsync().execute(new FirebaseAsyncParam(new MailDeliveryDBContaNormal(this).findBySit(MailDeliverDBService.SIT_FALSE), new FirebaseContaNormalImpl(this)));
+//            deleteDatabase(MailDeliverDBService.DB_NAME); // FIXME remover esta linha
+            new SaveFirebaseAsync().execute(new FirebaseAsyncParam(new MailDeliveryDBContaNormal(getBaseContext()).findBySit(MailDeliverDBService.SIT_FALSE), new FirebaseContaNormalImpl(getBaseContext())));
+            new SaveFirebaseAsync().execute(new FirebaseAsyncParam(new MailDeliveryDBNotaServico(getBaseContext()).findBySit(MailDeliverDBService.SIT_FALSE), new FirebaseNotaImpl(getBaseContext())));
+            new SaveFirebaseAsync().execute(new FirebaseAsyncParam(new MailDeliveryNoQrCode(getBaseContext()).findBySit(MailDeliverDBService.SIT_FALSE), new FirebaseNoQrCodeImpl(getBaseContext())));
 //            startActivity(new Intent(this, CameraActivity.class));
             finish();
         }

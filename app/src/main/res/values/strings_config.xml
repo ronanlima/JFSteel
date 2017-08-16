@@ -8,6 +8,8 @@
     <string name="firebase_no_noqrcode" translatable="false">noqrcode</string>
 
     <string name="firebase_storage_conta" translatable="false">images/contas/</string>
+    <string name="firebase_storage_nota_servico" translatable="false">images/notaServicos/</string>
+    <string name="firebase_storage_no_qrcode" translatable="false">images/noQrCode/</string>
 
     <!-- campos firebase -->
     <string name="dados_qr_code" translatable="false">dadosQrCode</string>

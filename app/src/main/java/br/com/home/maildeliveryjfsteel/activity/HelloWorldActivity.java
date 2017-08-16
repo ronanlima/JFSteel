@@ -30,6 +30,7 @@ public class HelloWorldActivity extends AppCompatActivity {
         if (extras.getBoolean("contaProtocolada") || extras.getBoolean("contaColetiva")) {
             if (extras.getDouble(strLatitude) != 0d) {
                 startCameraActivity(extras);
+                finish();
             } else {
                 JFSteelDialog alert = AlertUtils.criarAlerta(getResources().getString(R.string.titulo_pedido_localizacao),
                         getResources().getString(R.string.msg_falha_pegar_localizacao),
@@ -43,6 +44,7 @@ public class HelloWorldActivity extends AppCompatActivity {
                             public void onClickNegative(View v, String tag) {
                                 extras.putString(getResources().getString(R.string.endereco_manual), tag);
                                 startCameraActivity(extras);
+                                finish();
                             }
 
                             @Override
@@ -58,6 +60,7 @@ public class HelloWorldActivity extends AppCompatActivity {
                     .startsWith(getResources().getString(R.string.tipo_conta_normal))) {
                 if (extras.getDouble(strLatitude) != 0d) {
                     saveRegistroEntrega(extras.getDouble(strLatitude), extras.getDouble(getResources().getString(R.string.longitude)), null, extras.getString(strDadosQrCode));
+                    finish();
                 } else {
                     JFSteelDialog alert = AlertUtils.criarAlerta(getResources().getString(R.string.titulo_pedido_localizacao),
                             getResources().getString(R.string.msg_falha_pegar_localizacao),
@@ -70,6 +73,7 @@ public class HelloWorldActivity extends AppCompatActivity {
                                 @Override
                                 public void onClickNegative(View v, String tag) {
                                     saveRegistroEntrega(0d, 0d, tag, extras.getString(strDadosQrCode));
+                                    finish();
                                 }
 
                                 @Override
@@ -98,7 +102,7 @@ public class HelloWorldActivity extends AppCompatActivity {
             ct.setEnderecoManual(endereco);
         }
         ct.setDadosQrCode(qrCode);
-        ct.setPrefixAgrupador(getResources().getString(R.string.prefix_agrupador));
+        ct.setPrefixAgrupador(getResources().getString(R.string.prefix_agrupador));//FIXME arrumar um prefix válido
         ct.setTimesTamp(new Date().getTime());
         db.save(ct);
     }

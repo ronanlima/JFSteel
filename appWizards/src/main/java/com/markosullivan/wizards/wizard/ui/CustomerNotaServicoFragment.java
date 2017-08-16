@@ -67,10 +67,10 @@ public class CustomerNotaServicoFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_leitura_page_customer_nota_servico, container, false);
         ((TextView) rootView.findViewById(android.R.id.title)).setText(mPage.getTitle());
 
-        textLeituraRealizada = ((TextView) rootView.findViewById(R.id.your_name));
+        textLeituraRealizada = ((TextView) rootView.findViewById(R.id.numero_leitura_registro));
         textLeituraRealizada.setText(mPage.getData().getString(CustomerNotaServicoPage.LEITURA_DATA_KEY));
 
-        textMedidorVisivel = ((TextView) rootView.findViewById(R.id.your_email));
+        textMedidorVisivel = ((TextView) rootView.findViewById(R.id.medidor_vizinho));
         textMedidorVisivel.setText(mPage.getData().getString(CustomerNotaServicoPage.MEDIDOR_VIZINHO_DATA_KEY));
         return rootView;
     }

@@ -73,7 +73,7 @@ public class MailDeliveryDBContaNormal extends SQLiteOpenHelper implements MailD
             values.put(mContext.getResources().getString(R.string.hora_entrega), item.getTimesTamp());
             values.put(mContext.getResources().getString(R.string.prefix_agrupador), item.getPrefixAgrupador());
             String nomeFoto = item.getIdFoto().substring(0, item.getIdFoto().length() - 5);
-            values.put(mContext.getResources().getString(R.string.dados_qr_code), nomeFoto);
+            values.put(mContext.getResources().getString(R.string.id_foto), nomeFoto);
             values.put(mContext.getResources().getString(R.string.latitude), item.getLatitude());
             values.put(mContext.getResources().getString(R.string.longitude), item.getLongitude());
             values.put(mContext.getResources().getString(R.string.uri_foto_disp), item.getUriFotoDisp());
@@ -98,15 +98,14 @@ public class MailDeliveryDBContaNormal extends SQLiteOpenHelper implements MailD
     /**
      * Busca todos os registros para a tabela passada.
      *
-     * @param table
      * @return
      */
     @Override
-    public List<ContaNormal> findAll(String table) {
+    public List<ContaNormal> findAll() {
         SQLiteDatabase db = getReadableDatabase();
 
         try {
-            Cursor c = db.query(table, null, null, null, null, null, null);
+            Cursor c = db.query(TABLE_REGISTRO_ENTREGA, null, null, null, null, null, null);
             return toList(c);
         } catch (SQLException e) {
             e.printStackTrace();
@@ -124,11 +123,11 @@ public class MailDeliveryDBContaNormal extends SQLiteOpenHelper implements MailD
      * @return
      */
     @Override
-    public List<ContaNormal> findByAgrupador(String table, String prefix) {
+    public List<ContaNormal> findByAgrupador(String prefix) {
         SQLiteDatabase db = getReadableDatabase();
 
         try {
-            Cursor c = db.query(table, null, mContext.getResources().getString(R.string.prefix_agrupador) + " like '" + prefix + "%'", null, null, null, null);
+            Cursor c = db.query(TABLE_REGISTRO_ENTREGA, null, mContext.getResources().getString(R.string.prefix_agrupador) + " like '" + prefix + "%'", null, null, null, null);
             return toList(c);
         } catch (SQLException e) {
             e.printStackTrace();

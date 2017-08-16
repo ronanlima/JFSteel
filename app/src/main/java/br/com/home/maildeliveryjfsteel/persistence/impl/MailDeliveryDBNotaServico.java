@@ -14,13 +14,13 @@ import java.util.List;
 import br.com.home.maildeliveryjfsteel.R;
 import br.com.home.maildeliveryjfsteel.persistence.MailDeliverDBService;
 import br.com.home.maildeliveryjfsteel.persistence.TipoResidencia;
-import br.com.home.maildeliveryjfsteel.persistence.dto.Nota;
+import br.com.home.maildeliveryjfsteel.persistence.dto.NotaServico;
 
 /**
  * Created by Ronan.lima on 10/08/17.
  */
 
-public class MailDeliveryDBNotaServico extends SQLiteOpenHelper implements MailDeliverDBService<Nota> {
+public class MailDeliveryDBNotaServico extends SQLiteOpenHelper implements MailDeliverDBService<NotaServico> {
 
     public static final String TAG = MailDeliveryDBNotaServico.class.getCanonicalName().toUpperCase();
     public static final String TABLE_REGISTRO_ENTREGA = "notaServico";
@@ -64,7 +64,7 @@ public class MailDeliveryDBNotaServico extends SQLiteOpenHelper implements MailD
      * @return
      */
     @Override
-    public long save(Nota item) {
+    public long save(NotaServico item) {
         long id = 0;
         if (item.getId() != null) {
             id = item.getId();
@@ -106,15 +106,14 @@ public class MailDeliveryDBNotaServico extends SQLiteOpenHelper implements MailD
     /**
      * Busca todos os registros para a tabela passada.
      *
-     * @param table
      * @return
      */
     @Override
-    public List<Nota> findAll(String table) {
+    public List<NotaServico> findAll() {
         SQLiteDatabase db = getReadableDatabase();
 
         try {
-            Cursor c = db.query(table, null, null, null, null, null, null);
+            Cursor c = db.query(TABLE_REGISTRO_ENTREGA, null, null, null, null, null, null);
             return toList(c);
         } catch (SQLException e) {
             e.printStackTrace();
@@ -127,16 +126,15 @@ public class MailDeliveryDBNotaServico extends SQLiteOpenHelper implements MailD
     /**
      * Busca os registros com o prefixo passado.
      *
-     * @param table
      * @param prefix
      * @return
      */
     @Override
-    public List<Nota> findByAgrupador(String table, String prefix) {
+    public List<NotaServico> findByAgrupador(String prefix) {
         SQLiteDatabase db = getReadableDatabase();
 
         try {
-            Cursor c = db.query(table, null, mContext.getResources().getString(R.string.prefix_agrupador) + " like '" + prefix + "%'", null, null, null, null);
+            Cursor c = db.query(TABLE_REGISTRO_ENTREGA, null, mContext.getResources().getString(R.string.prefix_agrupador) + " like '" + prefix + "%'", null, null, null, null);
             return toList(c);
         } catch (SQLException e) {
             e.printStackTrace();
@@ -154,7 +152,7 @@ public class MailDeliveryDBNotaServico extends SQLiteOpenHelper implements MailD
      * @return
      */
     @Override
-    public List<Nota> findByQrCode(String table, String qrCode) {
+    public List<NotaServico> findByQrCode(String table, String qrCode) {
         SQLiteDatabase db = getReadableDatabase();
 
         try {
@@ -175,7 +173,7 @@ public class MailDeliveryDBNotaServico extends SQLiteOpenHelper implements MailD
      * @return
      */
     @Override
-    public List<Nota> findBySit(int situacao) {
+    public List<NotaServico> findBySit(int situacao) {
         SQLiteDatabase db = getReadableDatabase();
 
         try {
@@ -196,11 +194,11 @@ public class MailDeliveryDBNotaServico extends SQLiteOpenHelper implements MailD
      * @return
      */
     @Override
-    public List<Nota> toList(Cursor c) {
-        List<Nota> list = new ArrayList<>();
+    public List<NotaServico> toList(Cursor c) {
+        List<NotaServico> list = new ArrayList<>();
         if (c.moveToFirst()) {
             do {
-                Nota r = new Nota();
+                NotaServico r = new NotaServico();
                 r.setId(c.getLong(c.getColumnIndex("_id")));
                 r.setDadosQrCode(c.getString(c.getColumnIndex(mContext.getResources().getString(R.string.dados_qr_code))));
                 r.setTimesTamp(c.getLong(c.getColumnIndex(mContext.getResources().getString(R.string.hora_entrega))));

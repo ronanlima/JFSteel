@@ -42,26 +42,28 @@ public class FirebaseContaNormalImpl implements FirebaseService<ContaNormal> {
 
     @Override
     public void save(final List<ContaNormal> list) {
-        DatabaseReference reference = database.getReference(mContext.getResources().getString(R.string.firebase_no_contas));
-        for (final ContaNormal ct : list) {
-            reference.child(matricula).push().setValue(ct).addOnCompleteListener(new OnCompleteListener<Void>() {
-                @Override
-                public void onComplete(@NonNull Task<Void> task) {
-                    if (task.isSuccessful() && task.isComplete()) {
-                        if (ct.getUriFotoDisp() != null && !ct.getUriFotoDisp().isEmpty()) {
-                            uploadPhoto(ct, ct.getUriFotoDisp(), ct.getIdFoto());
-                        } else {
-                            updateFields(ct, null);
+        if (list != null) {
+            DatabaseReference reference = database.getReference(mContext.getResources().getString(R.string.firebase_no_contas));
+            for (final ContaNormal ct : list) {
+                reference.child(matricula).push().setValue(ct).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful() && task.isComplete()) {
+                            if (ct.getUriFotoDisp() != null && !ct.getUriFotoDisp().isEmpty()) {
+                                uploadPhoto(ct, ct.getUriFotoDisp(), ct.getIdFoto());
+                            } else {
+                                updateFields(ct, null);
+                            }
                         }
                     }
-                }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    e.printStackTrace();
-                    Toast.makeText(mContext, mContext.getResources().getString(R.string.msg_falha_salvar_servidor), Toast.LENGTH_SHORT).show();
-                }
-            });
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        e.printStackTrace();
+                        Toast.makeText(mContext, mContext.getResources().getString(R.string.msg_falha_salvar_servidor), Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
         }
     }
 

@@ -33,8 +33,6 @@ import br.com.home.maildeliveryjfsteel.firebase.impl.FirebaseContaNormalImpl;
 import br.com.home.maildeliveryjfsteel.persistence.MailDeliverDBService;
 import br.com.home.maildeliveryjfsteel.persistence.dto.ContaNormal;
 import br.com.home.maildeliveryjfsteel.persistence.impl.MailDeliveryDBContaNormal;
-import br.com.home.maildeliveryjfsteel.persistence.impl.MailDeliveryDBNotaServico;
-import br.com.home.maildeliveryjfsteel.persistence.impl.MailDeliveryNoQrCode;
 import br.com.home.maildeliveryjfsteel.utils.PermissionUtils;
 import br.com.home.maildeliveryjfsteel.view.CameraImageView;
 
@@ -60,19 +58,24 @@ public class CameraActivity extends AppCompatActivity {
     private Camera.PictureCallback pictureCallback;
     private MailDeliverDBService db;
     private int countPhoto = 0;
+    private String dadosQrCode;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
         setContentView(R.layout.activity_camera);
-        if (getIntent().getExtras() != null && getIntent().getStringExtra(getResources().getString(R.string.dados_qr_code)).startsWith(getResources().getString(R.string.tipo_conta_normal))) {
-            db = new MailDeliveryDBContaNormal(this);
-        } else if (getIntent().getExtras() != null && getIntent().getStringExtra(getResources().getString(R.string.dados_qr_code)).startsWith(getResources().getString(R.string.tipo_conta_nota))) {
-            db = new MailDeliveryDBNotaServico(this);
-        } else {
-            db = new MailDeliveryNoQrCode(this);
-        }
+
+        dadosQrCode = getIntent().getStringExtra(getResources().getString(R.string.dados_qr_code));
+        db = new MailDeliveryDBContaNormal(this);
+        /** TODO descomentar bloco e apagar linha acima
+         if (getIntent().getExtras() != null && getIntent().getStringExtra(getResources().getString(R.string.dados_qr_code)).startsWith(getResources().getString(R.string.tipo_conta_normal))) {
+         db = new MailDeliveryDBContaNormal(this);
+         } else if (getIntent().getExtras() != null && getIntent().getStringExtra(getResources().getString(R.string.dados_qr_code)).startsWith(getResources().getString(R.string.tipo_conta_nota))) {
+         db = new MailDeliveryDBNotaServico(this);
+         } else {
+         db = new MailDeliveryNoQrCode(this);
+         }*/
 
         btnPhoto = (ImageView) findViewById(R.id.btn_capturar_foto);
         btnFinalizarCaptura = (ImageView) findViewById(R.id.btn_finalizar_captura);
@@ -138,8 +141,9 @@ public class CameraActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View view) {
                     if (countPhoto != 0) {
+                        db.findAll();
                         new FirebaseContaNormalImpl(CameraActivity.this).save(
-                                db.findByQrCode(db.getTable(), getIntent().getStringExtra(getResources().getString(R.string.dados_qr_code))));
+                                db.findByAgrupador(getResources().getString(R.string.prefix_agrupador)));//FIXME arrumar um prefix válido
                     }
                 }
             });

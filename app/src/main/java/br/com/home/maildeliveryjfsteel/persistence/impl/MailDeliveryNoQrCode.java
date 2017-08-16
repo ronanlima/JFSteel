@@ -86,15 +86,14 @@ public class MailDeliveryNoQrCode extends SQLiteOpenHelper implements MailDelive
     /**
      * Busca todos os registros para a tabela passada.
      *
-     * @param table
      * @return
      */
     @Override
-    public List<NoQrCode> findAll(String table) {
+    public List<NoQrCode> findAll() {
         SQLiteDatabase db = getReadableDatabase();
 
         try {
-            Cursor c = db.query(table, null, null, null, null, null, null);
+            Cursor c = db.query(TABLE_REGISTRO_ENTREGA, null, null, null, null, null, null);
             return toList(c);
         } catch (SQLException e) {
             e.printStackTrace();
@@ -107,12 +106,11 @@ public class MailDeliveryNoQrCode extends SQLiteOpenHelper implements MailDelive
     /**
      * Busca os registros com o prefixo passado.
      *
-     * @param table
      * @param prefix
      * @return
      */
     @Override
-    public List<NoQrCode> findByAgrupador(String table, String prefix) {
+    public List<NoQrCode> findByAgrupador(String prefix) {
         return null;
     }
 

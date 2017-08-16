@@ -6,13 +6,13 @@ import br.com.home.maildeliveryjfsteel.persistence.TipoResidencia;
  * Created by Ronan.lima on 27/07/17.
  */
 
-public class Nota extends GenericDelivery {
+public class NotaServico extends GenericDelivery {
     private String leitura;
     private String medidorVisivel;
     private int medidorExterno;
     private TipoResidencia tipoResidencia;
 
-    public Nota() {
+    public NotaServico() {
     }
 
     public String getLeitura() {
