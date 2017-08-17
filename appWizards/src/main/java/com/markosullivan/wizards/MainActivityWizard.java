@@ -46,6 +46,13 @@ public class MainActivityWizard extends FragmentActivity implements
 //        if (getIntent().getStringExtra(getResources().getString(R.string.dados_qr_code)).split(";")[0].equals(getResources().getString(R.string.tipo_conta_normal))) {
 //            mWizardModel = new WizardContaNormal(this);
 //        }
+        if (getIntent().getIntExtra("countTemp", 1) == 1) {
+            mWizardModel = new WizardContaNormal(this);
+        } else if (getIntent().getIntExtra("countTemp", 1) == 2) {
+            mWizardModel = new WizardNotaServico(this);
+        } else {
+            mWizardModel = new WizardNoQrCode(this);
+        }
 
         if (savedInstanceState != null) {
             mWizardModel.load(savedInstanceState.getBundle("model"));
@@ -92,13 +99,20 @@ public class MainActivityWizard extends FragmentActivity implements
                     if (getItensSelecteds() != null && getItensSelecteds().size() > 0) {
                         boolean isContaProcotolada = false;
                         boolean isContaColetiva = false;
-                        finalizaFluxoContaNormal(isContaProcotolada, isContaColetiva); //FIXME remover esta linha após validar os tipos de conta
-                        if (getIntent().getStringExtra(getResources().getString(R.string.dados_qr_code)).split(";")[0].equals(getResources().getString(R.string.tipo_conta_normal))) {
-                            finalizaFluxoContaNormal(isContaProcotolada, isContaColetiva);
-                        } else if (getIntent().getStringExtra(getResources().getString(R.string.dados_qr_code)).split(";")[0].equals(getResources().getString(R.string.tipo_conta_nota))) {
-
+//                        finalizaFluxoContaNormal(isContaProcotolada, isContaColetiva); //FIXME remover esta linha após validar os tipos de conta
+//                        if (getIntent().getStringExtra(getResources().getString(R.string.dados_qr_code)).split(";")[0].equals(getResources().getString(R.string.tipo_conta_normal))) {
+//                            finalizaFluxoContaNormal(isContaProcotolada, isContaColetiva);
+//                        } else if (getIntent().getStringExtra(getResources().getString(R.string.dados_qr_code)).split(";")[0].equals(getResources().getString(R.string.tipo_conta_nota))) {
+//
+//                        } else {
+//
+//                        }
+                        if (getIntent().getIntExtra("countTemp", 1) == 1) {
+                            finalizaFluxoContaNormal(isContaProcotolada, isContaColetiva); //FIXME remover esta linha após validar os tipos de conta
+                        } else if (getIntent().getIntExtra("countTemp", 1) == 2) {
+                            finalizaFluxoDefault();
                         } else {
-
+                            finalizaFluxoDefault();
                         }
 //                        listenerCallback.backToMainApplication(b);
                     }
@@ -141,6 +155,14 @@ public class MainActivityWizard extends FragmentActivity implements
         b.putBoolean("contaProtocolada", isContaProcotolada);
         b.putBoolean("contaColetiva", isContaColetiva);
         b.putString("localEntrega", getItensSelecteds().get(0).getDisplayValue());
+        Intent i = new Intent();
+        i.putExtras(b);
+        setResult(Activity.RESULT_OK, i);
+    }
+
+    private void finalizaFluxoDefault() {
+        Bundle b = new Bundle();
+        b.putBoolean("isContaDefault", true);
         Intent i = new Intent();
         i.putExtras(b);
         setResult(Activity.RESULT_OK, i);

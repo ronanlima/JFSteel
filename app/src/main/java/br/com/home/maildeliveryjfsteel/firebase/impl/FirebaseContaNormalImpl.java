@@ -21,7 +21,6 @@ import java.util.List;
 
 import br.com.home.maildeliveryjfsteel.BuildConfig;
 import br.com.home.maildeliveryjfsteel.R;
-import br.com.home.maildeliveryjfsteel.firebase.FirebaseService;
 import br.com.home.maildeliveryjfsteel.persistence.dto.ContaNormal;
 import br.com.home.maildeliveryjfsteel.persistence.impl.MailDeliveryDBContaNormal;
 
@@ -29,21 +28,20 @@ import br.com.home.maildeliveryjfsteel.persistence.impl.MailDeliveryDBContaNorma
  * Created by Ronan.lima on 28/07/17.
  */
 
-public class FirebaseContaNormalImpl implements FirebaseService<ContaNormal> {
-    private Context mContext;
+public class FirebaseContaNormalImpl extends FirebaseServiceImpl<ContaNormal> {
     private String matricula;
 
-    public FirebaseContaNormalImpl(Context mContext) {
-        this.mContext = mContext;
+    public FirebaseContaNormalImpl(Context context) {
+        super(context);
 
-        SharedPreferences sp = mContext.getSharedPreferences(BuildConfig.APPLICATION_ID, mContext.MODE_PRIVATE);
-        this.matricula = sp.getString(mContext.getResources().getString(R.string.sp_matricula), null);
+        SharedPreferences sp = context.getSharedPreferences(BuildConfig.APPLICATION_ID, context.MODE_PRIVATE);
+        this.matricula = sp.getString(context.getResources().getString(R.string.sp_matricula), null);
     }
 
     @Override
     public void save(final List<ContaNormal> list) {
         if (list != null) {
-            DatabaseReference reference = database.getReference(mContext.getResources().getString(R.string.firebase_no_contas));
+            DatabaseReference reference = database.getReference(getmContext().getResources().getString(R.string.firebase_no_contas));
             for (final ContaNormal ct : list) {
                 reference.child(matricula).push().setValue(ct).addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
@@ -60,7 +58,7 @@ public class FirebaseContaNormalImpl implements FirebaseService<ContaNormal> {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         e.printStackTrace();
-                        Toast.makeText(mContext, mContext.getResources().getString(R.string.msg_falha_salvar_servidor), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getmContext(), getmContext().getResources().getString(R.string.msg_falha_salvar_servidor), Toast.LENGTH_SHORT).show();
                     }
                 });
             }
@@ -69,7 +67,7 @@ public class FirebaseContaNormalImpl implements FirebaseService<ContaNormal> {
 
     @Override
     public void uploadPhoto(final ContaNormal ct, String uriPhotoDisp, String namePhoto) {
-        StorageReference storageReference = storage.getReference().child(mContext.getResources().getString(R.string.firebase_storage_conta)).child(namePhoto);
+        StorageReference storageReference = storage.getReference().child(getmContext().getResources().getString(R.string.firebase_storage_conta)).child(namePhoto);
 
         Bitmap bitmap = BitmapFactory.decodeFile(uriPhotoDisp);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -100,7 +98,7 @@ public class FirebaseContaNormalImpl implements FirebaseService<ContaNormal> {
      */
     @Override
     public void updateFields(ContaNormal ct, String downloadUrl) {
-        MailDeliveryDBContaNormal db = new MailDeliveryDBContaNormal(mContext);
+        MailDeliveryDBContaNormal db = new MailDeliveryDBContaNormal(getmContext());
         ct.setSitSalvoFirebase(1);
         if (downloadUrl != null) {
             ct.setUrlStorageFoto(downloadUrl);

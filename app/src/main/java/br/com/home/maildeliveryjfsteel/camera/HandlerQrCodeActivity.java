@@ -60,6 +60,7 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements
     private GoogleApiClient apiClient;
     private Location location;
     private boolean isWizardRespondido = false;
+    private int countTemp = 1;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -84,7 +85,6 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements
             Log.d("HandlerQrCodeActivity", resultQrCode);
             if (resultQrCode != null && !resultQrCode.isEmpty()) {
                 continuaFluxoEntrega();
-
             }
         } else {
             Toast.makeText(getApplicationContext(), getResources().getString(R.string.msg_falha_leitura_qrcode), Toast.LENGTH_LONG).show();
@@ -96,7 +96,7 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements
         if (resultQrCode.contains("ALGUMA_COISA_QUE_SEJA_GRUPO_A") || resultQrCode.contains("ALGUMA_COISA_QUE_SEJA_GRUPO_REAVISO")) {
             Intent i = new Intent(this, CameraActivity.class);
             i.putExtra(getResources().getString(R.string.dados_qr_code), resultQrCode);
-            startActivityForResult(i, 810);
+            startActivityForResult(i, REQUEST_CODE_CAMERA);
         } else {
             iniciarFluxoWizard();
             /** FIXME Enquanto não especificarem como reconhcer os tipos de conta, manter o bloco comentado
@@ -175,20 +175,56 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, final Intent data) {
         if (requestCode == REQUEST_CODE_WIZARD && resultCode == Activity.RESULT_OK) {
             String strLatitude = getResources().getString(R.string.latitude);
             String strLongitude = getResources().getString(R.string.longitude);
             if (location != null) {
                 data.putExtra(strLatitude, location.getLatitude());
                 data.putExtra(strLongitude, location.getLongitude());
+                data.putExtra(getResources().getString(R.string.dados_qr_code), resultQrCode);
+                data.putExtra("countTemp", countTemp - 1);//FIXME remover essa linha. Só está sendo utilizada para testar o fluxo lendo todos os qrcodes
+                data.setClass(this, CameraActivity.class);
+                startActivityForResult(data, REQUEST_CODE_CAMERA);
             } else {
-                data.putExtra(strLatitude, 0d);
-                data.putExtra(strLongitude, 0d);
+                JFSteelDialog alert = AlertUtils.criarAlerta(getResources().getString(R.string.titulo_pedido_localizacao),
+                        getResources().getString(R.string.msg_falha_pegar_localizacao),
+                        JFSteelDialog.TipoAlertaEnum.ALERTA, true, new JFSteelDialog.OnClickDialog() {
+                            @Override
+                            public void onClickPositive(View v, String tag) {
+
+                            }
+
+                            @Override
+                            public void onClickNegative(View v, String tag) {
+                                data.getExtras().putString(getResources().getString(R.string.endereco_manual), tag);
+                                data.putExtra(getResources().getString(R.string.dados_qr_code), resultQrCode);
+                                data.putExtra("countTemp", countTemp - 1);//FIXME remover essa linha. Só está sendo utilizada para testar o fluxo lendo todos os qrcodes
+                                data.setClass(getBaseContext(), CameraActivity.class);
+                                startActivityForResult(data, REQUEST_CODE_CAMERA);
+                            }
+
+                            @Override
+                            public void onClickNeutral(View v, String tag) {
+
+                            }
+                        });
+                alert.show(getSupportFragmentManager(), "alert");
             }
-            data.putExtra(getResources().getString(R.string.dados_qr_code), resultQrCode);
-            data.setClass(this, HelloWorldActivity.class);
-            startActivity(data);
+//            scannerView.stopCamera();
+//            String strLatitude = getResources().getString(R.string.latitude);
+//            String strLongitude = getResources().getString(R.string.longitude);
+//            if (location != null) {
+//                data.putExtra(strLatitude, location.getLatitude());
+//                data.putExtra(strLongitude, location.getLongitude());
+//            } else {
+//                data.putExtra(strLatitude, 0d);
+//                data.putExtra(strLongitude, 0d);
+//            }
+//            data.putExtra(getResources().getString(R.string.dados_qr_code), resultQrCode);
+//            data.putExtra("countTemp", countTemp - 1);//FIXME remover essa linha. Só está sendo utilizada para testar o fluxo lendo todos os qrcodes
+//            data.setClass(this, HelloWorldActivity.class);
+//            startActivity(data);
             isWizardRespondido = true;
         } else if (requestCode == REQUEST_CODE_WIZARD && Activity.RESULT_CANCELED == resultCode) {
             isWizardRespondido = false;
@@ -197,7 +233,8 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements
             resultQrCode = null;
         } else if (requestCode == REQUEST_CODE_CAMERA && resultCode == Activity.RESULT_CANCELED) {
             isWizardRespondido = false;
-
+        } else {
+            super.onActivityResult(requestCode, resultCode, data);
         }
         /**else {
          IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
@@ -233,8 +270,12 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements
         Log.d("HandlerQrCodeActivity", resultQrCode);
         Intent i = new Intent(this, MainActivityWizard.class);
         i.putExtra(getResources().getString(R.string.dados_qr_code), resultQrCode);
+        i.putExtra("countTemp", countTemp++);//FIXME remover essa linha
 //        intentIntegrator = null;
-        startActivityForResult(i, 999);
+        startActivityForResult(i, REQUEST_CODE_WIZARD);
+        if (countTemp >= 3) {//FIXME remover este bloco
+            countTemp = 1;
+        }
     }
 
     @Override

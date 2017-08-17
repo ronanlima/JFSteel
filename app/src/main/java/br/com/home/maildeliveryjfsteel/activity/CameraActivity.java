@@ -1,6 +1,7 @@
 package br.com.home.maildeliveryjfsteel.activity;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
@@ -29,9 +30,10 @@ import java.util.List;
 import br.com.home.maildeliveryjfsteel.BuildConfig;
 import br.com.home.maildeliveryjfsteel.CameraPreview;
 import br.com.home.maildeliveryjfsteel.R;
-import br.com.home.maildeliveryjfsteel.firebase.impl.FirebaseContaNormalImpl;
+import br.com.home.maildeliveryjfsteel.firebase.impl.FirebaseServiceImpl;
 import br.com.home.maildeliveryjfsteel.persistence.MailDeliverDBService;
 import br.com.home.maildeliveryjfsteel.persistence.dto.ContaNormal;
+import br.com.home.maildeliveryjfsteel.persistence.dto.GenericDelivery;
 import br.com.home.maildeliveryjfsteel.persistence.impl.MailDeliveryDBContaNormal;
 import br.com.home.maildeliveryjfsteel.utils.PermissionUtils;
 import br.com.home.maildeliveryjfsteel.view.CameraImageView;
@@ -142,8 +144,10 @@ public class CameraActivity extends AppCompatActivity {
                 public void onClick(View view) {
                     if (countPhoto != 0) {
                         db.findAll();
-                        new FirebaseContaNormalImpl(CameraActivity.this).save(
-                                db.findByAgrupador(getResources().getString(R.string.prefix_agrupador)));//FIXME arrumar um prefix válido
+                        new FirebaseServiceImpl<GenericDelivery>(CameraActivity.this)
+                                .save(db.findByAgrupador(getResources().getString(R.string.prefix_agrupador))); //FIXME arrumar um prefix válido
+                        setResult(Activity.RESULT_OK);
+                        finish();
                     }
                 }
             });
@@ -151,6 +155,12 @@ public class CameraActivity extends AppCompatActivity {
             cameraPreview.setmCamera(camera);
             cameraPreview.initHolder();
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        setResult(Activity.RESULT_CANCELED);
+        super.onBackPressed();
     }
 
     /**

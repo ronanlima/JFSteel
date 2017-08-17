@@ -1,5 +1,6 @@
 package br.com.home.maildeliveryjfsteel.activity;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -9,6 +10,7 @@ import android.view.View;
 import java.util.Date;
 
 import br.com.home.maildeliveryjfsteel.R;
+import br.com.home.maildeliveryjfsteel.camera.HandlerQrCodeActivity;
 import br.com.home.maildeliveryjfsteel.fragment.JFSteelDialog;
 import br.com.home.maildeliveryjfsteel.persistence.dto.ContaNormal;
 import br.com.home.maildeliveryjfsteel.persistence.impl.MailDeliveryDBContaNormal;
@@ -30,7 +32,6 @@ public class HelloWorldActivity extends AppCompatActivity {
         if (extras.getBoolean("contaProtocolada") || extras.getBoolean("contaColetiva")) {
             if (extras.getDouble(strLatitude) != 0d) {
                 startCameraActivity(extras);
-                finish();
             } else {
                 JFSteelDialog alert = AlertUtils.criarAlerta(getResources().getString(R.string.titulo_pedido_localizacao),
                         getResources().getString(R.string.msg_falha_pegar_localizacao),
@@ -44,7 +45,6 @@ public class HelloWorldActivity extends AppCompatActivity {
                             public void onClickNegative(View v, String tag) {
                                 extras.putString(getResources().getString(R.string.endereco_manual), tag);
                                 startCameraActivity(extras);
-                                finish();
                             }
 
                             @Override
@@ -56,8 +56,10 @@ public class HelloWorldActivity extends AppCompatActivity {
             }
         } else {
             final String strDadosQrCode = getResources().getString(R.string.dados_qr_code);
-            if (extras.getString(strDadosQrCode)
-                    .startsWith(getResources().getString(R.string.tipo_conta_normal))) {
+            //FIXME corrigir fluxo, pois caso a conta seja normal mas não seja coletiva ou não esteja protocolada, não entra em nenhum fluxo para salvar ou tirar foto.
+            if (extras.getInt("countTemp", 1) == 2 || extras.getInt("countTemp", 1) == 3) { //FIXME remover este bloco e descomentar o que está embaixo
+//            if (extras.getString(strDadosQrCode)
+//                    .startsWith(getResources().getString(R.string.tipo_conta_normal))) {
                 if (extras.getDouble(strLatitude) != 0d) {
                     saveRegistroEntrega(extras.getDouble(strLatitude), extras.getDouble(getResources().getString(R.string.longitude)), null, extras.getString(strDadosQrCode));
                     finish();
@@ -87,6 +89,19 @@ public class HelloWorldActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == HandlerQrCodeActivity.REQUEST_CODE_CAMERA && resultCode == Activity.RESULT_OK) {
+            setResult(Activity.RESULT_OK);
+            finish();
+        } else if (requestCode == HandlerQrCodeActivity.REQUEST_CODE_CAMERA && resultCode == Activity.RESULT_CANCELED) {
+            setResult(Activity.RESULT_CANCELED);
+            finish();
+        } else {
+            super.onActivityResult(requestCode, resultCode, data);
+        }
+    }
+
     /**
      * @param latitude
      * @param longitude
@@ -113,7 +128,7 @@ public class HelloWorldActivity extends AppCompatActivity {
     private void startCameraActivity(Bundle bundle) {
         Intent i = new Intent(this, CameraActivity.class);
         i.putExtras(bundle);
-        startActivity(i);
+        startActivityForResult(i, HandlerQrCodeActivity.REQUEST_CODE_CAMERA);
     }
 
 }

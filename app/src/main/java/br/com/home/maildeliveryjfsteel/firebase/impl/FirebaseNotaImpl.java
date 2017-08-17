@@ -21,7 +21,6 @@ import java.util.List;
 
 import br.com.home.maildeliveryjfsteel.BuildConfig;
 import br.com.home.maildeliveryjfsteel.R;
-import br.com.home.maildeliveryjfsteel.firebase.FirebaseService;
 import br.com.home.maildeliveryjfsteel.persistence.dto.NotaServico;
 import br.com.home.maildeliveryjfsteel.persistence.impl.MailDeliveryDBNotaServico;
 
@@ -29,21 +28,20 @@ import br.com.home.maildeliveryjfsteel.persistence.impl.MailDeliveryDBNotaServic
  * Created by Ronan.lima on 28/07/17.
  */
 
-public class FirebaseNotaImpl implements FirebaseService<NotaServico> {
-    private Context mContext;
+public class FirebaseNotaImpl extends FirebaseServiceImpl<NotaServico> {
     private String matricula;
 
     public FirebaseNotaImpl(Context context) {
-        this.mContext = context;
+        super(context);
 
-        SharedPreferences sp = mContext.getSharedPreferences(BuildConfig.APPLICATION_ID, mContext.MODE_PRIVATE);
-        this.matricula = sp.getString(mContext.getResources().getString(R.string.sp_matricula), null);
+        SharedPreferences sp = context.getSharedPreferences(BuildConfig.APPLICATION_ID, context.MODE_PRIVATE);
+        this.matricula = sp.getString(context.getResources().getString(R.string.sp_matricula), null);
     }
 
     @Override
     public void save(List<NotaServico> list) {
         if (list != null) {
-            DatabaseReference reference = database.getReference(mContext.getResources().getString(R.string.firebase_no_notas));
+            DatabaseReference reference = database.getReference(getmContext().getResources().getString(R.string.firebase_no_notas));
             for (final NotaServico nota : list) {
                 reference.child(matricula).push().setValue(nota).addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
@@ -60,7 +58,7 @@ public class FirebaseNotaImpl implements FirebaseService<NotaServico> {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         e.printStackTrace();
-                        Toast.makeText(mContext, mContext.getResources().getString(R.string.msg_falha_salvar_servidor), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getmContext(), getmContext().getResources().getString(R.string.msg_falha_salvar_servidor), Toast.LENGTH_SHORT).show();
                     }
                 });
             }
@@ -69,7 +67,7 @@ public class FirebaseNotaImpl implements FirebaseService<NotaServico> {
 
     @Override
     public void uploadPhoto(final NotaServico nota, String uriPhotoDisp, String namePhoto) {
-        StorageReference storageReference = storage.getReference().child(mContext.getResources().getString(R.string.firebase_storage_nota_servico)).child(namePhoto);
+        StorageReference storageReference = storage.getReference().child(getmContext().getResources().getString(R.string.firebase_storage_nota_servico)).child(namePhoto);
 
         Bitmap bitmap = BitmapFactory.decodeFile(uriPhotoDisp);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -93,7 +91,7 @@ public class FirebaseNotaImpl implements FirebaseService<NotaServico> {
 
     @Override
     public void updateFields(NotaServico nota, String downloadUrl) {
-        MailDeliveryDBNotaServico db = new MailDeliveryDBNotaServico(mContext);
+        MailDeliveryDBNotaServico db = new MailDeliveryDBNotaServico(getmContext());
         nota.setSitSalvoFirebase(1);
         if (downloadUrl != null) {
             nota.setUrlStorageFoto(downloadUrl);
