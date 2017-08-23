@@ -31,8 +31,8 @@ import br.com.home.maildeliveryjfsteel.persistence.impl.MailDeliveryDBNotaServic
 public class FirebaseNotaImpl extends FirebaseServiceImpl<NotaServico> {
     private String matricula;
 
-    public FirebaseNotaImpl(Context context) {
-        super(context);
+    public FirebaseNotaImpl(Context context, ServiceNotification listener) {
+        super(context, listener);
 
         SharedPreferences sp = context.getSharedPreferences(BuildConfig.APPLICATION_ID, context.MODE_PRIVATE);
         this.matricula = sp.getString(context.getResources().getString(R.string.sp_matricula), null);

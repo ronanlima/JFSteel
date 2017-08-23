@@ -30,6 +30,7 @@ import java.util.List;
 import br.com.home.maildeliveryjfsteel.BuildConfig;
 import br.com.home.maildeliveryjfsteel.CameraPreview;
 import br.com.home.maildeliveryjfsteel.R;
+import br.com.home.maildeliveryjfsteel.firebase.impl.FirebaseContaNormalImpl;
 import br.com.home.maildeliveryjfsteel.firebase.impl.FirebaseServiceImpl;
 import br.com.home.maildeliveryjfsteel.persistence.MailDeliverDBService;
 import br.com.home.maildeliveryjfsteel.persistence.dto.ContaNormal;
@@ -59,6 +60,7 @@ public class CameraActivity extends AppCompatActivity {
     private CameraImageView btnFlash;
     private Camera.PictureCallback pictureCallback;
     private MailDeliverDBService db;
+    private FirebaseServiceImpl fService;
     private int countPhoto = 0;
     private String dadosQrCode;
 
@@ -70,6 +72,7 @@ public class CameraActivity extends AppCompatActivity {
 
         dadosQrCode = getIntent().getStringExtra(getResources().getString(R.string.dados_qr_code));
         db = new MailDeliveryDBContaNormal(this);
+        fService = new FirebaseContaNormalImpl(this, createListenerService());
         /** TODO descomentar bloco e apagar linha acima
          if (getIntent().getExtras() != null && getIntent().getStringExtra(getResources().getString(R.string.dados_qr_code)).startsWith(getResources().getString(R.string.tipo_conta_normal))) {
          db = new MailDeliveryDBContaNormal(this);
@@ -143,11 +146,9 @@ public class CameraActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View view) {
                     if (countPhoto != 0) {
-                        db.findAll();
-                        new FirebaseServiceImpl<GenericDelivery>(CameraActivity.this)
-                                .save(db.findByAgrupador(getResources().getString(R.string.prefix_agrupador))); //FIXME arrumar um prefix válido
-                        setResult(Activity.RESULT_OK);
-                        finish();
+                        fService.save(db.findByAgrupador(getResources().getString(R.string.prefix_agrupador))); //FIXME arrumar um prefix válido
+//                        setResult(Activity.RESULT_OK);
+//                        finish();
                     }
                 }
             });
@@ -155,6 +156,22 @@ public class CameraActivity extends AppCompatActivity {
             cameraPreview.setmCamera(camera);
             cameraPreview.initHolder();
         }
+    }
+
+    /**
+     * Cria um listener para notificar ao final do envio do registro para o firebase e atualização da
+     * base local.
+     *
+     * @return
+     */
+    private FirebaseServiceImpl.ServiceNotification createListenerService() {
+        return new FirebaseServiceImpl.ServiceNotification() {
+            @Override
+            public void notifyEndService() {
+                setResult(Activity.RESULT_OK);
+                finish();
+            }
+        };
     }
 
     @Override

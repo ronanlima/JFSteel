@@ -35,9 +35,9 @@ public class MainActivity extends AppCompatActivity {
         } else {
             startActivity(new Intent(this, HandlerQrCodeActivity.class));
 //            deleteDatabase(MailDeliverDBService.DB_NAME); // FIXME remover esta linha
-            new SaveFirebaseAsync().execute(new FirebaseAsyncParam(new MailDeliveryDBContaNormal(getBaseContext()).findBySit(MailDeliverDBService.SIT_FALSE), new FirebaseContaNormalImpl(getBaseContext())));
-            new SaveFirebaseAsync().execute(new FirebaseAsyncParam(new MailDeliveryDBNotaServico(getBaseContext()).findBySit(MailDeliverDBService.SIT_FALSE), new FirebaseNotaImpl(getBaseContext())));
-            new SaveFirebaseAsync().execute(new FirebaseAsyncParam(new MailDeliveryNoQrCode(getBaseContext()).findBySit(MailDeliverDBService.SIT_FALSE), new FirebaseNoQrCodeImpl(getBaseContext())));
+            new SaveFirebaseAsync().execute(new FirebaseAsyncParam(new MailDeliveryDBContaNormal(getBaseContext()).findBySit(MailDeliverDBService.SIT_FALSE), new FirebaseContaNormalImpl(getBaseContext(), null)));
+            new SaveFirebaseAsync().execute(new FirebaseAsyncParam(new MailDeliveryDBNotaServico(getBaseContext()).findBySit(MailDeliverDBService.SIT_FALSE), new FirebaseNotaImpl(getBaseContext(), null)));
+            new SaveFirebaseAsync().execute(new FirebaseAsyncParam(new MailDeliveryNoQrCode(getBaseContext()).findBySit(MailDeliverDBService.SIT_FALSE), new FirebaseNoQrCodeImpl(getBaseContext(), null)));
 //            startActivity(new Intent(this, CameraActivity.class));
             finish();
         }

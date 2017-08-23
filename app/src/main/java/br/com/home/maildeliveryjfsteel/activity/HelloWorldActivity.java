@@ -56,8 +56,8 @@ public class HelloWorldActivity extends AppCompatActivity {
             }
         } else {
             final String strDadosQrCode = getResources().getString(R.string.dados_qr_code);
-            //FIXME corrigir fluxo, pois caso a conta seja normal mas não seja coletiva ou não esteja protocolada, não entra em nenhum fluxo para salvar ou tirar foto.
-            if (extras.getInt("countTemp", 1) == 2 || extras.getInt("countTemp", 1) == 3) { //FIXME remover este bloco e descomentar o que está embaixo
+            //FIXME corrigir fluxo, pois caso a conta seja normal mas nao seja coletiva ou nao esteja protocolada, nao entra em nenhum fluxo para salvar ou tirar foto.
+            if (extras.getInt("countTemp", 1) == 2 || extras.getInt("countTemp", 1) == 3) { //FIXME remover este bloco e descomentar o que esta embaixo
 //            if (extras.getString(strDadosQrCode)
 //                    .startsWith(getResources().getString(R.string.tipo_conta_normal))) {
                 if (extras.getDouble(strLatitude) != 0d) {
@@ -117,7 +117,7 @@ public class HelloWorldActivity extends AppCompatActivity {
             ct.setEnderecoManual(endereco);
         }
         ct.setDadosQrCode(qrCode);
-        ct.setPrefixAgrupador(getResources().getString(R.string.prefix_agrupador));//FIXME arrumar um prefix válido
+        ct.setPrefixAgrupador(getResources().getString(R.string.prefix_agrupador));//FIXME arrumar um prefix valido
         ct.setTimesTamp(new Date().getTime());
         db.save(ct);
     }

@@ -1,5 +1,6 @@
 package br.com.home.maildeliveryjfsteel.firebase.impl;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -31,8 +32,8 @@ import br.com.home.maildeliveryjfsteel.persistence.impl.MailDeliveryDBContaNorma
 public class FirebaseContaNormalImpl extends FirebaseServiceImpl<ContaNormal> {
     private String matricula;
 
-    public FirebaseContaNormalImpl(Context context) {
-        super(context);
+    public FirebaseContaNormalImpl(Context context, ServiceNotification listener) {
+        super(context, listener);
 
         SharedPreferences sp = context.getSharedPreferences(BuildConfig.APPLICATION_ID, context.MODE_PRIVATE);
         this.matricula = sp.getString(context.getResources().getString(R.string.sp_matricula), null);
@@ -71,7 +72,7 @@ public class FirebaseContaNormalImpl extends FirebaseServiceImpl<ContaNormal> {
 
         Bitmap bitmap = BitmapFactory.decodeFile(uriPhotoDisp);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 40, baos);
         byte[] data = baos.toByteArray();
         ByteArrayInputStream in = new ByteArrayInputStream(data);
 
@@ -106,6 +107,9 @@ public class FirebaseContaNormalImpl extends FirebaseServiceImpl<ContaNormal> {
             ct.setUrlStorageFoto(null);
         }
         db.save(ct);
+        if (getListenerService() != null) {
+            getListenerService().notifyEndService();
+        }
     }
 
 }

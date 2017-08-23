@@ -24,8 +24,8 @@ import br.com.home.maildeliveryjfsteel.persistence.impl.MailDeliveryNoQrCode;
 public class FirebaseNoQrCodeImpl extends FirebaseServiceImpl<NoQrCode> {
     private String matricula;
 
-    public FirebaseNoQrCodeImpl(Context context) {
-        super(context);
+    public FirebaseNoQrCodeImpl(Context context, ServiceNotification listener) {
+        super(context, listener);
 
         SharedPreferences sp = context.getSharedPreferences(BuildConfig.APPLICATION_ID, context.MODE_PRIVATE);
         this.matricula = sp.getString(context.getResources().getString(R.string.sp_matricula), null);

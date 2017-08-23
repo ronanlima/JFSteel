@@ -13,7 +13,9 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -34,13 +36,11 @@ import br.com.home.maildeliveryjfsteel.activity.HelloWorldActivity;
 import br.com.home.maildeliveryjfsteel.fragment.JFSteelDialog;
 import br.com.home.maildeliveryjfsteel.utils.AlertUtils;
 import br.com.home.maildeliveryjfsteel.utils.PermissionUtils;
+import br.com.home.maildeliveryjfsteel.view.CameraImageView;
 import me.dm7.barcodescanner.zxing.ZXingScannerView;
 
 import static br.com.home.maildeliveryjfsteel.utils.PermissionUtils.CAMERA_PERMISSION;
 import static br.com.home.maildeliveryjfsteel.utils.PermissionUtils.GPS_PERMISSION;
-
-//import com.google.zxing.integration.android.IntentIntegrator;
-//import com.google.zxing.integration.android.IntentResult;
 
 /**
  * Created by ronanlima on 17/05/17.
@@ -54,7 +54,6 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements
     public static final int REQUEST_CODE_CAMERA = 810;
 
     private Context mContext = this;
-    //    private IntentIntegrator intentIntegrator;
     private ZXingScannerView scannerView;
     private String resultQrCode;
     private GoogleApiClient apiClient;
@@ -68,8 +67,6 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements
         requestWindowFeature(Window.FEATURE_NO_TITLE);
 
         if (PermissionUtils.validate(this, CAMERA_PERMISSION, Manifest.permission.CAMERA, Manifest.permission.ACCESS_FINE_LOCATION)) {
-//            initIntentIntegrator();
-//            initIntegratorTest(); // FIXME a chamada à este método consegue ler o qrcode AZTEC
             initApiClient();
             initScanner();
         }
@@ -119,33 +116,49 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements
             List<BarcodeFormat> formatList = new ArrayList<>();
             formatList.add(BarcodeFormat.AZTEC);
             scannerView.setFormats(formatList);
-            setContentView(scannerView);
+            setContentView(scannerView, configScreen());
         }
+    }
+
+    private ViewGroup.LayoutParams configScreen() {
+        RelativeLayout relativeLayout = new RelativeLayout(this);
+
+        RelativeLayout.LayoutParams rlp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+        CameraImageView imgView = new CameraImageView(this);
+
+        RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+        lp.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+        lp.setMargins(0, 10, 10, 0);
+        imgView.setLayoutParams(lp);
+        relativeLayout.setLayoutParams(rlp);
+        relativeLayout.addView(imgView);
+        return relativeLayout.getLayoutParams();
+//        scannerView.addView(relativeLayout, rlp);
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (!PermissionUtils.isPermissaoConcedida(grantResults)) {
-            JFSteelDialog dialog = AlertUtils.criarAlerta(mContext.getResources().getString(R.string.titulo_alerta_permissoes), mContext.getResources().getString(R.string.msg_permissao), JFSteelDialog.TipoAlertaEnum.ALERTA, false, new JFSteelDialog.OnClickDialog() {
-                @Override
-                public void onClickPositive(View v, String tag) {
+        if (grantResults.length != 0) {
+            if (!PermissionUtils.isPermissaoConcedida(grantResults)) {
+                JFSteelDialog dialog = AlertUtils.criarAlerta(mContext.getResources().getString(R.string.titulo_alerta_permissoes), mContext.getResources().getString(R.string.msg_permissao), JFSteelDialog.TipoAlertaEnum.ALERTA, false, new JFSteelDialog.OnClickDialog() {
+                    @Override
+                    public void onClickPositive(View v, String tag) {
 
-                }
+                    }
 
-                @Override
-                public void onClickNegative(View v, String tag) {
-                    finish();
-                }
+                    @Override
+                    public void onClickNegative(View v, String tag) {
+                        finish();
+                    }
 
-                @Override
-                public void onClickNeutral(View v, String tag) {
+                    @Override
+                    public void onClickNeutral(View v, String tag) {
 
-                }
-            });
-            dialog.show(getSupportFragmentManager(), "dialog");
-        } /**else if (requestCode == CAMERA_PERMISSION) {
-         initIntentIntegrator();
-         }*/
+                    }
+                });
+                dialog.show(getSupportFragmentManager(), "dialog");
+            }
+        }
     }
 
     @Override
@@ -177,54 +190,54 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements
     @Override
     protected void onActivityResult(int requestCode, int resultCode, final Intent data) {
         if (requestCode == REQUEST_CODE_WIZARD && resultCode == Activity.RESULT_OK) {
-            String strLatitude = getResources().getString(R.string.latitude);
-            String strLongitude = getResources().getString(R.string.longitude);
-            if (location != null) {
-                data.putExtra(strLatitude, location.getLatitude());
-                data.putExtra(strLongitude, location.getLongitude());
-                data.putExtra(getResources().getString(R.string.dados_qr_code), resultQrCode);
-                data.putExtra("countTemp", countTemp - 1);//FIXME remover essa linha. Só está sendo utilizada para testar o fluxo lendo todos os qrcodes
-                data.setClass(this, CameraActivity.class);
-                startActivityForResult(data, REQUEST_CODE_CAMERA);
-            } else {
-                JFSteelDialog alert = AlertUtils.criarAlerta(getResources().getString(R.string.titulo_pedido_localizacao),
-                        getResources().getString(R.string.msg_falha_pegar_localizacao),
-                        JFSteelDialog.TipoAlertaEnum.ALERTA, true, new JFSteelDialog.OnClickDialog() {
-                            @Override
-                            public void onClickPositive(View v, String tag) {
-
-                            }
-
-                            @Override
-                            public void onClickNegative(View v, String tag) {
-                                data.getExtras().putString(getResources().getString(R.string.endereco_manual), tag);
-                                data.putExtra(getResources().getString(R.string.dados_qr_code), resultQrCode);
-                                data.putExtra("countTemp", countTemp - 1);//FIXME remover essa linha. Só está sendo utilizada para testar o fluxo lendo todos os qrcodes
-                                data.setClass(getBaseContext(), CameraActivity.class);
-                                startActivityForResult(data, REQUEST_CODE_CAMERA);
-                            }
-
-                            @Override
-                            public void onClickNeutral(View v, String tag) {
-
-                            }
-                        });
-                alert.show(getSupportFragmentManager(), "alert");
-            }
-//            scannerView.stopCamera();
 //            String strLatitude = getResources().getString(R.string.latitude);
 //            String strLongitude = getResources().getString(R.string.longitude);
 //            if (location != null) {
 //                data.putExtra(strLatitude, location.getLatitude());
 //                data.putExtra(strLongitude, location.getLongitude());
+//                data.putExtra(getResources().getString(R.string.dados_qr_code), resultQrCode);
+//                data.putExtra("countTemp", countTemp - 1);//FIXME remover essa linha. Só está sendo utilizada para testar o fluxo lendo todos os qrcodes
+//                data.setClass(this, CameraActivity.class);
+//                startActivityForResult(data, REQUEST_CODE_CAMERA);
 //            } else {
-//                data.putExtra(strLatitude, 0d);
-//                data.putExtra(strLongitude, 0d);
+//                JFSteelDialog alert = AlertUtils.criarAlerta(getResources().getString(R.string.titulo_pedido_localizacao),
+//                        getResources().getString(R.string.msg_falha_pegar_localizacao),
+//                        JFSteelDialog.TipoAlertaEnum.ALERTA, true, new JFSteelDialog.OnClickDialog() {
+//                            @Override
+//                            public void onClickPositive(View v, String tag) {
+//
+//                            }
+//
+//                            @Override
+//                            public void onClickNegative(View v, String tag) {
+//                                data.getExtras().putString(getResources().getString(R.string.endereco_manual), tag);
+//                                data.putExtra(getResources().getString(R.string.dados_qr_code), resultQrCode);
+//                                data.putExtra("countTemp", countTemp - 1);//FIXME remover essa linha. Só está sendo utilizada para testar o fluxo lendo todos os qrcodes
+//                                data.setClass(getBaseContext(), CameraActivity.class);
+//                                startActivityForResult(data, REQUEST_CODE_CAMERA);
+//                            }
+//
+//                            @Override
+//                            public void onClickNeutral(View v, String tag) {
+//
+//                            }
+//                        });
+//                alert.show(getSupportFragmentManager(), "alert");
 //            }
-//            data.putExtra(getResources().getString(R.string.dados_qr_code), resultQrCode);
-//            data.putExtra("countTemp", countTemp - 1);//FIXME remover essa linha. Só está sendo utilizada para testar o fluxo lendo todos os qrcodes
-//            data.setClass(this, HelloWorldActivity.class);
-//            startActivity(data);
+            scannerView.stopCamera();
+            String strLatitude = getResources().getString(R.string.latitude);
+            String strLongitude = getResources().getString(R.string.longitude);
+            if (location != null) {
+                data.putExtra(strLatitude, location.getLatitude());
+                data.putExtra(strLongitude, location.getLongitude());
+            } else {
+                data.putExtra(strLatitude, 0d);
+                data.putExtra(strLongitude, 0d);
+            }
+            data.putExtra(getResources().getString(R.string.dados_qr_code), resultQrCode);
+            data.putExtra("countTemp", countTemp - 1);//FIXME remover essa linha. Só está sendo utilizada para testar o fluxo lendo todos os qrcodes
+            data.setClass(this, HelloWorldActivity.class);
+            startActivityForResult(data, REQUEST_CODE_CAMERA);
             isWizardRespondido = true;
         } else if (requestCode == REQUEST_CODE_WIZARD && Activity.RESULT_CANCELED == resultCode) {
             isWizardRespondido = false;
@@ -287,7 +300,10 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements
             scannerView.setResultHandler(this);
             scannerView.startCamera();
         } else if (isPermissaoCameraConcedida && scannerView == null) {
+            initApiClient();
             initScanner();
+            scannerView.setResultHandler(this);
+            scannerView.startCamera();
         }
 //        if (intentIntegrator == null && qrCodeRead) {
 //            initIntentIntegrator();
