@@ -21,6 +21,7 @@ import java.util.List;
 
 import br.com.home.maildeliveryjfsteel.BuildConfig;
 import br.com.home.maildeliveryjfsteel.R;
+import br.com.home.maildeliveryjfsteel.persistence.dto.GenericDelivery;
 import br.com.home.maildeliveryjfsteel.persistence.dto.NotaServico;
 import br.com.home.maildeliveryjfsteel.persistence.impl.MailDeliveryDBNotaServico;
 
@@ -66,6 +67,14 @@ public class FirebaseNotaImpl extends FirebaseServiceImpl<NotaServico> {
     }
 
     @Override
+    public GenericDTO createDTO(GenericDelivery contaDelivery) {
+        NotaServicoDTO dto = new NotaServicoDTO();
+
+        return null;
+    }
+
+
+    @Override
     public void uploadPhoto(final NotaServico nota, String uriPhotoDisp, String namePhoto) {
         StorageReference storageReference = storage.getReference().child(getmContext().getResources().getString(R.string.firebase_storage_nota_servico)).child(namePhoto);
 
@@ -99,5 +108,35 @@ public class FirebaseNotaImpl extends FirebaseServiceImpl<NotaServico> {
             nota.setUrlStorageFoto(null);
         }
         db.save(nota);
+    }
+}
+
+class NotaServicoDTO extends GenericDTO {
+    private String leitura;
+    private String medidorVizinho;
+    private String medidorExterno;
+
+    public String getLeitura() {
+        return leitura;
+    }
+
+    public void setLeitura(String leitura) {
+        this.leitura = leitura;
+    }
+
+    public String getMedidorVizinho() {
+        return medidorVizinho;
+    }
+
+    public void setMedidorVizinho(String medidorVizinho) {
+        this.medidorVizinho = medidorVizinho;
+    }
+
+    public String getMedidorExterno() {
+        return medidorExterno;
+    }
+
+    public void setMedidorExterno(String medidorExterno) {
+        this.medidorExterno = medidorExterno;
     }
 }

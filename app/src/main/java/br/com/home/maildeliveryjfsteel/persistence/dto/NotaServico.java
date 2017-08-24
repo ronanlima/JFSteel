@@ -1,16 +1,13 @@
 package br.com.home.maildeliveryjfsteel.persistence.dto;
 
-import br.com.home.maildeliveryjfsteel.persistence.TipoResidencia;
-
 /**
  * Created by Ronan.lima on 27/07/17.
  */
 
 public class NotaServico extends GenericDelivery {
     private String leitura;
-    private String medidorVisivel;
-    private int medidorExterno;
-    private TipoResidencia tipoResidencia;
+    private String medidorVizinho;
+    private String medidorExterno;
 
     public NotaServico() {
     }
@@ -23,27 +20,20 @@ public class NotaServico extends GenericDelivery {
         this.leitura = leitura;
     }
 
-    public String getMedidorVisivel() {
-        return medidorVisivel;
+    public String getMedidorVizinho() {
+        return medidorVizinho;
     }
 
-    public void setMedidorVisivel(String medidorVisivel) {
-        this.medidorVisivel = medidorVisivel;
+    public void setMedidorVizinho(String medidorVizinho) {
+        this.medidorVizinho = medidorVizinho;
     }
 
-    public int getMedidorExterno() {
+    public String getMedidorExterno() {
         return medidorExterno;
     }
 
-    public void setMedidorExterno(int medidorExterno) {
+    public void setMedidorExterno(String medidorExterno) {
         this.medidorExterno = medidorExterno;
     }
 
-    public TipoResidencia getTipoResidencia() {
-        return tipoResidencia;
-    }
-
-    public void setTipoResidencia(TipoResidencia tipoResidencia) {
-        this.tipoResidencia = tipoResidencia;
-    }
 }

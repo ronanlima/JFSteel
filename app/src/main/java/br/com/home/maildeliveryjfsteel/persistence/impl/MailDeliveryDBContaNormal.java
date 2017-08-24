@@ -118,7 +118,6 @@ public class MailDeliveryDBContaNormal extends SQLiteOpenHelper implements MailD
     /**
      * Busca os registros com o prefixo passado.
      *
-     * @param table
      * @param prefix
      * @return
      */

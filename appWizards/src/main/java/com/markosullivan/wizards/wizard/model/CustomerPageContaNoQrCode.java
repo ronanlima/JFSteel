@@ -56,20 +56,7 @@ public class CustomerPageContaNoQrCode extends SingleFixedChoicePage {
         dest.add(new ReviewItem("Leitura do medidor", mData.getString(LEITURA_DATA_KEY), getKey(), -1));
         dest.add(new ReviewItem("Endereço", mData.getString(ENDERECO_DATA_KEY), getKey(), -1));
         dest.add(new ReviewItem("Comentário", mData.getString(COMENTARIO_DATA_KEY), getKey(), -1));
-
-        StringBuilder sb = new StringBuilder();
-
-        ArrayList<String> selections = mData.getStringArrayList(Page.SIMPLE_DATA_KEY);
-        if (selections != null && selections.size() > 0) {
-            for (String selection : selections) {
-                if (sb.length() > 0) {
-                    sb.append(", ");
-                }
-                sb.append(selection);
-            }
-        }
-
-        dest.add(new ReviewItem("Possui conta", sb.toString(), getKey()));
+        dest.add(new ReviewItem("Possui conta", mData.getString(SIMPLE_DATA_KEY), getKey()));
     }
 
     @Override

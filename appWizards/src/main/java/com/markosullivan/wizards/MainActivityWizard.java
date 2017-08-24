@@ -166,11 +166,11 @@ public class MainActivityWizard extends FragmentActivity implements
             b.putString(MEDIDOR_VIZINHO_DATA_KEY, p.getData().getString(MEDIDOR_VIZINHO_DATA_KEY));
         }
         MixedNotaServicoChoicePage p2 = (MixedNotaServicoChoicePage) mWizardModel.getPageList().get(1);
-        if (p2.getData().getString(p2.SIMPLE_DATA_KEY) != null && !p.getData().getString(p2.SIMPLE_DATA_KEY).trim().isEmpty()) {
-            b.putString(p2.SIMPLE_DATA_KEY, p.getData().getString(p2.SIMPLE_DATA_KEY));
+        if (p2.getData().getString(p2.SIMPLE_DATA_KEY) != null && !p2.getData().getString(p2.SIMPLE_DATA_KEY).trim().isEmpty()) {
+            b.putString(p2.SIMPLE_DATA_KEY, p2.getData().getString(p2.SIMPLE_DATA_KEY));
         }
-        if (p2.getData().getString(SECOND_DATA_KEY) != null && !p.getData().getString(SECOND_DATA_KEY).trim().isEmpty()) {
-            b.putString(SECOND_DATA_KEY, p.getData().getString(SECOND_DATA_KEY));
+        if (p2.getData().getString(SECOND_DATA_KEY) != null && !p2.getData().getString(SECOND_DATA_KEY).trim().isEmpty()) {
+            b.putString(SECOND_DATA_KEY, p2.getData().getString(SECOND_DATA_KEY));
         }
         getIntent().putExtras(b);
         setResult(Activity.RESULT_OK, getIntent());

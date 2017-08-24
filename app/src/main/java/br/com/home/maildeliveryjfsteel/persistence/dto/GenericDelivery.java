@@ -14,8 +14,9 @@ public class GenericDelivery {
     private Double longitude;
     private String uriFotoDisp;
     private String urlStorageFoto;
-    private String enderecoManual;
+    private String enderecoManual; // para quando o gps nao conseguir recuperar a coordenada.
     private int sitSalvoFirebase;
+    private String localEntregaCorresp; // o tipo de residencia em que a conta foi entregue. Ex: condomínio, casa, poste, etc.
 
     public GenericDelivery() {
     }
@@ -106,5 +107,13 @@ public class GenericDelivery {
 
     public void setEnderecoManual(String enderecoManual) {
         this.enderecoManual = enderecoManual;
+    }
+
+    public String getLocalEntregaCorresp() {
+        return localEntregaCorresp;
+    }
+
+    public void setLocalEntregaCorresp(String localEntregaCorresp) {
+        this.localEntregaCorresp = localEntregaCorresp;
     }
 }

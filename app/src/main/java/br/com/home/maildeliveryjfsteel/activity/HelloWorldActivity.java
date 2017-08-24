@@ -61,8 +61,9 @@ public class HelloWorldActivity extends AppCompatActivity {
         } else {
             final String strDadosQrCode = getResources().getString(R.string.dados_qr_code);
             if (extras.getDouble(strLatitude) != 0d) {
-                saveRegistroEntrega(extras.getDouble(strLatitude), extras.getDouble(getResources().getString(R.string.longitude)), null, extras.getString(strDadosQrCode));
-                finish();
+                startCameraActivity(extras);
+//                saveRegistroEntrega(extras.getDouble(strLatitude), extras.getDouble(getResources().getString(R.string.longitude)), null, extras.getString(strDadosQrCode));
+//                finish();
             } else {
                 JFSteelDialog alert = AlertUtils.criarAlerta(getResources().getString(R.string.titulo_pedido_localizacao),
                         getResources().getString(R.string.msg_falha_pegar_localizacao),
@@ -74,8 +75,10 @@ public class HelloWorldActivity extends AppCompatActivity {
 
                             @Override
                             public void onClickNegative(View v, String tag) {
-                                saveRegistroEntrega(0d, 0d, tag, extras.getString(strDadosQrCode));
-                                finish();
+                                extras.putString(getResources().getString(R.string.endereco_manual), tag);
+                                startCameraActivity(extras);
+//                                saveRegistroEntrega(0d, 0d, tag, extras.getString(strDadosQrCode));
+//                                finish();
                             }
 
                             @Override

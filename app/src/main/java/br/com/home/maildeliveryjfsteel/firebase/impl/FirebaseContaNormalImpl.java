@@ -1,6 +1,5 @@
 package br.com.home.maildeliveryjfsteel.firebase.impl;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -44,7 +43,7 @@ public class FirebaseContaNormalImpl extends FirebaseServiceImpl<ContaNormal> {
         if (list != null) {
             DatabaseReference reference = database.getReference(getmContext().getResources().getString(R.string.firebase_no_contas));
             for (final ContaNormal ct : list) {
-                reference.child(matricula).push().setValue(ct).addOnCompleteListener(new OnCompleteListener<Void>() {
+                reference.child(matricula).push().setValue(createDTO(ct)).addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful() && task.isComplete()) {
@@ -64,6 +63,23 @@ public class FirebaseContaNormalImpl extends FirebaseServiceImpl<ContaNormal> {
                 });
             }
         }
+    }
+
+    private ContaNormalFB createDTO(ContaNormal ct) {
+        ContaNormalFB dto = new ContaNormalFB();
+        dto.setDadosQrCode(ct.getDadosQrCode());
+        dto.setIdFoto(ct.getIdFoto());
+        if (ct.getLatitude() != 0d) {
+            dto.setLatitude(ct.getLatitude());
+            dto.setLongitude(ct.getLongitude());
+        } else {
+            dto.setEnderecoManual(ct.getEnderecoManual());
+        }
+        dto.setTimeStamp(ct.getTimesTamp());
+        dto.setLocalEntrega(ct.getLocalEntregaCorresp());
+        dto.setContaProtocolada(ct.isContaProtocolada());
+        dto.setContaColetiva(ct.isContaColetiva());
+        return dto;
     }
 
     @Override
@@ -112,4 +128,17 @@ public class FirebaseContaNormalImpl extends FirebaseServiceImpl<ContaNormal> {
         }
     }
 
+}
+
+class ContaNormalFB extends GenericDTO {
+    private boolean isContaProtocolada;
+    private boolean isContaColetiva;
+
+    public void setContaProtocolada(boolean contaProtocolada) {
+        isContaProtocolada = contaProtocolada;
+    }
+
+    public void setContaColetiva(boolean contaColetiva) {
+        isContaColetiva = contaColetiva;
+    }
 }
