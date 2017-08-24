@@ -33,7 +33,6 @@ import com.markosullivan.wizards.wizard.model.ModelCallbacks;
 import com.markosullivan.wizards.wizard.model.Page;
 import com.markosullivan.wizards.wizard.model.ReviewItem;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -44,13 +43,8 @@ public class ReviewFragment extends ListFragment implements ModelCallbacks {
     private AbstractWizardModel mWizardModel;
     private List<ReviewItem> mCurrentReviewItems;
     private ReviewAdapter mReviewAdapter;
-    private ListenerConta listenerConta;
 
     public ReviewFragment() {
-    }
-
-    public ReviewFragment(ListenerConta listenerConta) {
-        this.listenerConta = listenerConta;
     }
 
     @Override
@@ -72,10 +66,6 @@ public class ReviewFragment extends ListFragment implements ModelCallbacks {
         setListAdapter(mReviewAdapter);
         listView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         return rootView;
-    }
-
-    public interface ListenerConta extends Serializable {
-        void getInfoAboutConta(List<ReviewItem> itensSelecteds);
     }
 
     @Override
@@ -180,9 +170,6 @@ public class ReviewFragment extends ListFragment implements ModelCallbacks {
             ((TextView) rootView.findViewById(android.R.id.text1)).setText(reviewItem.getTitle());
             ((TextView) rootView.findViewById(android.R.id.text2)).setText(value);
 
-            if (reviewItem.getTitle().equalsIgnoreCase("sobre a conta")) {
-                listenerConta.getInfoAboutConta(mCurrentReviewItems);
-            }
             return rootView;
         }
 

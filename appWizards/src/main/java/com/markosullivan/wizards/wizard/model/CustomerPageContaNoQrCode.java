@@ -23,13 +23,14 @@ import com.markosullivan.wizards.wizard.ui.CustomerNotaServicoFragment;
 
 import java.util.ArrayList;
 
+import static br.com.home.jfsteelbase.ConstantsUtil.COMENTARIO_DATA_KEY;
+import static br.com.home.jfsteelbase.ConstantsUtil.ENDERECO_DATA_KEY;
+import static br.com.home.jfsteelbase.ConstantsUtil.LEITURA_DATA_KEY;
+
 /**
  * A page asking for a name and an email.
  */
 public class CustomerPageContaNoQrCode extends SingleFixedChoicePage {
-    public static final String LEITURA_DATA_KEY = "leitura";
-    public static final String ENDERECO_DATA_KEY = "medidorVizinho";
-    public static final String COMENTARIO_DATA_KEY = "medidorVizinho";
 
     public CustomerPageContaNoQrCode(ModelCallbacks callbacks, String title) {
         super(callbacks, title);

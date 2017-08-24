@@ -26,8 +26,11 @@ import com.google.zxing.BarcodeFormat;
 import com.google.zxing.Result;
 import com.markosullivan.wizards.MainActivityWizard;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import br.com.home.maildeliveryjfsteel.R;
@@ -39,6 +42,7 @@ import br.com.home.maildeliveryjfsteel.utils.PermissionUtils;
 import br.com.home.maildeliveryjfsteel.view.CameraImageView;
 import me.dm7.barcodescanner.zxing.ZXingScannerView;
 
+import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_TIPO_CONTA;
 import static br.com.home.maildeliveryjfsteel.utils.PermissionUtils.CAMERA_PERMISSION;
 import static br.com.home.maildeliveryjfsteel.utils.PermissionUtils.GPS_PERMISSION;
 
@@ -52,6 +56,10 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements
 
     public static final int REQUEST_CODE_WIZARD = 999;
     public static final int REQUEST_CODE_CAMERA = 810;
+    public static final int LENGTH_GRUPO_A_REAVISO = 6;
+    public static final int LENGTH_CONTA_NORMAL = 5;
+    public static final int LENGTH_CONTA_DESLIGAMENTO = 4;
+    public static final int LENGTH_NOTA_SERVICO = 2;
 
     private Context mContext = this;
     private ZXingScannerView scannerView;
@@ -59,7 +67,6 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements
     private GoogleApiClient apiClient;
     private Location location;
     private boolean isWizardRespondido = false;
-    private int countTemp = 1;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -69,6 +76,23 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements
         if (PermissionUtils.validate(this, CAMERA_PERMISSION, Manifest.permission.CAMERA, Manifest.permission.ACCESS_FINE_LOCATION)) {
             initApiClient();
             initScanner();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        boolean isPermissaoCameraConcedida = PermissionUtils.validate(this, CAMERA_PERMISSION, Manifest.permission.CAMERA);
+        if (scannerView != null && isPermissaoCameraConcedida && !isWizardRespondido) {
+            scannerView.setResultHandler(this);
+            scannerView.startCamera();
+        } else if (isPermissaoCameraConcedida && scannerView == null) {
+            initScanner();
+            scannerView.setResultHandler(this);
+            scannerView.startCamera();
+        } else if (PermissionUtils.validate(this, GPS_PERMISSION, Manifest.permission.ACCESS_FINE_LOCATION)) {
+            initApiClient();
         }
     }
 
@@ -88,25 +112,97 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements
         }
     }
 
-    private void continuaFluxoEntrega() {
-        //FIXME na verificação abaixo, validar com o Marcelo como pegar tal informação
-        if (resultQrCode.contains("ALGUMA_COISA_QUE_SEJA_GRUPO_A") || resultQrCode.contains("ALGUMA_COISA_QUE_SEJA_GRUPO_REAVISO")) {
-            Intent i = new Intent(this, CameraActivity.class);
-            i.putExtra(getResources().getString(R.string.dados_qr_code), resultQrCode);
-            startActivityForResult(i, REQUEST_CODE_CAMERA);
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, final Intent data) {
+        if (requestCode == REQUEST_CODE_WIZARD && resultCode == Activity.RESULT_OK) {
+            scannerView.stopCamera();
+            String strLatitude = getResources().getString(R.string.latitude);
+            String strLongitude = getResources().getString(R.string.longitude);
+            if (location != null) {
+                data.putExtra(strLatitude, location.getLatitude());
+                data.putExtra(strLongitude, location.getLongitude());
+            } else {
+                data.putExtra(strLatitude, 0d);
+                data.putExtra(strLongitude, 0d);
+            }
+            data.setClass(this, HelloWorldActivity.class);
+            startActivityForResult(data, REQUEST_CODE_CAMERA);
+            isWizardRespondido = true;
+        } else if (requestCode == REQUEST_CODE_WIZARD && Activity.RESULT_CANCELED == resultCode) {
+            isWizardRespondido = false;
+        } else if (requestCode == REQUEST_CODE_CAMERA && resultCode == Activity.RESULT_OK) {
+            isWizardRespondido = false;
+            resultQrCode = null;
+        } else if (requestCode == REQUEST_CODE_CAMERA && resultCode == Activity.RESULT_CANCELED) {
+            isWizardRespondido = false;
         } else {
-            iniciarFluxoWizard();
-            /** FIXME Enquanto não especificarem como reconhcer os tipos de conta, manter o bloco comentado
-             if (resultQrCode.startsWith(getResources().getString(R.string.tipo_conta_normal))) {
-             iniciarFluxoWizard();
-             } else if (resultQrCode.startsWith(getResources().getString(R.string.tipo_conta_no_qrcode))) {
-             // TODO criar fluxo para esse tipo de conta
-             } else if (resultQrCode.startsWith(getResources().getString(R.string.tipo_conta_nota))) {
-             // TODO criar fluxo para esse tipo de conta
-             } else {
-             Toast.makeText(getApplicationContext(), getResources().getString(R.string.msg_falha_leitura_conta), Toast.LENGTH_LONG).show();
-             }
-             */
+            super.onActivityResult(requestCode, resultCode, data);
+        }
+    }
+
+    /**
+     * Tenta converter a data recebida no formato Android, caso não dê certo,
+     * tenta converter no formato ios.
+     *
+     * @param data
+     * @return
+     */
+    public static Date transformaData(String data) {
+        Date dt2 = null;
+        if (data != null && !data.trim().equals("")) {
+            try {
+                dt2 = parse(data, "dd/MM/yyyy");
+            } catch (ParseException e) {
+                try {
+                    dt2 = parse(data, "yyyy-MM-dd");
+                } catch (ParseException e1) {
+                    dt2 = null;
+                }
+            }
+        }
+        return dt2;
+    }
+
+    private static Date parse(String data, String formato)
+            throws ParseException {
+        SimpleDateFormat df = new SimpleDateFormat(formato);
+        df.setLenient(false);
+        return df.parse(data);
+    }
+
+    private void continuaFluxoEntrega() {
+        String[] tipoCodigo = resultQrCode.split(";");
+        switch (tipoCodigo.length) {
+            case LENGTH_GRUPO_A_REAVISO:
+                if (transformaData(tipoCodigo[5]) != null) {
+                    Intent i = new Intent(this, CameraActivity.class);
+                    i.putExtra(getResources().getString(R.string.dados_qr_code), resultQrCode);
+                    i.putExtra(getResources().getString(R.string.tipo_conta_grupo_a_reaviso), true);
+                    startActivityForResult(i, REQUEST_CODE_CAMERA);
+                } else {
+                    showToast(getResources().getString(R.string.msg_falha_leitura_conta));
+                }
+                break;
+            case LENGTH_CONTA_NORMAL:
+                if (transformaData(tipoCodigo[0]) != null && transformaData(tipoCodigo[1]) != null) {
+                    iniciarFluxoWizard(getResources().getString(R.string.tipo_conta_normal));
+                } else {
+                    showToast(getResources().getString(R.string.msg_falha_leitura_conta));
+                }
+                break;
+            case LENGTH_CONTA_DESLIGAMENTO:
+                if (transformaData(tipoCodigo[0]) != null) {
+                    iniciarFluxoWizard(getResources().getString(R.string.tipo_conta_normal));
+                } else {
+                    showToast(getResources().getString(R.string.msg_falha_leitura_conta));
+                }
+                break;
+            case LENGTH_NOTA_SERVICO:
+                iniciarFluxoWizard(getResources().getString(R.string.tipo_conta_nota));
+                break;
+            default:
+                showToast(getResources().getString(R.string.msg_falha_leitura_conta));
+                break;
         }
     }
 
@@ -133,7 +229,6 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements
         relativeLayout.setLayoutParams(rlp);
         relativeLayout.addView(imgView);
         return relativeLayout.getLayoutParams();
-//        scannerView.addView(relativeLayout, rlp);
     }
 
     @Override
@@ -183,132 +278,19 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements
             apiClient.unregisterConnectionCallbacks(this);
         }
         apiClient = null;
-//        intentIntegrator = null;
         super.onDestroy();
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, final Intent data) {
-        if (requestCode == REQUEST_CODE_WIZARD && resultCode == Activity.RESULT_OK) {
-//            String strLatitude = getResources().getString(R.string.latitude);
-//            String strLongitude = getResources().getString(R.string.longitude);
-//            if (location != null) {
-//                data.putExtra(strLatitude, location.getLatitude());
-//                data.putExtra(strLongitude, location.getLongitude());
-//                data.putExtra(getResources().getString(R.string.dados_qr_code), resultQrCode);
-//                data.putExtra("countTemp", countTemp - 1);//FIXME remover essa linha. Só está sendo utilizada para testar o fluxo lendo todos os qrcodes
-//                data.setClass(this, CameraActivity.class);
-//                startActivityForResult(data, REQUEST_CODE_CAMERA);
-//            } else {
-//                JFSteelDialog alert = AlertUtils.criarAlerta(getResources().getString(R.string.titulo_pedido_localizacao),
-//                        getResources().getString(R.string.msg_falha_pegar_localizacao),
-//                        JFSteelDialog.TipoAlertaEnum.ALERTA, true, new JFSteelDialog.OnClickDialog() {
-//                            @Override
-//                            public void onClickPositive(View v, String tag) {
-//
-//                            }
-//
-//                            @Override
-//                            public void onClickNegative(View v, String tag) {
-//                                data.getExtras().putString(getResources().getString(R.string.endereco_manual), tag);
-//                                data.putExtra(getResources().getString(R.string.dados_qr_code), resultQrCode);
-//                                data.putExtra("countTemp", countTemp - 1);//FIXME remover essa linha. Só está sendo utilizada para testar o fluxo lendo todos os qrcodes
-//                                data.setClass(getBaseContext(), CameraActivity.class);
-//                                startActivityForResult(data, REQUEST_CODE_CAMERA);
-//                            }
-//
-//                            @Override
-//                            public void onClickNeutral(View v, String tag) {
-//
-//                            }
-//                        });
-//                alert.show(getSupportFragmentManager(), "alert");
-//            }
-            scannerView.stopCamera();
-            String strLatitude = getResources().getString(R.string.latitude);
-            String strLongitude = getResources().getString(R.string.longitude);
-            if (location != null) {
-                data.putExtra(strLatitude, location.getLatitude());
-                data.putExtra(strLongitude, location.getLongitude());
-            } else {
-                data.putExtra(strLatitude, 0d);
-                data.putExtra(strLongitude, 0d);
-            }
-            data.putExtra(getResources().getString(R.string.dados_qr_code), resultQrCode);
-            data.putExtra("countTemp", countTemp - 1);//FIXME remover essa linha. Só está sendo utilizada para testar o fluxo lendo todos os qrcodes
-            data.setClass(this, HelloWorldActivity.class);
-            startActivityForResult(data, REQUEST_CODE_CAMERA);
-            isWizardRespondido = true;
-        } else if (requestCode == REQUEST_CODE_WIZARD && Activity.RESULT_CANCELED == resultCode) {
-            isWizardRespondido = false;
-        } else if (requestCode == REQUEST_CODE_CAMERA && resultCode == Activity.RESULT_OK) {
-            isWizardRespondido = false;
-            resultQrCode = null;
-        } else if (requestCode == REQUEST_CODE_CAMERA && resultCode == Activity.RESULT_CANCELED) {
-            isWizardRespondido = false;
-        } else {
-            super.onActivityResult(requestCode, resultCode, data);
-        }
-        /**else {
-         IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
-         if (result != null) {
-         if (result.getContents() == null) {
-         Toast.makeText(getApplicationContext(), getResources().getString(R.string.msg_falha_leitura_qrcode), Toast.LENGTH_LONG).show();
-         } else {
-         resultQrCode = result.getContents();
-         if (!resultQrCode.isEmpty()) {
-         if (resultQrCode.startsWith(getResources().getString(R.string.tipo_conta_normal))) {
-         iniciarFluxoWizard();
-         } else if (resultQrCode.startsWith(getResources().getString(R.string.tipo_conta_nota))) {
-         // TODO criar fluxo para esse tipo de nota
-         } else if (resultQrCode.startsWith(getResources().getString(R.string.tipo_conta_no_qrcode))) {
-         // TODO criar fluxo para esse tipo de conta
-         } else {
-         Toast.makeText(getApplicationContext(), getResources().getString(R.string.msg_falha_leitura_conta), Toast.LENGTH_LONG).show();
-         }
-         }
-         }
-         } else {
-         // This is important, otherwise the result will not be passed to the fragment
-         super.onActivityResult(requestCode, resultCode, data);
-         }
-         }*/
     }
 
     /**
      * Inicia o fluxo de leitura de conta normal
      */
-    private void iniciarFluxoWizard() {
+    private void iniciarFluxoWizard(String tipoConta) {
         Toast.makeText(getApplicationContext(), resultQrCode, Toast.LENGTH_LONG).show();
         Log.d("HandlerQrCodeActivity", resultQrCode);
         Intent i = new Intent(this, MainActivityWizard.class);
         i.putExtra(getResources().getString(R.string.dados_qr_code), resultQrCode);
-        i.putExtra("countTemp", countTemp++);//FIXME remover essa linha
-//        intentIntegrator = null;
+        i.putExtra(EXTRA_TIPO_CONTA, tipoConta);
         startActivityForResult(i, REQUEST_CODE_WIZARD);
-        if (countTemp >= 3) {//FIXME remover este bloco
-            countTemp = 1;
-        }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        boolean isPermissaoCameraConcedida = PermissionUtils.validate(this, CAMERA_PERMISSION, Manifest.permission.CAMERA);
-        if (scannerView != null && isPermissaoCameraConcedida && !isWizardRespondido) {
-            scannerView.setResultHandler(this);
-            scannerView.startCamera();
-        } else if (isPermissaoCameraConcedida && scannerView == null) {
-            initApiClient();
-            initScanner();
-            scannerView.setResultHandler(this);
-            scannerView.startCamera();
-        }
-//        if (intentIntegrator == null && qrCodeRead) {
-//            initIntentIntegrator();
-//            qrCodeRead = false;
-//        }
     }
 
     @Override

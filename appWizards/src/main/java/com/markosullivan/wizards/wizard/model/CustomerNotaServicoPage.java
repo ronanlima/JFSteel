@@ -22,12 +22,13 @@ import com.markosullivan.wizards.wizard.ui.CustomerNotaServicoFragment;
 
 import java.util.ArrayList;
 
+import static br.com.home.jfsteelbase.ConstantsUtil.LEITURA_DATA_KEY;
+import static br.com.home.jfsteelbase.ConstantsUtil.MEDIDOR_VIZINHO_DATA_KEY;
+
 /**
  * A page asking for a name and an email.
  */
 public class CustomerNotaServicoPage extends Page {
-    public static final String LEITURA_DATA_KEY = "leitura";
-    public static final String MEDIDOR_VIZINHO_DATA_KEY = "medidorVizinho";
 
     public CustomerNotaServicoPage(ModelCallbacks callbacks, String title) {
         super(callbacks, title);

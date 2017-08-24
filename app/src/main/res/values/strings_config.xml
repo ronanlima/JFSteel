@@ -35,4 +35,5 @@
     <string name="tipo_conta_normal" translatable="false">contaNormal</string>
     <string name="tipo_conta_nota" translatable="false">notaServico</string>
     <string name="tipo_conta_no_qrcode" translatable="false">noQrCode</string>
+    <string name="tipo_conta_grupo_a_reaviso" translatable="false">grupoAReaviso</string>
 </resources>

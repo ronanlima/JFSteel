@@ -36,6 +36,8 @@ import com.markosullivan.wizards.wizard.model.Page;
 import java.util.ArrayList;
 import java.util.List;
 
+import static br.com.home.jfsteelbase.ConstantsUtil.SECOND_DATA_KEY;
+
 public class MixedChoiceFragment extends ListFragment {
     private static final String ARG_KEY = "key";
 
@@ -86,7 +88,7 @@ public class MixedChoiceFragment extends ListFragment {
         check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                mPage.getData().putString(MixedNotaServicoChoicePage.SECOND_DATA_KEY, mChoiceMedidor);
+                mPage.getData().putString(SECOND_DATA_KEY, mChoiceMedidor);
                 mPage.notifyDataChanged();
             }
         });
@@ -109,7 +111,7 @@ public class MixedChoiceFragment extends ListFragment {
                         break;
                     }
                 }
-                String med = mPage.getData().getString(MixedNotaServicoChoicePage.SECOND_DATA_KEY);
+                String med = mPage.getData().getString(SECOND_DATA_KEY);
                 if (med != null && !med.isEmpty()) {
                     check.setChecked(true);
                 }

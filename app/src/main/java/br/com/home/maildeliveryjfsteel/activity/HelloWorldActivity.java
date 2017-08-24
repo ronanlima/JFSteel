@@ -16,6 +16,9 @@ import br.com.home.maildeliveryjfsteel.persistence.dto.ContaNormal;
 import br.com.home.maildeliveryjfsteel.persistence.impl.MailDeliveryDBContaNormal;
 import br.com.home.maildeliveryjfsteel.utils.AlertUtils;
 
+import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_CONTA_COLETIVA;
+import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_CONTA_PROTOCOLADA;
+
 /**
  * Created by Ronan.lima on 04/08/17.
  */
@@ -29,7 +32,8 @@ public class HelloWorldActivity extends AppCompatActivity {
         final Bundle extras = getIntent().getExtras();
         String strLatitude = getResources().getString(R.string.latitude);
 
-        if (extras.getBoolean("contaProtocolada") || extras.getBoolean("contaColetiva")) {
+        if (extras.getBoolean(EXTRA_CONTA_PROTOCOLADA) || extras.getBoolean(EXTRA_CONTA_COLETIVA)
+                || extras.getBoolean(getResources().getString(R.string.tipo_conta_grupo_a_reaviso))) {
             if (extras.getDouble(strLatitude) != 0d) {
                 startCameraActivity(extras);
             } else {
@@ -56,35 +60,30 @@ public class HelloWorldActivity extends AppCompatActivity {
             }
         } else {
             final String strDadosQrCode = getResources().getString(R.string.dados_qr_code);
-            //FIXME corrigir fluxo, pois caso a conta seja normal mas nao seja coletiva ou nao esteja protocolada, nao entra em nenhum fluxo para salvar ou tirar foto.
-            if (extras.getInt("countTemp", 1) == 2 || extras.getInt("countTemp", 1) == 3) { //FIXME remover este bloco e descomentar o que esta embaixo
-//            if (extras.getString(strDadosQrCode)
-//                    .startsWith(getResources().getString(R.string.tipo_conta_normal))) {
-                if (extras.getDouble(strLatitude) != 0d) {
-                    saveRegistroEntrega(extras.getDouble(strLatitude), extras.getDouble(getResources().getString(R.string.longitude)), null, extras.getString(strDadosQrCode));
-                    finish();
-                } else {
-                    JFSteelDialog alert = AlertUtils.criarAlerta(getResources().getString(R.string.titulo_pedido_localizacao),
-                            getResources().getString(R.string.msg_falha_pegar_localizacao),
-                            JFSteelDialog.TipoAlertaEnum.ALERTA, true, new JFSteelDialog.OnClickDialog() {
-                                @Override
-                                public void onClickPositive(View v, String tag) {
+            if (extras.getDouble(strLatitude) != 0d) {
+                saveRegistroEntrega(extras.getDouble(strLatitude), extras.getDouble(getResources().getString(R.string.longitude)), null, extras.getString(strDadosQrCode));
+                finish();
+            } else {
+                JFSteelDialog alert = AlertUtils.criarAlerta(getResources().getString(R.string.titulo_pedido_localizacao),
+                        getResources().getString(R.string.msg_falha_pegar_localizacao),
+                        JFSteelDialog.TipoAlertaEnum.ALERTA, true, new JFSteelDialog.OnClickDialog() {
+                            @Override
+                            public void onClickPositive(View v, String tag) {
 
-                                }
+                            }
 
-                                @Override
-                                public void onClickNegative(View v, String tag) {
-                                    saveRegistroEntrega(0d, 0d, tag, extras.getString(strDadosQrCode));
-                                    finish();
-                                }
+                            @Override
+                            public void onClickNegative(View v, String tag) {
+                                saveRegistroEntrega(0d, 0d, tag, extras.getString(strDadosQrCode));
+                                finish();
+                            }
 
-                                @Override
-                                public void onClickNeutral(View v, String tag) {
+                            @Override
+                            public void onClickNeutral(View v, String tag) {
 
-                                }
-                            });
-                    alert.show(getSupportFragmentManager(), "alert");
-                }
+                            }
+                        });
+                alert.show(getSupportFragmentManager(), "alert");
             }
         }
     }

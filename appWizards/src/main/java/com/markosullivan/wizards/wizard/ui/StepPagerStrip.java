@@ -258,8 +258,12 @@ public class StepPagerStrip extends View {
     public static interface OnPageSelectedListener {
         void onPageStripSelected(int position);
     }
+//    FIXME *MEMORIZACAO_WIZARD* foi solicitado que o sistema grave a última resposta do wizard, no entanto, como é algo mais trabalhoso, acordar um prazo e/ou valor para que seja feito.
+//    public OnPageSelectedListener getPageSelectedListener() {
+//        return mOnPageSelectedListener;
+//    }
 
-//
+    //
 //    @Override
 //    public void computeScroll() {
 //        super.computeScroll();

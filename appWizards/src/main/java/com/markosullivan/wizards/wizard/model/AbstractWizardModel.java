@@ -97,4 +97,8 @@ public abstract class AbstractWizardModel implements ModelCallbacks {
     public void unregisterListener(ModelCallbacks listener) {
         mListeners.remove(listener);
     }
+
+    public PageList getPageList() {
+        return mRootPageList;
+    }
 }

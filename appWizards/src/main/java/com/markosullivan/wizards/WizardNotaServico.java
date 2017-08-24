@@ -15,7 +15,6 @@ public class WizardNotaServico extends AbstractWizardModel {
     public static final String TITLE_PAGE_ENTREGA = "Informações sobre a nota";
     public static final String TITLE_PAGE_SOBRE_RESIDENCIA = "Sobre a residência";
     public static final String[] choicesResidencias = {"Residencial", "Industrial", "Comercial", "Poste"};
-    public static final String[] choicesSobreConta = {"Está protocolada", "Coletiva"};
 
     public WizardNotaServico(Context context) {
         super(context);
@@ -28,9 +27,9 @@ public class WizardNotaServico extends AbstractWizardModel {
                 new CustomerNotaServicoPage(this, TITLE_PAGE_ENTREGA),
 
                 new MixedNotaServicoChoicePage(this, TITLE_PAGE_SOBRE_RESIDENCIA)
-                    .setChoiceMedidor("Medidor externo")
-                    .setChoicesResidencia(choicesResidencias)
-                    .setRequired(true)
+                        .setChoiceMedidor("Medidor externo")
+                        .setChoicesResidencia(choicesResidencias)
+                        .setRequired(true)
         );
     }
 }

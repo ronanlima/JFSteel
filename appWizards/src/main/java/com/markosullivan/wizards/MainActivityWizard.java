@@ -13,42 +13,51 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import com.markosullivan.wizards.wizard.model.AbstractWizardModel;
+import com.markosullivan.wizards.wizard.model.CustomerNotaServicoPage;
+import com.markosullivan.wizards.wizard.model.CustomerPageContaNoQrCode;
+import com.markosullivan.wizards.wizard.model.MixedNotaServicoChoicePage;
 import com.markosullivan.wizards.wizard.model.ModelCallbacks;
+import com.markosullivan.wizards.wizard.model.MultipleFixedChoicePage;
 import com.markosullivan.wizards.wizard.model.Page;
-import com.markosullivan.wizards.wizard.model.ReviewItem;
+import com.markosullivan.wizards.wizard.model.SingleFixedChoicePage;
 import com.markosullivan.wizards.wizard.ui.PageFragmentCallbacks;
 import com.markosullivan.wizards.wizard.ui.ReviewFragment;
 import com.markosullivan.wizards.wizard.ui.StepPagerStrip;
 
 import java.util.List;
 
+import static br.com.home.jfsteelbase.ConstantsUtil.COMENTARIO_DATA_KEY;
+import static br.com.home.jfsteelbase.ConstantsUtil.ENDERECO_DATA_KEY;
+import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_CONTA_COLETIVA;
+import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_CONTA_PROTOCOLADA;
+import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_LOCAL_ENTREGA_CORRESP;
+import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_TIPO_CONTA;
+import static br.com.home.jfsteelbase.ConstantsUtil.LEITURA_DATA_KEY;
+import static br.com.home.jfsteelbase.ConstantsUtil.MEDIDOR_VIZINHO_DATA_KEY;
+import static br.com.home.jfsteelbase.ConstantsUtil.SECOND_DATA_KEY;
+
 public class MainActivityWizard extends FragmentActivity implements
         PageFragmentCallbacks,
         ReviewFragment.Callbacks,
         ModelCallbacks {
+
     private ViewPager mPager;
     private MyPagerAdapter mPagerAdapter;
     private boolean mEditingAfterReview;
-    private AbstractWizardModel mWizardModel;// = new WizardContaNormal(this);
+    private AbstractWizardModel mWizardModel;
     private boolean mConsumePageSelectedEvent;
     private Button mNextButton;
     private Button mPrevButton;
     private List<Page> mCurrentPageSequence;
     private StepPagerStrip mStepPagerStrip;
-    private List<ReviewItem> itensSelecteds;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_wizard);
 
-        mWizardModel = new WizardContaNormal(this);
-        //FIXME descomentar bloco abaixo
-//        if (getIntent().getStringExtra(getResources().getString(R.string.dados_qr_code)).split(";")[0].equals(getResources().getString(R.string.tipo_conta_normal))) {
-//            mWizardModel = new WizardContaNormal(this);
-//        }
-        if (getIntent().getIntExtra("countTemp", 1) == 1) {
+        if (getIntent().getStringExtra(EXTRA_TIPO_CONTA).equals(getResources().getString(R.string.tipo_conta_normal))) {
             mWizardModel = new WizardContaNormal(this);
-        } else if (getIntent().getIntExtra("countTemp", 1) == 2) {
+        } else if (getIntent().getStringExtra(EXTRA_TIPO_CONTA).equals(getResources().getString(R.string.tipo_conta_nota))) {
             mWizardModel = new WizardNotaServico(this);
         } else {
             mWizardModel = new WizardNoQrCode(this);
@@ -96,25 +105,12 @@ public class MainActivityWizard extends FragmentActivity implements
             @Override
             public void onClick(View view) {
                 if (mPager.getCurrentItem() == mCurrentPageSequence.size()) {
-                    if (getItensSelecteds() != null && getItensSelecteds().size() > 0) {
-                        boolean isContaProcotolada = false;
-                        boolean isContaColetiva = false;
-//                        finalizaFluxoContaNormal(isContaProcotolada, isContaColetiva); //FIXME remover esta linha após validar os tipos de conta
-//                        if (getIntent().getStringExtra(getResources().getString(R.string.dados_qr_code)).split(";")[0].equals(getResources().getString(R.string.tipo_conta_normal))) {
-//                            finalizaFluxoContaNormal(isContaProcotolada, isContaColetiva);
-//                        } else if (getIntent().getStringExtra(getResources().getString(R.string.dados_qr_code)).split(";")[0].equals(getResources().getString(R.string.tipo_conta_nota))) {
-//
-//                        } else {
-//
-//                        }
-                        if (getIntent().getIntExtra("countTemp", 1) == 1) {
-                            finalizaFluxoContaNormal(isContaProcotolada, isContaColetiva); //FIXME remover esta linha após validar os tipos de conta
-                        } else if (getIntent().getIntExtra("countTemp", 1) == 2) {
-                            finalizaFluxoDefault();
-                        } else {
-                            finalizaFluxoDefault();
-                        }
-//                        listenerCallback.backToMainApplication(b);
+                    if (getIntent().getStringExtra(EXTRA_TIPO_CONTA).equals(getResources().getString(R.string.tipo_conta_normal))) {
+                        finalizaFluxoContaNormal();
+                    } else if (getIntent().getStringExtra(EXTRA_TIPO_CONTA).equals(getResources().getString(R.string.tipo_conta_nota))) {
+                        finalizaFluxoNotaServico();
+                    } else {
+                        finalizaFluxoNoQrCode();
                     }
                     finish();
                 } else {
@@ -136,57 +132,73 @@ public class MainActivityWizard extends FragmentActivity implements
 
         onPageTreeChanged();
         updateBottomBar();
+//    FIXME *MEMORIZACAO_WIZARD* foi solicitado que o sistema grave a última resposta do wizard, no entanto, como é algo mais trabalhoso, acordar um prazo e/ou valor para que seja feito.
+//        mStepPagerStrip.getPageSelectedListener().onPageStripSelected(mWizardModel.getSizePageList());
     }
 
-    /**
-     * Finaliza o fluxo para o tipo de qr code 'conta normal'.
-     *
-     * @param isContaProcotolada
-     * @param isContaColetiva
-     */
-    private void finalizaFluxoContaNormal(boolean isContaProcotolada, boolean isContaColetiva) {
-        if (getItensSelecteds().get(1) != null && getItensSelecteds().get(1).getDisplayValue().contains(WizardContaNormal.choicesSobreConta[0])) {
-            isContaProcotolada = true;
-        }
-        if (getItensSelecteds().get(1) != null && getItensSelecteds().get(1).getDisplayValue().contains(WizardContaNormal.choicesSobreConta[1])) {
-            isContaColetiva = true;
-        }
+    private void finalizaFluxoContaNormal() {
         Bundle b = new Bundle();
-        b.putBoolean("contaProtocolada", isContaProcotolada);
-        b.putBoolean("contaColetiva", isContaColetiva);
-        b.putString("localEntrega", getItensSelecteds().get(0).getDisplayValue());
-        Intent i = new Intent();
-        i.putExtras(b);
-        setResult(Activity.RESULT_OK, i);
+        SingleFixedChoicePage p = (SingleFixedChoicePage) mWizardModel.getPageList().get(0);
+        if (p.getData().getString(p.SIMPLE_DATA_KEY) != null && !p.getData().getString(p.SIMPLE_DATA_KEY).trim().isEmpty()) {
+            b.putString(EXTRA_LOCAL_ENTREGA_CORRESP, p.getData().getString(p.SIMPLE_DATA_KEY));
+        }
+        MultipleFixedChoicePage p1 = (MultipleFixedChoicePage) mWizardModel.getPageList().get(1);
+        if (p1.getData().getStringArrayList(p1.SIMPLE_DATA_KEY) != null && !p1.getData().getStringArrayList(p1.SIMPLE_DATA_KEY).isEmpty()) {
+            for (String op : p1.getData().getStringArrayList(p1.SIMPLE_DATA_KEY)) {
+                if (op.equals(WizardContaNormal.choicesSobreConta[0])) {
+                    b.putBoolean(EXTRA_CONTA_PROTOCOLADA, true);
+                } else if (op.equals(WizardContaNormal.choicesSobreConta[1])) {
+                    b.putBoolean(EXTRA_CONTA_COLETIVA, true);
+                }
+            }
+        }
+        getIntent().putExtras(b);
+        setResult(Activity.RESULT_OK, getIntent());
     }
 
-    private void finalizaFluxoDefault() {
+    private void finalizaFluxoNotaServico() {
         Bundle b = new Bundle();
-        b.putBoolean("isContaDefault", true);
-        Intent i = new Intent();
-        i.putExtras(b);
-        setResult(Activity.RESULT_OK, i);
+        CustomerNotaServicoPage p = (CustomerNotaServicoPage) mWizardModel.getPageList().get(0);
+        if (p.getData().getString(LEITURA_DATA_KEY) != null && !p.getData().getString(LEITURA_DATA_KEY).trim().isEmpty()) {
+            b.putString(LEITURA_DATA_KEY, p.getData().getString(LEITURA_DATA_KEY));
+        }
+        if (p.getData().getString(MEDIDOR_VIZINHO_DATA_KEY) != null && !p.getData().getString(MEDIDOR_VIZINHO_DATA_KEY).trim().isEmpty()) {
+            b.putString(MEDIDOR_VIZINHO_DATA_KEY, p.getData().getString(MEDIDOR_VIZINHO_DATA_KEY));
+        }
+        MixedNotaServicoChoicePage p2 = (MixedNotaServicoChoicePage) mWizardModel.getPageList().get(1);
+        if (p2.getData().getString(p2.SIMPLE_DATA_KEY) != null && !p.getData().getString(p2.SIMPLE_DATA_KEY).trim().isEmpty()) {
+            b.putString(p2.SIMPLE_DATA_KEY, p.getData().getString(p2.SIMPLE_DATA_KEY));
+        }
+        if (p2.getData().getString(SECOND_DATA_KEY) != null && !p.getData().getString(SECOND_DATA_KEY).trim().isEmpty()) {
+            b.putString(SECOND_DATA_KEY, p.getData().getString(SECOND_DATA_KEY));
+        }
+        getIntent().putExtras(b);
+        setResult(Activity.RESULT_OK, getIntent());
+    }
+
+    private void finalizaFluxoNoQrCode() {
+        Bundle b = new Bundle();
+        CustomerPageContaNoQrCode p = (CustomerPageContaNoQrCode) mWizardModel.getPageList().get(0);
+        if (p.getData().getString(LEITURA_DATA_KEY) != null && !p.getData().getString(LEITURA_DATA_KEY).trim().isEmpty()) {
+            b.putString(LEITURA_DATA_KEY, p.getData().getString(LEITURA_DATA_KEY));
+        }
+        if (p.getData().getString(ENDERECO_DATA_KEY) != null && !p.getData().getString(ENDERECO_DATA_KEY).trim().isEmpty()) {
+            b.putString(ENDERECO_DATA_KEY, p.getData().getString(ENDERECO_DATA_KEY));
+        }
+        if (p.getData().getString(COMENTARIO_DATA_KEY) != null && !p.getData().getString(COMENTARIO_DATA_KEY).trim().isEmpty()) {
+            b.putString(COMENTARIO_DATA_KEY, p.getData().getString(COMENTARIO_DATA_KEY));
+        }
+        if (p.getData().getString(p.SIMPLE_DATA_KEY) != null && !p.getData().getString(p.SIMPLE_DATA_KEY).trim().isEmpty()) {
+            b.putString(p.SIMPLE_DATA_KEY, p.getData().getString(p.SIMPLE_DATA_KEY));
+        }
+        getIntent().putExtras(b);
+        setResult(Activity.RESULT_OK, getIntent());
     }
 
     @Override
     public void onBackPressed() {
         super.onBackPressed();
         setResult(Activity.RESULT_CANCELED, new Intent());
-    }
-
-    /**
-     * Listener utilizado para recuperar os itens marcados no passo onde o usuário informa se a conta
-     * está protocolada e/ou é coletiva
-     *
-     * @return
-     */
-    private ReviewFragment.ListenerConta retrieveListenerConta() {
-        return new ReviewFragment.ListenerConta() {
-            @Override
-            public void getInfoAboutConta(List<ReviewItem> itensSelecteds) {
-                setItensSelecteds(itensSelecteds);
-            }
-        };
     }
 
     @Override
@@ -275,14 +287,6 @@ public class MainActivityWizard extends FragmentActivity implements
         return false;
     }
 
-    public List<ReviewItem> getItensSelecteds() {
-        return itensSelecteds;
-    }
-
-    public void setItensSelecteds(List<ReviewItem> itensSelecteds) {
-        this.itensSelecteds = itensSelecteds;
-    }
-
     public class MyPagerAdapter extends FragmentStatePagerAdapter {
         private int mCutOffPage;
         private Fragment mPrimaryItem;
@@ -294,7 +298,7 @@ public class MainActivityWizard extends FragmentActivity implements
         @Override
         public Fragment getItem(int i) {
             if (i >= mCurrentPageSequence.size()) {
-                return new ReviewFragment(retrieveListenerConta());
+                return new ReviewFragment();
             }
 
             return mCurrentPageSequence.get(i).createFragment();
