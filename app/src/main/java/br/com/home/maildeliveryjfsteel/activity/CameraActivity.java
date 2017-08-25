@@ -31,14 +31,23 @@ import br.com.home.maildeliveryjfsteel.BuildConfig;
 import br.com.home.maildeliveryjfsteel.CameraPreview;
 import br.com.home.maildeliveryjfsteel.R;
 import br.com.home.maildeliveryjfsteel.firebase.impl.FirebaseContaNormalImpl;
+import br.com.home.maildeliveryjfsteel.firebase.impl.FirebaseNotaImpl;
 import br.com.home.maildeliveryjfsteel.firebase.impl.FirebaseServiceImpl;
 import br.com.home.maildeliveryjfsteel.persistence.MailDeliverDBService;
 import br.com.home.maildeliveryjfsteel.persistence.dto.ContaNormal;
-import br.com.home.maildeliveryjfsteel.persistence.dto.GenericDelivery;
+import br.com.home.maildeliveryjfsteel.persistence.dto.NotaServico;
 import br.com.home.maildeliveryjfsteel.persistence.impl.MailDeliveryDBContaNormal;
+import br.com.home.maildeliveryjfsteel.persistence.impl.MailDeliveryDBNotaServico;
 import br.com.home.maildeliveryjfsteel.utils.PermissionUtils;
 import br.com.home.maildeliveryjfsteel.view.CameraImageView;
 
+import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_CONTA_COLETIVA;
+import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_CONTA_PROTOCOLADA;
+import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_LEITURA_DATA_KEY;
+import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_LOCAL_ENTREGA_CORRESP;
+import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_MEDIDOR_VIZINHO_DATA_KEY;
+import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_TIPO_CONTA;
+import static br.com.home.jfsteelbase.ConstantsUtil.SECOND_DATA_KEY;
 import static br.com.home.maildeliveryjfsteel.utils.PermissionUtils.CAMERA_PERMISSION;
 import static br.com.home.maildeliveryjfsteel.utils.PermissionUtils.GPS_PERMISSION;
 import static br.com.home.maildeliveryjfsteel.utils.PermissionUtils.WRITE_EXTERNAL_STORAGE_PERMISSION;
@@ -71,16 +80,14 @@ public class CameraActivity extends AppCompatActivity {
         setContentView(R.layout.activity_camera);
 
         dadosQrCode = getIntent().getStringExtra(getResources().getString(R.string.dados_qr_code));
-        db = new MailDeliveryDBContaNormal(this);
-        fService = new FirebaseContaNormalImpl(this, createListenerService());
-        /** TODO descomentar bloco e apagar linha acima
-         if (getIntent().getExtras() != null && getIntent().getStringExtra(getResources().getString(R.string.dados_qr_code)).startsWith(getResources().getString(R.string.tipo_conta_normal))) {
-         db = new MailDeliveryDBContaNormal(this);
-         } else if (getIntent().getExtras() != null && getIntent().getStringExtra(getResources().getString(R.string.dados_qr_code)).startsWith(getResources().getString(R.string.tipo_conta_nota))) {
-         db = new MailDeliveryDBNotaServico(this);
-         } else {
-         db = new MailDeliveryNoQrCode(this);
-         }*/
+
+        if (getIntent().getStringExtra(EXTRA_TIPO_CONTA).equals(getResources().getString(R.string.tipo_conta_normal))) {
+            db = new MailDeliveryDBContaNormal(this);
+            fService = new FirebaseContaNormalImpl(this, createListenerService());
+        } else if (getIntent().getStringExtra(EXTRA_TIPO_CONTA).equals(getResources().getString(R.string.tipo_conta_nota))) {
+            db = new MailDeliveryDBNotaServico(this);
+            fService = new FirebaseNotaImpl(this, createListenerService());
+        }
 
         btnPhoto = (ImageView) findViewById(R.id.btn_capturar_foto);
         btnFinalizarCaptura = (ImageView) findViewById(R.id.btn_finalizar_captura);
@@ -239,21 +246,29 @@ public class CameraActivity extends AppCompatActivity {
 //        byte[] data = baos.toByteArray();
 //        ByteArrayInputStream in = new ByteArrayInputStream(data);
 
-        ContaNormal r = new ContaNormal();
-        r.setUriFotoDisp(file.getAbsolutePath());
-        r.setIdFoto(file.getName());
-        r.setTimesTamp(dateTime);
-        r.setPrefixAgrupador(getResources().getString(R.string.prefix_agrupador));
-        r.setDadosQrCode(getIntent().getStringExtra(getResources().getString(R.string.dados_qr_code)));
-        if (getIntent().getDoubleExtra(getResources().getString(R.string.latitude), 0d) != 0d) {
-            r.setLatitude(getIntent().getDoubleExtra(getResources().getString(R.string.latitude), 0d));
-            r.setLongitude(getIntent().getDoubleExtra(getResources().getString(R.string.longitude), 0d));
-        } else {
-            r.setEnderecoManual(getIntent().getStringExtra(getResources().getString(R.string.endereco_manual)));
-        }
-        r.setSitSalvoFirebase(0);
+        if (getIntent().getStringExtra(EXTRA_TIPO_CONTA).equals(getResources().getString(R.string.tipo_conta_normal))) {
+            ContaNormal r = new ContaNormal(getIntent().getStringExtra(getResources().getString(R.string.dados_qr_code)), dateTime,
+                    getResources().getString(R.string.prefix_agrupador), file.getName(), getIntent().getDoubleExtra(getResources().getString(R.string.latitude), 0d),
+                    getIntent().getDoubleExtra(getResources().getString(R.string.longitude), 0d), file.getAbsolutePath(),
+                    getIntent().getStringExtra(getResources().getString(R.string.endereco_manual)), 0,
+                    getIntent().getStringExtra(EXTRA_LOCAL_ENTREGA_CORRESP), null);
+            r.setContaProtocolada(getIntent().getBooleanExtra(EXTRA_CONTA_PROTOCOLADA, false));
+            r.setContaColetiva(getIntent().getBooleanExtra(EXTRA_CONTA_COLETIVA, false));
+            r.setLocalEntregaCorresp(getIntent().getStringExtra(EXTRA_LOCAL_ENTREGA_CORRESP));
+            r.setSitSalvoFirebase(0);
 //        deleteDatabase(MailDeliverDBService.DB_NAME);
-        db.save(r);
+            db.save(r);
+        } else if (getIntent().getStringExtra(EXTRA_TIPO_CONTA).equals(getResources().getString(R.string.tipo_conta_nota))) {
+            NotaServico ns = new NotaServico(getIntent().getStringExtra(getResources().getString(R.string.dados_qr_code)), dateTime,
+                    getResources().getString(R.string.prefix_agrupador), file.getName(), getIntent().getDoubleExtra(getResources().getString(R.string.latitude), 0d),
+                    getIntent().getDoubleExtra(getResources().getString(R.string.longitude), 0d), file.getAbsolutePath(),
+                    getIntent().getStringExtra(getResources().getString(R.string.endereco_manual)), 0,
+                    getIntent().getStringExtra(EXTRA_LOCAL_ENTREGA_CORRESP), null);
+            ns.setMedidorExterno(getIntent().getStringExtra(SECOND_DATA_KEY));
+            ns.setMedidorVizinho(getIntent().getStringExtra(EXTRA_MEDIDOR_VIZINHO_DATA_KEY));
+            ns.setLeitura(getIntent().getStringExtra(EXTRA_LEITURA_DATA_KEY));
+            db.save(ns);
+        }
     }
 
     /**

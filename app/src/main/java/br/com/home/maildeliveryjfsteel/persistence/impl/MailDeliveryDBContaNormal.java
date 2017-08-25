@@ -44,6 +44,9 @@ public class MailDeliveryDBContaNormal extends SQLiteOpenHelper implements MailD
         builder.append(mContext.getResources().getString(R.string.uri_foto_disp)).append(" text, ");
         builder.append(mContext.getResources().getString(R.string.url_storage_foto)).append(" text, ");
         builder.append(mContext.getResources().getString(R.string.endereco_manual)).append(" text, ");
+        builder.append(mContext.getResources().getString(R.string.local_entrega_corresp)).append(" text, ");
+        builder.append(mContext.getResources().getString(R.string.conta_protocolada)).append(" integer, ");
+        builder.append(mContext.getResources().getString(R.string.conta_coletiva)).append(" integer, ");
         builder.append(mContext.getResources().getString(R.string.sit_salvo_firebase)).append(" integer)");
         db.execSQL(builder.toString());
     }
@@ -79,6 +82,9 @@ public class MailDeliveryDBContaNormal extends SQLiteOpenHelper implements MailD
             values.put(mContext.getResources().getString(R.string.uri_foto_disp), item.getUriFotoDisp());
             values.put(mContext.getResources().getString(R.string.url_storage_foto), item.getUrlStorageFoto());
             values.put(mContext.getResources().getString(R.string.endereco_manual), item.getEnderecoManual());
+            values.put(mContext.getResources().getString(R.string.local_entrega_corresp), item.getLocalEntregaCorresp());
+            values.put(mContext.getResources().getString(R.string.conta_coletiva), item.isContaColetiva() ? 1 : 0);
+            values.put(mContext.getResources().getString(R.string.conta_protocolada), item.isContaProtocolada() ? 1 : 0);
             values.put(mContext.getResources().getString(R.string.sit_salvo_firebase), item.getSitSalvoFirebase());
             if (id != 0) {
                 String _id = String.valueOf(id);
@@ -201,6 +207,9 @@ public class MailDeliveryDBContaNormal extends SQLiteOpenHelper implements MailD
                 r.setUriFotoDisp(c.getString(c.getColumnIndex(mContext.getResources().getString(R.string.uri_foto_disp))));
                 r.setUrlStorageFoto(c.getString(c.getColumnIndex(mContext.getResources().getString(R.string.url_storage_foto))));
                 r.setEnderecoManual(c.getString(c.getColumnIndex(mContext.getResources().getString(R.string.endereco_manual))));
+                r.setLocalEntregaCorresp(c.getString(c.getColumnIndex(mContext.getResources().getString(R.string.local_entrega_corresp))));
+                r.setContaColetiva(c.getInt(c.getColumnIndex(mContext.getResources().getString(R.string.conta_coletiva))) == 1 ? true : false);
+                r.setContaProtocolada(c.getInt(c.getColumnIndex(mContext.getResources().getString(R.string.conta_protocolada))) == 1 ? true : false);
                 r.setSitSalvoFirebase(c.getType(c.getColumnIndex(mContext.getResources().getString(R.string.sit_salvo_firebase))));
                 list.add(r);
             } while (c.moveToNext());

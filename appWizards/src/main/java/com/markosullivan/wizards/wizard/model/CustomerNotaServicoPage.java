@@ -22,8 +22,8 @@ import com.markosullivan.wizards.wizard.ui.CustomerNotaServicoFragment;
 
 import java.util.ArrayList;
 
-import static br.com.home.jfsteelbase.ConstantsUtil.LEITURA_DATA_KEY;
-import static br.com.home.jfsteelbase.ConstantsUtil.MEDIDOR_VIZINHO_DATA_KEY;
+import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_LEITURA_DATA_KEY;
+import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_MEDIDOR_VIZINHO_DATA_KEY;
 
 /**
  * A page asking for a name and an email.
@@ -41,8 +41,8 @@ public class CustomerNotaServicoPage extends Page {
 
     @Override
     public void getReviewItems(ArrayList<ReviewItem> dest) {
-        dest.add(new ReviewItem("Leitura feita", mData.getString(LEITURA_DATA_KEY), getKey(), -1));
-        dest.add(new ReviewItem("Medidor vizinho", mData.getString(MEDIDOR_VIZINHO_DATA_KEY), getKey(), -1));
+        dest.add(new ReviewItem("Leitura feita", mData.getString(EXTRA_LEITURA_DATA_KEY), getKey(), -1));
+        dest.add(new ReviewItem("Medidor vizinho", mData.getString(EXTRA_MEDIDOR_VIZINHO_DATA_KEY), getKey(), -1));
     }
 
     @Override

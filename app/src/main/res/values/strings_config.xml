@@ -22,11 +22,15 @@
     <string name="url_storage_foto" translatable="false">urlStorageFoto</string>
     <string name="endereco_manual" translatable="false">enderecoManual</string>
     <string name="sit_salvo_firebase" translatable="false">sitSalvoFirebase</string>
+    <string name="conta_coletiva" translatable="false">contaColetiva</string>
+    <string name="conta_protocolada" translatable="false">contaProtocolada</string>
+    <string name="local_entrega_corresp" translatable="false">localEntregaCorresp</string>
+    <string name="grupo_a" translatable="false">grupoA</string>
+    <string name="reaviso" translatable="false">reaviso</string>
 
     <string name="leitura" translatable="false">leitura</string>
     <string name="medidor_vizinho" translatable="false">medidorVizinho</string>
     <string name="medidor_externo" translatable="false">medidorExterno</string>
-    <string name="tipo_residencia" translatable="false">tipoResidencia</string>
 
     <string name="medidor" translatable="false">medidor</string>
     <string name="existe_conta" translatable="false">existeConta</string>

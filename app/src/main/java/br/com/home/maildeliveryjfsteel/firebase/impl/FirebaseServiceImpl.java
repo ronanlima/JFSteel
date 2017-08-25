@@ -3,7 +3,6 @@ package br.com.home.maildeliveryjfsteel.firebase.impl;
 import android.content.Context;
 
 import java.io.Serializable;
-import java.util.List;
 
 import br.com.home.maildeliveryjfsteel.firebase.FirebaseService;
 import br.com.home.maildeliveryjfsteel.persistence.dto.GenericDelivery;
@@ -22,16 +21,9 @@ public abstract class FirebaseServiceImpl<T> implements FirebaseService<T> {
     }
 
     public GenericDTO createDTO(GenericDelivery contaDelivery) {
-        GenericDTO dto = new GenericDTO();
-        dto.setDadosQrCode(contaDelivery.getDadosQrCode());
-        dto.setIdFoto(contaDelivery.getIdFoto());
-        dto.setTimeStamp(contaDelivery.getTimesTamp());
-        if (contaDelivery.getLatitude() != 0d) {
-            dto.setLatitude(contaDelivery.getLatitude());
-            dto.setLongitude(contaDelivery.getLongitude());
-        } else {
-            dto.setLocalEntrega(contaDelivery.getLocalEntregaCorresp());
-        }
+        GenericDTO dto = new GenericDTO(contaDelivery.getDadosQrCode(), contaDelivery.getIdFoto(),
+                contaDelivery.getLatitude(), contaDelivery.getLongitude(), contaDelivery.getEnderecoManual(),
+                contaDelivery.getTimesTamp(), contaDelivery.getUriFotoDisp(), contaDelivery.getLocalEntregaCorresp());
         return dto;
     }
 
@@ -60,6 +52,24 @@ class GenericDTO {
     private long timeStamp;
     private String uriFotoDisp;
     private String localEntrega;
+
+    public GenericDTO(String dadosQrCode, String idFoto, double latitude, double longitude,
+                      String enderecoManual, long timeStamp, String uriFotoDisp, String localEntrega) {
+        setDadosQrCode(dadosQrCode);
+        setIdFoto(idFoto);
+        if (latitude != 0d) {
+            setLatitude(latitude);
+            setLongitude(longitude);
+        } else {
+            setEnderecoManual(enderecoManual);
+        }
+        setTimeStamp(timeStamp);
+        setUriFotoDisp(uriFotoDisp);
+        setLocalEntrega(localEntrega);
+    }
+
+    public GenericDTO() {
+    }
 
     public String getDadosQrCode() {
         return dadosQrCode;

@@ -44,7 +44,7 @@ public class FirebaseNotaImpl extends FirebaseServiceImpl<NotaServico> {
         if (list != null) {
             DatabaseReference reference = database.getReference(getmContext().getResources().getString(R.string.firebase_no_notas));
             for (final NotaServico nota : list) {
-                reference.child(matricula).push().setValue(nota).addOnCompleteListener(new OnCompleteListener<Void>() {
+                reference.child(matricula).push().setValue(createDTO(nota)).addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful() && task.isComplete()) {
@@ -67,12 +67,14 @@ public class FirebaseNotaImpl extends FirebaseServiceImpl<NotaServico> {
     }
 
     @Override
-    public GenericDTO createDTO(GenericDelivery contaDelivery) {
-        NotaServicoDTO dto = new NotaServicoDTO();
-
-        return null;
+    public GenericDTO createDTO(GenericDelivery ct) {
+        NotaServicoDTO dto = new NotaServicoDTO(ct.getDadosQrCode(), ct.getIdFoto(), ct.getLatitude(),
+                ct.getLongitude(), ct.getEnderecoManual(), ct.getTimesTamp(), ct.getUriFotoDisp(), ct.getLocalEntregaCorresp());
+        dto.setLeitura(((NotaServico) ct).getLeitura());
+        dto.setMedidorExterno(((NotaServico) ct).getMedidorExterno());
+        dto.setMedidorVizinho(((NotaServico) ct).getMedidorVizinho());
+        return dto;
     }
-
 
     @Override
     public void uploadPhoto(final NotaServico nota, String uriPhotoDisp, String namePhoto) {
@@ -115,6 +117,13 @@ class NotaServicoDTO extends GenericDTO {
     private String leitura;
     private String medidorVizinho;
     private String medidorExterno;
+
+    public NotaServicoDTO(String dadosQrCode, String idFoto, double latitude, double longitude, String enderecoManual, long timeStamp, String uriFotoDisp, String localEntrega) {
+        super(dadosQrCode, idFoto, latitude, longitude, enderecoManual, timeStamp, uriFotoDisp, localEntrega);
+    }
+
+    public NotaServicoDTO() {
+    }
 
     public String getLeitura() {
         return leitura;

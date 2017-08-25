@@ -33,7 +33,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.markosullivan.wizards.R;
-import com.markosullivan.wizards.wizard.model.CustomerNotaServicoPage;
 import com.markosullivan.wizards.wizard.model.CustomerPageContaNoQrCode;
 import com.markosullivan.wizards.wizard.model.Page;
 
@@ -42,9 +41,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static br.com.home.jfsteelbase.ConstantsUtil.COMENTARIO_DATA_KEY;
-import static br.com.home.jfsteelbase.ConstantsUtil.ENDERECO_DATA_KEY;
-import static br.com.home.jfsteelbase.ConstantsUtil.LEITURA_DATA_KEY;
+import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_COMENTARIO_DATA_KEY;
+import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_ENDERECO_DATA_KEY;
+import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_LEITURA_DATA_KEY;
 
 public class CustomerNoQrCodeFragment extends ListFragment {
     private static final String ARG_KEY = "key";
@@ -85,13 +84,13 @@ public class CustomerNoQrCodeFragment extends ListFragment {
         ((TextView) rootView.findViewById(android.R.id.title)).setText(mPage.getTitle());
 
         textLeituraRealizada = ((TextView) rootView.findViewById(R.id.numero_leitura_registro_no_qrcode));
-        textLeituraRealizada.setText(mPage.getData().getString(LEITURA_DATA_KEY));
+        textLeituraRealizada.setText(mPage.getData().getString(EXTRA_LEITURA_DATA_KEY));
 
         textEndereco = ((TextView) rootView.findViewById(R.id.endereco_no_qrcode));
-        textEndereco.setText(mPage.getData().getString(ENDERECO_DATA_KEY));
+        textEndereco.setText(mPage.getData().getString(EXTRA_ENDERECO_DATA_KEY));
 
         textComentario = ((TextView) rootView.findViewById(R.id.et_comentario_no_qrcode));
-        textComentario.setText(mPage.getData().getString(COMENTARIO_DATA_KEY));
+        textComentario.setText(mPage.getData().getString(EXTRA_COMENTARIO_DATA_KEY));
 
         final ListView listView = (ListView) rootView.findViewById(android.R.id.list);
         setListAdapter(new ArrayAdapter<String>(getActivity(),
@@ -154,7 +153,7 @@ public class CustomerNoQrCodeFragment extends ListFragment {
 
             @Override
             public void afterTextChanged(Editable editable) {
-                mPage.getData().putString(LEITURA_DATA_KEY,
+                mPage.getData().putString(EXTRA_LEITURA_DATA_KEY,
                         (editable != null) ? editable.toString() : null);
                 mPage.notifyDataChanged();
             }
@@ -171,7 +170,7 @@ public class CustomerNoQrCodeFragment extends ListFragment {
 
             @Override
             public void afterTextChanged(Editable editable) {
-                mPage.getData().putString(ENDERECO_DATA_KEY,
+                mPage.getData().putString(EXTRA_ENDERECO_DATA_KEY,
                         (editable != null) ? editable.toString() : null);
                 mPage.notifyDataChanged();
             }
@@ -188,7 +187,7 @@ public class CustomerNoQrCodeFragment extends ListFragment {
 
             @Override
             public void afterTextChanged(Editable editable) {
-                mPage.getData().putString(COMENTARIO_DATA_KEY,
+                mPage.getData().putString(EXTRA_COMENTARIO_DATA_KEY,
                         (editable != null) ? editable.toString() : null);
                 mPage.notifyDataChanged();
             }

@@ -23,9 +23,9 @@ import com.markosullivan.wizards.wizard.ui.CustomerNotaServicoFragment;
 
 import java.util.ArrayList;
 
-import static br.com.home.jfsteelbase.ConstantsUtil.COMENTARIO_DATA_KEY;
-import static br.com.home.jfsteelbase.ConstantsUtil.ENDERECO_DATA_KEY;
-import static br.com.home.jfsteelbase.ConstantsUtil.LEITURA_DATA_KEY;
+import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_COMENTARIO_DATA_KEY;
+import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_ENDERECO_DATA_KEY;
+import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_LEITURA_DATA_KEY;
 
 /**
  * A page asking for a name and an email.
@@ -53,14 +53,14 @@ public class CustomerPageContaNoQrCode extends SingleFixedChoicePage {
 
     @Override
     public void getReviewItems(ArrayList<ReviewItem> dest) {
-        dest.add(new ReviewItem("Leitura do medidor", mData.getString(LEITURA_DATA_KEY), getKey(), -1));
-        dest.add(new ReviewItem("Endereço", mData.getString(ENDERECO_DATA_KEY), getKey(), -1));
-        dest.add(new ReviewItem("Comentário", mData.getString(COMENTARIO_DATA_KEY), getKey(), -1));
+        dest.add(new ReviewItem("Leitura do medidor", mData.getString(EXTRA_LEITURA_DATA_KEY), getKey(), -1));
+        dest.add(new ReviewItem("Endereço", mData.getString(EXTRA_ENDERECO_DATA_KEY), getKey(), -1));
+        dest.add(new ReviewItem("Comentário", mData.getString(EXTRA_COMENTARIO_DATA_KEY), getKey(), -1));
         dest.add(new ReviewItem("Possui conta", mData.getString(SIMPLE_DATA_KEY), getKey()));
     }
 
     @Override
     public boolean isCompleted() {
-        return !TextUtils.isEmpty(mData.getString(ENDERECO_DATA_KEY));
+        return !TextUtils.isEmpty(mData.getString(EXTRA_ENDERECO_DATA_KEY));
     }
 }

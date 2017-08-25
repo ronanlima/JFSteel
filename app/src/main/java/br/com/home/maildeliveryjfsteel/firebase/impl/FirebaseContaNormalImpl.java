@@ -22,6 +22,8 @@ import java.util.List;
 import br.com.home.maildeliveryjfsteel.BuildConfig;
 import br.com.home.maildeliveryjfsteel.R;
 import br.com.home.maildeliveryjfsteel.persistence.dto.ContaNormal;
+import br.com.home.maildeliveryjfsteel.persistence.dto.GenericDelivery;
+import br.com.home.maildeliveryjfsteel.persistence.dto.NotaServico;
 import br.com.home.maildeliveryjfsteel.persistence.impl.MailDeliveryDBContaNormal;
 
 /**
@@ -65,20 +67,12 @@ public class FirebaseContaNormalImpl extends FirebaseServiceImpl<ContaNormal> {
         }
     }
 
-    private ContaNormalFB createDTO(ContaNormal ct) {
-        ContaNormalFB dto = new ContaNormalFB();
-        dto.setDadosQrCode(ct.getDadosQrCode());
-        dto.setIdFoto(ct.getIdFoto());
-        if (ct.getLatitude() != 0d) {
-            dto.setLatitude(ct.getLatitude());
-            dto.setLongitude(ct.getLongitude());
-        } else {
-            dto.setEnderecoManual(ct.getEnderecoManual());
-        }
-        dto.setTimeStamp(ct.getTimesTamp());
-        dto.setLocalEntrega(ct.getLocalEntregaCorresp());
-        dto.setContaProtocolada(ct.isContaProtocolada());
-        dto.setContaColetiva(ct.isContaColetiva());
+    @Override
+    public GenericDTO createDTO(GenericDelivery ct) {
+        ContaNormalFB dto = new ContaNormalFB(ct.getDadosQrCode(), ct.getIdFoto(), ct.getLatitude(), ct.getLongitude(),
+                ct.getEnderecoManual(), ct.getTimesTamp(), ct.getUriFotoDisp(), ct.getLocalEntregaCorresp());
+        dto.setContaColetiva(((ContaNormal) ct).isContaColetiva());
+        dto.setContaProtocolada(((ContaNormal) ct).isContaProtocolada());
         return dto;
     }
 
@@ -134,11 +128,15 @@ class ContaNormalFB extends GenericDTO {
     private boolean isContaProtocolada;
     private boolean isContaColetiva;
 
+    public ContaNormalFB(String dadosQrCode, String idFoto, double latitude, double longitude, String enderecoManual, long timeStamp, String uriFotoDisp, String localEntrega) {
+        super(dadosQrCode, idFoto, latitude, longitude, enderecoManual, timeStamp, uriFotoDisp, localEntrega);
+    }
+
     public void setContaProtocolada(boolean contaProtocolada) {
-        isContaProtocolada = contaProtocolada;
+        this.isContaProtocolada = contaProtocolada;
     }
 
     public void setContaColetiva(boolean contaColetiva) {
-        isContaColetiva = contaColetiva;
+        this.isContaColetiva = contaColetiva;
     }
 }

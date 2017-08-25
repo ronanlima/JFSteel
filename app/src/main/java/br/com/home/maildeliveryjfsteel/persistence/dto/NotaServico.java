@@ -9,6 +9,10 @@ public class NotaServico extends GenericDelivery {
     private String medidorVizinho;
     private String medidorExterno;
 
+    public NotaServico(String dadosQrCode, Long timesTamp, String prefixAgrupador, String idFoto, Double latitude, Double longitude, String uriFotoDisp, String enderecoManual, int sitSalvoFirebase, String localEntregaCorresp, String urlStorageFoto) {
+        super(dadosQrCode, timesTamp, prefixAgrupador, idFoto, latitude, longitude, uriFotoDisp, enderecoManual, sitSalvoFirebase, localEntregaCorresp, urlStorageFoto);
+    }
+
     public NotaServico() {
     }
 

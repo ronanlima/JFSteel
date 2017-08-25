@@ -10,13 +10,32 @@ public class GenericDelivery {
     private Long timesTamp;
     private String prefixAgrupador; // recuperar esta informação de alguma parte do qr code
     private String idFoto;
-    private Double latitude;
-    private Double longitude;
+    private double latitude;
+    private double longitude;
     private String uriFotoDisp;
     private String urlStorageFoto;
     private String enderecoManual; // para quando o gps nao conseguir recuperar a coordenada.
     private int sitSalvoFirebase;
     private String localEntregaCorresp; // o tipo de residencia em que a conta foi entregue. Ex: condomínio, casa, poste, etc.
+
+    public GenericDelivery(String dadosQrCode, Long timesTamp, String prefixAgrupador, String idFoto
+            , Double latitude, Double longitude, String uriFotoDisp, String enderecoManual, int sitSalvoFirebase
+            , String localEntregaCorresp, String urlStorageFoto) {
+        setDadosQrCode(dadosQrCode);
+        setTimesTamp(timesTamp);
+        setPrefixAgrupador(prefixAgrupador);
+        setIdFoto(idFoto);
+        if (latitude != 0d) {
+            setLatitude(latitude);
+            setLongitude(longitude);
+        } else {
+            setEnderecoManual(enderecoManual);
+        }
+        setUriFotoDisp(uriFotoDisp);
+        setSitSalvoFirebase(sitSalvoFirebase);
+        setLocalEntregaCorresp(localEntregaCorresp);
+        setUrlStorageFoto(urlStorageFoto);
+    }
 
     public GenericDelivery() {
     }
@@ -61,19 +80,19 @@ public class GenericDelivery {
         this.idFoto = idFoto;
     }
 
-    public Double getLatitude() {
+    public double getLatitude() {
         return latitude;
     }
 
-    public void setLatitude(Double latitude) {
+    public void setLatitude(double latitude) {
         this.latitude = latitude;
     }
 
-    public Double getLongitude() {
+    public double getLongitude() {
         return longitude;
     }
 
-    public void setLongitude(Double longitude) {
+    public void setLongitude(double longitude) {
         this.longitude = longitude;
     }
 

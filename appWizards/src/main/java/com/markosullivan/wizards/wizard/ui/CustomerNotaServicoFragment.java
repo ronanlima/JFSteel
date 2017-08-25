@@ -31,8 +31,8 @@ import android.widget.TextView;
 import com.markosullivan.wizards.R;
 import com.markosullivan.wizards.wizard.model.CustomerNotaServicoPage;
 
-import static br.com.home.jfsteelbase.ConstantsUtil.LEITURA_DATA_KEY;
-import static br.com.home.jfsteelbase.ConstantsUtil.MEDIDOR_VIZINHO_DATA_KEY;
+import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_LEITURA_DATA_KEY;
+import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_MEDIDOR_VIZINHO_DATA_KEY;
 
 public class CustomerNotaServicoFragment extends Fragment {
     private static final String ARG_KEY = "key";
@@ -71,10 +71,10 @@ public class CustomerNotaServicoFragment extends Fragment {
         ((TextView) rootView.findViewById(android.R.id.title)).setText(mPage.getTitle());
 
         textLeituraRealizada = ((TextView) rootView.findViewById(R.id.numero_leitura_registro));
-        textLeituraRealizada.setText(mPage.getData().getString(LEITURA_DATA_KEY));
+        textLeituraRealizada.setText(mPage.getData().getString(EXTRA_LEITURA_DATA_KEY));
 
         textMedidorVisivel = ((TextView) rootView.findViewById(R.id.medidor_vizinho));
-        textMedidorVisivel.setText(mPage.getData().getString(MEDIDOR_VIZINHO_DATA_KEY));
+        textMedidorVisivel.setText(mPage.getData().getString(EXTRA_MEDIDOR_VIZINHO_DATA_KEY));
         return rootView;
     }
 
@@ -110,7 +110,7 @@ public class CustomerNotaServicoFragment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable editable) {
-                mPage.getData().putString(LEITURA_DATA_KEY,
+                mPage.getData().putString(EXTRA_LEITURA_DATA_KEY,
                         (editable != null) ? editable.toString() : null);
                 mPage.notifyDataChanged();
             }
@@ -127,7 +127,7 @@ public class CustomerNotaServicoFragment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable editable) {
-                mPage.getData().putString(MEDIDOR_VIZINHO_DATA_KEY,
+                mPage.getData().putString(EXTRA_MEDIDOR_VIZINHO_DATA_KEY,
                         (editable != null) ? editable.toString() : null);
                 mPage.notifyDataChanged();
             }

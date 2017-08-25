@@ -14,6 +14,7 @@ import java.util.List;
 
 import br.com.home.maildeliveryjfsteel.BuildConfig;
 import br.com.home.maildeliveryjfsteel.R;
+import br.com.home.maildeliveryjfsteel.persistence.dto.GenericDelivery;
 import br.com.home.maildeliveryjfsteel.persistence.dto.NoQrCode;
 import br.com.home.maildeliveryjfsteel.persistence.impl.MailDeliveryNoQrCode;
 
@@ -36,7 +37,7 @@ public class FirebaseNoQrCodeImpl extends FirebaseServiceImpl<NoQrCode> {
         if (list != null) {
             DatabaseReference reference = database.getReference(getmContext().getResources().getString(R.string.firebase_no_noqrcode));
             for (final NoQrCode item : list) {
-                reference.child(matricula).push().setValue(item).addOnCompleteListener(new OnCompleteListener<Void>() {
+                reference.child(matricula).push().setValue(createDTO(item)).addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful() && task.isComplete()) {
@@ -55,6 +56,15 @@ public class FirebaseNoQrCodeImpl extends FirebaseServiceImpl<NoQrCode> {
     }
 
     @Override
+    public GenericDTO createDTO(GenericDelivery contaDelivery) {
+        NoQrCodeDTO dto = (NoQrCodeDTO) super.createDTO(contaDelivery);
+        dto.setComentario(((NoQrCode) contaDelivery).getComentario());
+        dto.setExisteConta(((NoQrCode) contaDelivery).getExisteConta());
+        dto.setMedidor(((NoQrCode) contaDelivery).getMedidor());
+        return dto;
+    }
+
+    @Override
     public void uploadPhoto(NoQrCode obj, String uriPhotoDisp, String namePhoto) {
 
     }
@@ -64,5 +74,42 @@ public class FirebaseNoQrCodeImpl extends FirebaseServiceImpl<NoQrCode> {
         MailDeliveryNoQrCode db = new MailDeliveryNoQrCode(getmContext());
         obj.setSitSalvoFirebase(1);
         db.save(obj);
+    }
+}
+
+class NoQrCodeDTO extends GenericDTO {
+    private String medidor;
+    private int existeConta;
+    private String comentario;
+
+    public NoQrCodeDTO(String dadosQrCode, String idFoto, double latitude, double longitude, String enderecoManual, long timeStamp, String uriFotoDisp, String localEntrega) {
+        super(dadosQrCode, idFoto, latitude, longitude, enderecoManual, timeStamp, uriFotoDisp, localEntrega);
+    }
+
+    public NoQrCodeDTO() {
+    }
+
+    public String getMedidor() {
+        return medidor;
+    }
+
+    public void setMedidor(String medidor) {
+        this.medidor = medidor;
+    }
+
+    public int getExisteConta() {
+        return existeConta;
+    }
+
+    public void setExisteConta(int existeConta) {
+        this.existeConta = existeConta;
+    }
+
+    public String getComentario() {
+        return comentario;
+    }
+
+    public void setComentario(String comentario) {
+        this.comentario = comentario;
     }
 }

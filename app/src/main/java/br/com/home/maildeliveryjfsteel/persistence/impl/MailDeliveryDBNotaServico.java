@@ -46,7 +46,7 @@ public class MailDeliveryDBNotaServico extends SQLiteOpenHelper implements MailD
         builder.append(mContext.getResources().getString(R.string.leitura)).append(" text, ");
         builder.append(mContext.getResources().getString(R.string.medidor_vizinho)).append(" text, ");
         builder.append(mContext.getResources().getString(R.string.medidor_externo)).append(" integer, ");
-        builder.append(mContext.getResources().getString(R.string.tipo_residencia)).append(" integer, ");
+        builder.append(mContext.getResources().getString(R.string.local_entrega_corresp)).append(" text, ");
         builder.append(mContext.getResources().getString(R.string.sit_salvo_firebase)).append(" integer)");
         db.execSQL(builder.toString());
     }
@@ -84,8 +84,8 @@ public class MailDeliveryDBNotaServico extends SQLiteOpenHelper implements MailD
             values.put(mContext.getResources().getString(R.string.endereco_manual), item.getEnderecoManual());
             values.put(mContext.getResources().getString(R.string.leitura), item.getLeitura());
             values.put(mContext.getResources().getString(R.string.medidor_vizinho), item.getMedidorVizinho());
-            values.put(mContext.getResources().getString(R.string.medidor_externo), item.getMedidorExterno());
-            values.put(mContext.getResources().getString(R.string.tipo_residencia), item.getResidencia());
+            values.put(mContext.getResources().getString(R.string.medidor_externo), item.getMedidorExterno().equalsIgnoreCase("sim") ? 1 : 0);
+            values.put(mContext.getResources().getString(R.string.local_entrega_corresp), item.getLocalEntregaCorresp());
             values.put(mContext.getResources().getString(R.string.sit_salvo_firebase), item.getSitSalvoFirebase());
             if (id != 0) {
                 String _id = String.valueOf(id);
@@ -210,8 +210,8 @@ public class MailDeliveryDBNotaServico extends SQLiteOpenHelper implements MailD
                 r.setEnderecoManual(c.getString(c.getColumnIndex(mContext.getResources().getString(R.string.endereco_manual))));
                 r.setLeitura(c.getString(c.getColumnIndex(mContext.getResources().getString(R.string.leitura))));
                 r.setMedidorVizinho(c.getString(c.getColumnIndex(mContext.getResources().getString(R.string.medidor_vizinho))));
-                r.setMedidorExterno(c.getString(c.getColumnIndex(mContext.getResources().getString(R.string.medidor_externo))));
-                r.setResidencia(c.getString(c.getColumnIndex(mContext.getResources().getString(R.string.tipo_residencia))));
+                r.setMedidorExterno(c.getInt(c.getColumnIndex(mContext.getResources().getString(R.string.medidor_externo))) == 1 ? "Sim" : "Não");
+                r.setLocalEntregaCorresp(c.getString(c.getColumnIndex(mContext.getResources().getString(R.string.local_entrega_corresp))));
                 r.setSitSalvoFirebase(c.getType(c.getColumnIndex(mContext.getResources().getString(R.string.sit_salvo_firebase))));
                 list.add(r);
             } while (c.moveToNext());

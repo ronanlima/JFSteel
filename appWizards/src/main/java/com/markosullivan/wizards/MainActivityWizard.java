@@ -26,14 +26,14 @@ import com.markosullivan.wizards.wizard.ui.StepPagerStrip;
 
 import java.util.List;
 
-import static br.com.home.jfsteelbase.ConstantsUtil.COMENTARIO_DATA_KEY;
-import static br.com.home.jfsteelbase.ConstantsUtil.ENDERECO_DATA_KEY;
+import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_COMENTARIO_DATA_KEY;
+import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_ENDERECO_DATA_KEY;
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_CONTA_COLETIVA;
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_CONTA_PROTOCOLADA;
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_LOCAL_ENTREGA_CORRESP;
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_TIPO_CONTA;
-import static br.com.home.jfsteelbase.ConstantsUtil.LEITURA_DATA_KEY;
-import static br.com.home.jfsteelbase.ConstantsUtil.MEDIDOR_VIZINHO_DATA_KEY;
+import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_LEITURA_DATA_KEY;
+import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_MEDIDOR_VIZINHO_DATA_KEY;
 import static br.com.home.jfsteelbase.ConstantsUtil.SECOND_DATA_KEY;
 
 public class MainActivityWizard extends FragmentActivity implements
@@ -139,9 +139,8 @@ public class MainActivityWizard extends FragmentActivity implements
     private void finalizaFluxoContaNormal() {
         Bundle b = new Bundle();
         SingleFixedChoicePage p = (SingleFixedChoicePage) mWizardModel.getPageList().get(0);
-        if (p.getData().getString(p.SIMPLE_DATA_KEY) != null && !p.getData().getString(p.SIMPLE_DATA_KEY).trim().isEmpty()) {
-            b.putString(EXTRA_LOCAL_ENTREGA_CORRESP, p.getData().getString(p.SIMPLE_DATA_KEY));
-        }
+        b.putString(EXTRA_LOCAL_ENTREGA_CORRESP, p.getData().getString(p.SIMPLE_DATA_KEY));
+
         MultipleFixedChoicePage p1 = (MultipleFixedChoicePage) mWizardModel.getPageList().get(1);
         if (p1.getData().getStringArrayList(p1.SIMPLE_DATA_KEY) != null && !p1.getData().getStringArrayList(p1.SIMPLE_DATA_KEY).isEmpty()) {
             for (String op : p1.getData().getStringArrayList(p1.SIMPLE_DATA_KEY)) {
@@ -159,11 +158,11 @@ public class MainActivityWizard extends FragmentActivity implements
     private void finalizaFluxoNotaServico() {
         Bundle b = new Bundle();
         CustomerNotaServicoPage p = (CustomerNotaServicoPage) mWizardModel.getPageList().get(0);
-        if (p.getData().getString(LEITURA_DATA_KEY) != null && !p.getData().getString(LEITURA_DATA_KEY).trim().isEmpty()) {
-            b.putString(LEITURA_DATA_KEY, p.getData().getString(LEITURA_DATA_KEY));
+        if (p.getData().getString(EXTRA_LEITURA_DATA_KEY) != null && !p.getData().getString(EXTRA_LEITURA_DATA_KEY).trim().isEmpty()) {
+            b.putString(EXTRA_LEITURA_DATA_KEY, p.getData().getString(EXTRA_LEITURA_DATA_KEY));
         }
-        if (p.getData().getString(MEDIDOR_VIZINHO_DATA_KEY) != null && !p.getData().getString(MEDIDOR_VIZINHO_DATA_KEY).trim().isEmpty()) {
-            b.putString(MEDIDOR_VIZINHO_DATA_KEY, p.getData().getString(MEDIDOR_VIZINHO_DATA_KEY));
+        if (p.getData().getString(EXTRA_MEDIDOR_VIZINHO_DATA_KEY) != null && !p.getData().getString(EXTRA_MEDIDOR_VIZINHO_DATA_KEY).trim().isEmpty()) {
+            b.putString(EXTRA_MEDIDOR_VIZINHO_DATA_KEY, p.getData().getString(EXTRA_MEDIDOR_VIZINHO_DATA_KEY));
         }
         MixedNotaServicoChoicePage p2 = (MixedNotaServicoChoicePage) mWizardModel.getPageList().get(1);
         if (p2.getData().getString(p2.SIMPLE_DATA_KEY) != null && !p2.getData().getString(p2.SIMPLE_DATA_KEY).trim().isEmpty()) {
@@ -179,14 +178,14 @@ public class MainActivityWizard extends FragmentActivity implements
     private void finalizaFluxoNoQrCode() {
         Bundle b = new Bundle();
         CustomerPageContaNoQrCode p = (CustomerPageContaNoQrCode) mWizardModel.getPageList().get(0);
-        if (p.getData().getString(LEITURA_DATA_KEY) != null && !p.getData().getString(LEITURA_DATA_KEY).trim().isEmpty()) {
-            b.putString(LEITURA_DATA_KEY, p.getData().getString(LEITURA_DATA_KEY));
+        if (p.getData().getString(EXTRA_LEITURA_DATA_KEY) != null && !p.getData().getString(EXTRA_LEITURA_DATA_KEY).trim().isEmpty()) {
+            b.putString(EXTRA_LEITURA_DATA_KEY, p.getData().getString(EXTRA_LEITURA_DATA_KEY));
         }
-        if (p.getData().getString(ENDERECO_DATA_KEY) != null && !p.getData().getString(ENDERECO_DATA_KEY).trim().isEmpty()) {
-            b.putString(ENDERECO_DATA_KEY, p.getData().getString(ENDERECO_DATA_KEY));
+        if (p.getData().getString(EXTRA_ENDERECO_DATA_KEY) != null && !p.getData().getString(EXTRA_ENDERECO_DATA_KEY).trim().isEmpty()) {
+            b.putString(EXTRA_ENDERECO_DATA_KEY, p.getData().getString(EXTRA_ENDERECO_DATA_KEY));
         }
-        if (p.getData().getString(COMENTARIO_DATA_KEY) != null && !p.getData().getString(COMENTARIO_DATA_KEY).trim().isEmpty()) {
-            b.putString(COMENTARIO_DATA_KEY, p.getData().getString(COMENTARIO_DATA_KEY));
+        if (p.getData().getString(EXTRA_COMENTARIO_DATA_KEY) != null && !p.getData().getString(EXTRA_COMENTARIO_DATA_KEY).trim().isEmpty()) {
+            b.putString(EXTRA_COMENTARIO_DATA_KEY, p.getData().getString(EXTRA_COMENTARIO_DATA_KEY));
         }
         if (p.getData().getString(p.SIMPLE_DATA_KEY) != null && !p.getData().getString(p.SIMPLE_DATA_KEY).trim().isEmpty()) {
             b.putString(p.SIMPLE_DATA_KEY, p.getData().getString(p.SIMPLE_DATA_KEY));

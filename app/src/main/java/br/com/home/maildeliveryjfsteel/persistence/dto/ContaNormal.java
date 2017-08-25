@@ -8,6 +8,10 @@ public class ContaNormal extends GenericDelivery {
     private boolean isContaProtocolada;
     private boolean isContaColetiva;
 
+    public ContaNormal(String dadosQrCode, Long timesTamp, String prefixAgrupador, String idFoto, Double latitude, Double longitude, String uriFotoDisp, String enderecoManual, int sitSalvoFirebase, String localEntregaCorresp, String urlStorageFoto) {
+        super(dadosQrCode, timesTamp, prefixAgrupador, idFoto, latitude, longitude, uriFotoDisp, enderecoManual, sitSalvoFirebase, localEntregaCorresp, urlStorageFoto);
+    }
+
     public ContaNormal() {
     }
 
