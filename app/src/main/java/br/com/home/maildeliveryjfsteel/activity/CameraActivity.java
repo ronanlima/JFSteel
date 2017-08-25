@@ -46,6 +46,7 @@ import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_CONTA_PROTOCOLADA;
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_LEITURA_DATA_KEY;
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_LOCAL_ENTREGA_CORRESP;
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_MEDIDOR_VIZINHO_DATA_KEY;
+import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_MEDIRO_EXTERNO;
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_TIPO_CONTA;
 import static br.com.home.jfsteelbase.ConstantsUtil.SECOND_DATA_KEY;
 import static br.com.home.maildeliveryjfsteel.utils.PermissionUtils.CAMERA_PERMISSION;
@@ -264,7 +265,7 @@ public class CameraActivity extends AppCompatActivity {
                     getIntent().getDoubleExtra(getResources().getString(R.string.longitude), 0d), file.getAbsolutePath(),
                     getIntent().getStringExtra(getResources().getString(R.string.endereco_manual)), 0,
                     getIntent().getStringExtra(EXTRA_LOCAL_ENTREGA_CORRESP), null);
-            ns.setMedidorExterno(getIntent().getStringExtra(SECOND_DATA_KEY));
+            ns.setMedidorExterno(getIntent().getStringExtra(EXTRA_MEDIRO_EXTERNO));
             ns.setMedidorVizinho(getIntent().getStringExtra(EXTRA_MEDIDOR_VIZINHO_DATA_KEY));
             ns.setLeitura(getIntent().getStringExtra(EXTRA_LEITURA_DATA_KEY));
             db.save(ns);

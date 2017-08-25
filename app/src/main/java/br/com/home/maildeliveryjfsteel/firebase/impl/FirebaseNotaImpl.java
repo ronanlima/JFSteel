@@ -110,6 +110,9 @@ public class FirebaseNotaImpl extends FirebaseServiceImpl<NotaServico> {
             nota.setUrlStorageFoto(null);
         }
         db.save(nota);
+        if (getListenerService() != null) {
+            getListenerService().notifyEndService();
+        }
     }
 }
 

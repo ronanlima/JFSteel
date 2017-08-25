@@ -1,10 +1,13 @@
 package br.com.home.maildeliveryjfsteel.persistence.dto;
 
+import android.content.ContentValues;
+
 /**
  * Created by Ronan.lima on 27/07/17.
  */
 
 public class ContaNormal extends GenericDelivery {
+
     private boolean isContaProtocolada;
     private boolean isContaColetiva;
 
@@ -13,6 +16,14 @@ public class ContaNormal extends GenericDelivery {
     }
 
     public ContaNormal() {
+    }
+
+    @Override
+    public ContentValues getValuesInsert() {
+        ContentValues values = super.getValuesInsert();
+        values.put(COLUNA_CONTA_COLETIVA, isContaColetiva() ? 1 : 0);
+        values.put(COLUNA_CONTA_PROTOCOLADA, isContaProtocolada() ? 1 : 0);
+        return values;
     }
 
     public boolean isContaProtocolada() {

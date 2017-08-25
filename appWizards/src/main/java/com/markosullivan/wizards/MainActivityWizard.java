@@ -31,6 +31,7 @@ import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_ENDERECO_DATA_KEY;
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_CONTA_COLETIVA;
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_CONTA_PROTOCOLADA;
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_LOCAL_ENTREGA_CORRESP;
+import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_MEDIRO_EXTERNO;
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_TIPO_CONTA;
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_LEITURA_DATA_KEY;
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_MEDIDOR_VIZINHO_DATA_KEY;
@@ -166,10 +167,10 @@ public class MainActivityWizard extends FragmentActivity implements
         }
         MixedNotaServicoChoicePage p2 = (MixedNotaServicoChoicePage) mWizardModel.getPageList().get(1);
         if (p2.getData().getString(p2.SIMPLE_DATA_KEY) != null && !p2.getData().getString(p2.SIMPLE_DATA_KEY).trim().isEmpty()) {
-            b.putString(p2.SIMPLE_DATA_KEY, p2.getData().getString(p2.SIMPLE_DATA_KEY));
+            b.putString(EXTRA_LOCAL_ENTREGA_CORRESP, p2.getData().getString(p2.SIMPLE_DATA_KEY));
         }
         if (p2.getData().getString(SECOND_DATA_KEY) != null && !p2.getData().getString(SECOND_DATA_KEY).trim().isEmpty()) {
-            b.putString(SECOND_DATA_KEY, p2.getData().getString(SECOND_DATA_KEY));
+            b.putString(EXTRA_MEDIRO_EXTERNO, p2.getData().getString(SECOND_DATA_KEY));
         }
         getIntent().putExtras(b);
         setResult(Activity.RESULT_OK, getIntent());

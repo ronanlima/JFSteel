@@ -1,53 +1,31 @@
 package br.com.home.maildeliveryjfsteel.persistence.impl;
 
-import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
-import android.database.sqlite.SQLiteOpenHelper;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import br.com.home.maildeliveryjfsteel.R;
 import br.com.home.maildeliveryjfsteel.persistence.MailDeliverDBService;
+import br.com.home.maildeliveryjfsteel.persistence.ManagerVersionsDB;
 import br.com.home.maildeliveryjfsteel.persistence.dto.NoQrCode;
 
 /**
  * Created by Ronan.lima on 10/08/17.
  */
 
-public class MailDeliveryNoQrCode extends SQLiteOpenHelper implements MailDeliverDBService<NoQrCode> {
+public class MailDeliveryNoQrCode implements MailDeliverDBService<NoQrCode> {
 
     public static final String TAG = MailDeliveryNoQrCode.class.getCanonicalName().toUpperCase();
     public static final String TABLE_REGISTRO_ENTREGA = "noQrCode";
     protected Context mContext;
 
     public MailDeliveryNoQrCode(Context context) {
-        super(context, DB_NAME, null, DB_VERSION);
         this.mContext = context;
-    }
-
-    @Override
-    public void onCreate(SQLiteDatabase db) {
-        StringBuilder builder = new StringBuilder("create table if not exists ");
-        builder.append(TABLE_REGISTRO_ENTREGA).append(" (_id integer primary key autoincrement, ");
-        builder.append(mContext.getResources().getString(R.string.medidor)).append(" integer, ");
-        builder.append(mContext.getResources().getString(R.string.hora_entrega)).append(" timestamp, ");
-        builder.append(mContext.getResources().getString(R.string.endereco_manual)).append(" text, ");
-        builder.append(mContext.getResources().getString(R.string.existe_conta)).append(" integer, ");
-        builder.append(mContext.getResources().getString(R.string.latitude)).append(" real, ");
-        builder.append(mContext.getResources().getString(R.string.longitude)).append(" real, ");
-        builder.append(mContext.getResources().getString(R.string.comentario)).append(" text, ");
-        builder.append(mContext.getResources().getString(R.string.sit_salvo_firebase)).append(" integer)");
-        db.execSQL(builder.toString());
-    }
-
-    @Override
-    public void onUpgrade(SQLiteDatabase db, int i, int i1) {
-
     }
 
     @Override
@@ -57,23 +35,15 @@ public class MailDeliveryNoQrCode extends SQLiteOpenHelper implements MailDelive
             id = item.getId();
         }
 
-        SQLiteDatabase db = getWritableDatabase();
+        SQLiteDatabase db = new ManagerVersionsDB(mContext, DB_NAME, null, DB_VERSION).getWritableDatabase();
         try {
-            ContentValues values = new ContentValues();
-            values.put(mContext.getResources().getString(R.string.medidor), item.getMedidor());
-            values.put(mContext.getResources().getString(R.string.hora_entrega), item.getTimesTamp());
-            values.put(mContext.getResources().getString(R.string.endereco_manual), item.getEnderecoManual());
-            values.put(mContext.getResources().getString(R.string.existe_conta), item.getExisteConta());
-            values.put(mContext.getResources().getString(R.string.latitude), item.getLatitude());
-            values.put(mContext.getResources().getString(R.string.longitude), item.getLongitude());
-            values.put(mContext.getResources().getString(R.string.comentario), item.getComentario());
-            values.put(mContext.getResources().getString(R.string.sit_salvo_firebase), item.getSitSalvoFirebase());
+
             if (id != 0) {
                 String _id = String.valueOf(id);
                 String[] whereArgs = new String[]{_id};
-                return db.update(TABLE_REGISTRO_ENTREGA, values, "_id=?", whereArgs);
+                return db.update(TABLE_REGISTRO_ENTREGA, item.getValuesInsert(), "_id=?", whereArgs);
             } else {
-                return db.insert(TABLE_REGISTRO_ENTREGA, null, values);
+                return db.insert(TABLE_REGISTRO_ENTREGA, null, item.getValuesInsert());
             }
         } catch (SQLiteException e) {
             e.printStackTrace();
@@ -90,7 +60,7 @@ public class MailDeliveryNoQrCode extends SQLiteOpenHelper implements MailDelive
      */
     @Override
     public List<NoQrCode> findAll() {
-        SQLiteDatabase db = getReadableDatabase();
+        SQLiteDatabase db = new ManagerVersionsDB(mContext, DB_NAME, null, DB_VERSION).getWritableDatabase();
 
         try {
             Cursor c = db.query(TABLE_REGISTRO_ENTREGA, null, null, null, null, null, null);
@@ -134,7 +104,7 @@ public class MailDeliveryNoQrCode extends SQLiteOpenHelper implements MailDelive
      */
     @Override
     public List<NoQrCode> findBySit(int situacao) {
-        SQLiteDatabase db = getReadableDatabase();
+        SQLiteDatabase db = new ManagerVersionsDB(mContext, DB_NAME, null, DB_VERSION).getWritableDatabase();
 
         try {
             Cursor c = db.query(TABLE_REGISTRO_ENTREGA, null, mContext.getResources().getString(R.string.sit_salvo_firebase) + " = " + situacao + "", null, null, null, null);
@@ -182,7 +152,7 @@ public class MailDeliveryNoQrCode extends SQLiteOpenHelper implements MailDelive
      */
     @Override
     public void execSql(String sql, Object[] args) {
-        SQLiteDatabase db = getWritableDatabase();
+        SQLiteDatabase db = new ManagerVersionsDB(mContext, DB_NAME, null, DB_VERSION).getWritableDatabase();
 
         try {
             db.execSQL(sql, args);

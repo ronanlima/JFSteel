@@ -2,6 +2,7 @@ package br.com.home.maildeliveryjfsteel.persistence.impl;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
@@ -13,47 +14,21 @@ import java.util.List;
 
 import br.com.home.maildeliveryjfsteel.R;
 import br.com.home.maildeliveryjfsteel.persistence.MailDeliverDBService;
+import br.com.home.maildeliveryjfsteel.persistence.ManagerVersionsDB;
 import br.com.home.maildeliveryjfsteel.persistence.dto.ContaNormal;
 
 /**
  * Created by Ronan.lima on 27/07/17.
  */
 
-public class MailDeliveryDBContaNormal extends SQLiteOpenHelper implements MailDeliverDBService<ContaNormal> {
+public class MailDeliveryDBContaNormal implements MailDeliverDBService<ContaNormal> {
 
     public static final String TAG = MailDeliveryDBContaNormal.class.getCanonicalName().toUpperCase();
-    public static final String TABLE_REGISTRO_ENTREGA = "registroEntrega";
+    public static final String TABLE_REGISTRO_ENTREGA = "contaComum";
     protected Context mContext;
 
     public MailDeliveryDBContaNormal(Context context) {
-        super(context, DB_NAME, null, DB_VERSION);
         this.mContext = context;
-    }
-
-    @Override
-    public void onCreate(SQLiteDatabase db) {
-        StringBuilder builder = new StringBuilder("create table if not exists ");
-        builder.append(TABLE_REGISTRO_ENTREGA);
-        builder.append(" (_id integer primary key autoincrement, ");
-        builder.append(mContext.getResources().getString(R.string.dados_qr_code)).append(" text, ");
-        builder.append(mContext.getResources().getString(R.string.hora_entrega)).append(" timestamp, ");
-        builder.append(mContext.getResources().getString(R.string.prefix_agrupador)).append(" text, ");
-        builder.append(mContext.getResources().getString(R.string.id_foto)).append(" text, ");
-        builder.append(mContext.getResources().getString(R.string.latitude)).append(" real, ");
-        builder.append(mContext.getResources().getString(R.string.longitude)).append(" real, ");
-        builder.append(mContext.getResources().getString(R.string.uri_foto_disp)).append(" text, ");
-        builder.append(mContext.getResources().getString(R.string.url_storage_foto)).append(" text, ");
-        builder.append(mContext.getResources().getString(R.string.endereco_manual)).append(" text, ");
-        builder.append(mContext.getResources().getString(R.string.local_entrega_corresp)).append(" text, ");
-        builder.append(mContext.getResources().getString(R.string.conta_protocolada)).append(" integer, ");
-        builder.append(mContext.getResources().getString(R.string.conta_coletiva)).append(" integer, ");
-        builder.append(mContext.getResources().getString(R.string.sit_salvo_firebase)).append(" integer)");
-        db.execSQL(builder.toString());
-    }
-
-    @Override
-    public void onUpgrade(SQLiteDatabase db, int i, int i1) {
-        // TODO encontrar um jeito de excluir o arquivo sqlite criado até o momento, para não ter que tratar atualização em desenvolvimento sem ter subido nenhuma versão release ainda.
     }
 
     /**
@@ -69,29 +44,14 @@ public class MailDeliveryDBContaNormal extends SQLiteOpenHelper implements MailD
             id = item.getId();
         }
 
-        SQLiteDatabase db = getWritableDatabase();
+        SQLiteDatabase db = new ManagerVersionsDB(mContext, DB_NAME, null, DB_VERSION).getWritableDatabase();
         try {
-            ContentValues values = new ContentValues();
-            values.put(mContext.getResources().getString(R.string.dados_qr_code), item.getDadosQrCode());
-            values.put(mContext.getResources().getString(R.string.hora_entrega), item.getTimesTamp());
-            values.put(mContext.getResources().getString(R.string.prefix_agrupador), item.getPrefixAgrupador());
-            String nomeFoto = item.getIdFoto().substring(0, item.getIdFoto().length() - 5);
-            values.put(mContext.getResources().getString(R.string.id_foto), nomeFoto);
-            values.put(mContext.getResources().getString(R.string.latitude), item.getLatitude());
-            values.put(mContext.getResources().getString(R.string.longitude), item.getLongitude());
-            values.put(mContext.getResources().getString(R.string.uri_foto_disp), item.getUriFotoDisp());
-            values.put(mContext.getResources().getString(R.string.url_storage_foto), item.getUrlStorageFoto());
-            values.put(mContext.getResources().getString(R.string.endereco_manual), item.getEnderecoManual());
-            values.put(mContext.getResources().getString(R.string.local_entrega_corresp), item.getLocalEntregaCorresp());
-            values.put(mContext.getResources().getString(R.string.conta_coletiva), item.isContaColetiva() ? 1 : 0);
-            values.put(mContext.getResources().getString(R.string.conta_protocolada), item.isContaProtocolada() ? 1 : 0);
-            values.put(mContext.getResources().getString(R.string.sit_salvo_firebase), item.getSitSalvoFirebase());
             if (id != 0) {
                 String _id = String.valueOf(id);
                 String[] whereArgs = new String[]{_id};
-                return db.update(TABLE_REGISTRO_ENTREGA, values, "_id=?", whereArgs);
+                return db.update(TABLE_REGISTRO_ENTREGA, item.getValuesInsert(), "_id=?", whereArgs);
             } else {
-                return db.insert(TABLE_REGISTRO_ENTREGA, null, values);
+                return db.insert(TABLE_REGISTRO_ENTREGA, null, item.getValuesInsert());
             }
         } catch (SQLiteException e) {
             e.printStackTrace();
@@ -108,7 +68,7 @@ public class MailDeliveryDBContaNormal extends SQLiteOpenHelper implements MailD
      */
     @Override
     public List<ContaNormal> findAll() {
-        SQLiteDatabase db = getReadableDatabase();
+        SQLiteDatabase db = new ManagerVersionsDB(mContext, DB_NAME, null, DB_VERSION).getWritableDatabase();
 
         try {
             Cursor c = db.query(TABLE_REGISTRO_ENTREGA, null, null, null, null, null, null);
@@ -129,7 +89,7 @@ public class MailDeliveryDBContaNormal extends SQLiteOpenHelper implements MailD
      */
     @Override
     public List<ContaNormal> findByAgrupador(String prefix) {
-        SQLiteDatabase db = getReadableDatabase();
+        SQLiteDatabase db = new ManagerVersionsDB(mContext, DB_NAME, null, DB_VERSION).getWritableDatabase();
 
         try {
             Cursor c = db.query(TABLE_REGISTRO_ENTREGA, null, mContext.getResources().getString(R.string.prefix_agrupador) + " like '" + prefix + "%'", null, null, null, null);
@@ -151,7 +111,7 @@ public class MailDeliveryDBContaNormal extends SQLiteOpenHelper implements MailD
      */
     @Override
     public List<ContaNormal> findByQrCode(String table, String qrCode) {
-        SQLiteDatabase db = getReadableDatabase();
+        SQLiteDatabase db = new ManagerVersionsDB(mContext, DB_NAME, null, DB_VERSION).getWritableDatabase();
 
         try {
             Cursor c = db.query(table, null, mContext.getResources().getString(R.string.dados_qr_code) + " = " + qrCode + "", null, null, null, null);
@@ -172,7 +132,7 @@ public class MailDeliveryDBContaNormal extends SQLiteOpenHelper implements MailD
      */
     @Override
     public List<ContaNormal> findBySit(int situacao) {
-        SQLiteDatabase db = getReadableDatabase();
+        SQLiteDatabase db = new ManagerVersionsDB(mContext, DB_NAME, null, DB_VERSION).getWritableDatabase();
 
         try {
             Cursor c = db.query(TABLE_REGISTRO_ENTREGA, null, mContext.getResources().getString(R.string.sit_salvo_firebase) + " = " + situacao + "", null, null, null, null);
@@ -225,7 +185,7 @@ public class MailDeliveryDBContaNormal extends SQLiteOpenHelper implements MailD
      */
     @Override
     public void execSql(String sql, Object[] args) {
-        SQLiteDatabase db = getWritableDatabase();
+        SQLiteDatabase db = new ManagerVersionsDB(mContext, DB_NAME, null, DB_VERSION).getWritableDatabase();
 
         try {
             db.execSQL(sql, args);
