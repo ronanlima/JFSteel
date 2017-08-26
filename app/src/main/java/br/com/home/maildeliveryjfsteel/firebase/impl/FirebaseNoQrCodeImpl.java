@@ -37,11 +37,12 @@ public class FirebaseNoQrCodeImpl extends FirebaseServiceImpl<NoQrCode> {
         if (list != null) {
             DatabaseReference reference = database.getReference(getmContext().getResources().getString(R.string.firebase_no_noqrcode));
             for (final NoQrCode item : list) {
-                reference.child(matricula).push().setValue(createDTO(item)).addOnCompleteListener(new OnCompleteListener<Void>() {
+                final DatabaseReference key = reference.child(matricula).push();
+                key.setValue(createDTO(item)).addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful() && task.isComplete()) {
-                            updateFields(item, null);
+                            updateFields(item, null, key.getKey(), true);
                         }
                     }
                 }).addOnFailureListener(new OnFailureListener() {
@@ -65,16 +66,18 @@ public class FirebaseNoQrCodeImpl extends FirebaseServiceImpl<NoQrCode> {
     }
 
     @Override
-    public void uploadPhoto(NoQrCode obj, String uriPhotoDisp, String namePhoto) {
+    public void uploadPhoto(NoQrCode ct, String uriPhotoDisp, String namePhoto, DatabaseReference key) {
 
     }
 
     @Override
-    public void updateFields(NoQrCode obj, String downloadUrl) {
+    public void updateFields(NoQrCode ct, String downloadUrl, String key, boolean canUpdateColumnSitFirebase) {
         MailDeliveryNoQrCode db = new MailDeliveryNoQrCode(getmContext());
-        obj.setSitSalvoFirebase(1);
-        db.save(obj);
+        ct.setSitSalvoFirebase(1);
+        ct.setKeyRealtimeFb(key);
+        db.save(ct);
     }
+
 }
 
 class NoQrCodeDTO extends GenericDTO {

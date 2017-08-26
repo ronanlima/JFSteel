@@ -11,7 +11,10 @@
     <string name="firebase_storage_nota_servico" translatable="false">images/notaServicos/</string>
     <string name="firebase_storage_no_qrcode" translatable="false">images/noQrCode/</string>
 
+    <string name="id_sqlite" translatable="false">_id</string>
+
     <!-- campos firebase -->
+    <string name="key_realtime_fb" translatable="false">keyRealtimeFb</string>
     <string name="dados_qr_code" translatable="false">dadosQrCode</string>
     <string name="hora_entrega" translatable="false">horaEntrega</string>
     <string name="prefix_agrupador" translatable="false">prefixAgrupador</string>

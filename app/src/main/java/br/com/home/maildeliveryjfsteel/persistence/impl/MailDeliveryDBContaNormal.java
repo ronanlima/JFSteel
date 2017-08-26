@@ -105,16 +105,35 @@ public class MailDeliveryDBContaNormal implements MailDeliverDBService<ContaNorm
     /**
      * Busca os registros com o qrcode passado.
      *
-     * @param table
      * @param qrCode
      * @return
      */
     @Override
-    public List<ContaNormal> findByQrCode(String table, String qrCode) {
+    public List<ContaNormal> findByQrCode(String qrCode) {
         SQLiteDatabase db = new ManagerVersionsDB(mContext, DB_NAME, null, DB_VERSION).getWritableDatabase();
 
         try {
-            Cursor c = db.query(table, null, mContext.getResources().getString(R.string.dados_qr_code) + " = " + qrCode + "", null, null, null, null);
+            Cursor c = db.query(TABLE_REGISTRO_ENTREGA, null, mContext.getResources().getString(R.string.dados_qr_code) + " = " + qrCode + "", null, null, null, null);
+            return toList(c);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        } finally {
+            db.close();
+        }
+    }
+
+    @Override
+    public List<ContaNormal> findByQrCodeAndSit(String qrCode, int sitFirebase) {
+        SQLiteDatabase db = new ManagerVersionsDB(mContext, DB_NAME, null, DB_VERSION).getWritableDatabase();
+
+        try {
+            StringBuilder clause = new StringBuilder();
+            clause.append(mContext.getResources().getString(R.string.dados_qr_code)).append(" = ");
+            clause.append(qrCode).append(" and ");
+            clause.append(mContext.getResources().getString(R.string.sit_salvo_firebase));
+            clause.append(" = ").append(sitFirebase);
+            Cursor c = db.query(TABLE_REGISTRO_ENTREGA, null, clause.toString(), null, null, null, null);
             return toList(c);
         } catch (SQLException e) {
             e.printStackTrace();
@@ -158,6 +177,7 @@ public class MailDeliveryDBContaNormal implements MailDeliverDBService<ContaNorm
             do {
                 ContaNormal r = new ContaNormal();
                 r.setId(c.getLong(c.getColumnIndex("_id")));
+                r.setKeyRealtimeFb(c.getString(c.getColumnIndex(mContext.getResources().getString(R.string.key_realtime_fb))));
                 r.setDadosQrCode(c.getString(c.getColumnIndex(mContext.getResources().getString(R.string.dados_qr_code))));
                 r.setTimesTamp(c.getLong(c.getColumnIndex(mContext.getResources().getString(R.string.hora_entrega))));
                 r.setPrefixAgrupador(c.getString(c.getColumnIndex(mContext.getResources().getString(R.string.prefix_agrupador))));

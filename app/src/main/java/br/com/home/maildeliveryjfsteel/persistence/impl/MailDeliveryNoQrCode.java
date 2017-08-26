@@ -87,12 +87,16 @@ public class MailDeliveryNoQrCode implements MailDeliverDBService<NoQrCode> {
     /**
      * Busca os registros com o qrcode passado.
      *
-     * @param table
      * @param qrCode
      * @return
      */
     @Override
-    public List<NoQrCode> findByQrCode(String table, String qrCode) {
+    public List<NoQrCode> findByQrCode(String qrCode) {
+        return null;
+    }
+
+    @Override
+    public List<NoQrCode> findByQrCodeAndSit(String qrCode, int sitFirebase) {
         return null;
     }
 

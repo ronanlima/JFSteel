@@ -1,22 +1,21 @@
 package br.com.home.maildeliveryjfsteel.persistence.dto;
 
 import android.content.ContentValues;
+import android.content.Context;
+
+import br.com.home.maildeliveryjfsteel.R;
 
 /**
  * Created by Ronan.lima on 27/07/17.
  */
 
 public class NotaServico extends GenericDelivery {
-    public static final String COLUNA_LEITURA = "leitura";
-    public static final String COLUNA_MEDIDOR_EXTERNO = "medidorVizinho";
-    public static final String COLUNA_MEDIDOR_VIZINHO = "medidorExterno";
     private String leitura;
     private String medidorVizinho;
     private String medidorExterno;
-    private static final String[] colunasNota = {COLUNA_LEITURA, COLUNA_MEDIDOR_EXTERNO, COLUNA_MEDIDOR_VIZINHO};
 
-    public NotaServico(String dadosQrCode, Long timesTamp, String prefixAgrupador, String idFoto, Double latitude, Double longitude, String uriFotoDisp, String enderecoManual, int sitSalvoFirebase, String localEntregaCorresp, String urlStorageFoto) {
-        super(dadosQrCode, timesTamp, prefixAgrupador, idFoto, latitude, longitude, uriFotoDisp, enderecoManual, sitSalvoFirebase, localEntregaCorresp, urlStorageFoto);
+    public NotaServico(Context context, String dadosQrCode, Long timesTamp, String prefixAgrupador, String idFoto, Double latitude, Double longitude, String uriFotoDisp, String enderecoManual, int sitSalvoFirebase, String localEntregaCorresp, String urlStorageFoto) {
+        super(context, dadosQrCode, timesTamp, prefixAgrupador, idFoto, latitude, longitude, uriFotoDisp, enderecoManual, sitSalvoFirebase, localEntregaCorresp, urlStorageFoto);
     }
 
     public NotaServico() {
@@ -26,14 +25,14 @@ public class NotaServico extends GenericDelivery {
     public ContentValues getValuesInsert() {
         ContentValues values = super.getValuesInsert();
         if (getLeitura() != null) {
-            values.put(COLUNA_LEITURA, getLeitura());
+            values.put(getContext().getResources().getString(R.string.leitura), getLeitura());
         }
         if (getMedidorExterno() != null) {
-            values.put(COLUNA_MEDIDOR_EXTERNO, getMedidorExterno().equalsIgnoreCase("sim") ? 1 : 0);
+            values.put(getContext().getResources().getString(R.string.medidor_externo), getMedidorExterno().equalsIgnoreCase("sim") ? 1 : 0);
 
         }
         if (getMedidorVizinho() != null) {
-            values.put(COLUNA_MEDIDOR_VIZINHO, getMedidorVizinho());
+            values.put(getContext().getResources().getString(R.string.medidor_vizinho), getMedidorVizinho());
 
         }
         return values;

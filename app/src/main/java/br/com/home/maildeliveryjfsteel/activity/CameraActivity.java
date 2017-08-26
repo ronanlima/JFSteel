@@ -30,6 +30,8 @@ import java.util.List;
 import br.com.home.maildeliveryjfsteel.BuildConfig;
 import br.com.home.maildeliveryjfsteel.CameraPreview;
 import br.com.home.maildeliveryjfsteel.R;
+import br.com.home.maildeliveryjfsteel.async.FirebaseAsyncParam;
+import br.com.home.maildeliveryjfsteel.async.SaveFirebaseAsync;
 import br.com.home.maildeliveryjfsteel.firebase.impl.FirebaseContaNormalImpl;
 import br.com.home.maildeliveryjfsteel.firebase.impl.FirebaseNotaImpl;
 import br.com.home.maildeliveryjfsteel.firebase.impl.FirebaseServiceImpl;
@@ -48,7 +50,6 @@ import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_LOCAL_ENTREGA_CORRESP;
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_MEDIDOR_VIZINHO_DATA_KEY;
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_MEDIRO_EXTERNO;
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_TIPO_CONTA;
-import static br.com.home.jfsteelbase.ConstantsUtil.SECOND_DATA_KEY;
 import static br.com.home.maildeliveryjfsteel.utils.PermissionUtils.CAMERA_PERMISSION;
 import static br.com.home.maildeliveryjfsteel.utils.PermissionUtils.GPS_PERMISSION;
 import static br.com.home.maildeliveryjfsteel.utils.PermissionUtils.WRITE_EXTERNAL_STORAGE_PERMISSION;
@@ -84,10 +85,10 @@ public class CameraActivity extends AppCompatActivity {
 
         if (getIntent().getStringExtra(EXTRA_TIPO_CONTA).equals(getResources().getString(R.string.tipo_conta_normal))) {
             db = new MailDeliveryDBContaNormal(this);
-            fService = new FirebaseContaNormalImpl(this, createListenerService());
+            fService = new FirebaseContaNormalImpl(this, null);
         } else if (getIntent().getStringExtra(EXTRA_TIPO_CONTA).equals(getResources().getString(R.string.tipo_conta_nota))) {
             db = new MailDeliveryDBNotaServico(this);
-            fService = new FirebaseNotaImpl(this, createListenerService());
+            fService = new FirebaseNotaImpl(this, null);
         }
 
         btnPhoto = (ImageView) findViewById(R.id.btn_capturar_foto);
@@ -154,9 +155,10 @@ public class CameraActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View view) {
                     if (countPhoto != 0) {
-                        fService.save(db.findByAgrupador(getResources().getString(R.string.prefix_agrupador))); //FIXME arrumar um prefix válido
-//                        setResult(Activity.RESULT_OK);
-//                        finish();
+                        new SaveFirebaseAsync().execute(new FirebaseAsyncParam(db.findByQrCodeAndSit(getResources().getString(R.string.dados_qr_code), 0), fService));
+//                        fService.save(db.findByAgrupador(getResources().getString(R.string.prefix_agrupador))); //FIXME arrumar um prefix válido
+                        setResult(Activity.RESULT_OK);
+                        finish();
                     }
                 }
             });
@@ -248,7 +250,7 @@ public class CameraActivity extends AppCompatActivity {
 //        ByteArrayInputStream in = new ByteArrayInputStream(data);
 
         if (getIntent().getStringExtra(EXTRA_TIPO_CONTA).equals(getResources().getString(R.string.tipo_conta_normal))) {
-            ContaNormal r = new ContaNormal(getIntent().getStringExtra(getResources().getString(R.string.dados_qr_code)), dateTime,
+            ContaNormal r = new ContaNormal(getBaseContext(), getIntent().getStringExtra(getResources().getString(R.string.dados_qr_code)), dateTime,
                     getResources().getString(R.string.prefix_agrupador), file.getName(), getIntent().getDoubleExtra(getResources().getString(R.string.latitude), 0d),
                     getIntent().getDoubleExtra(getResources().getString(R.string.longitude), 0d), file.getAbsolutePath(),
                     getIntent().getStringExtra(getResources().getString(R.string.endereco_manual)), 0,
@@ -260,7 +262,7 @@ public class CameraActivity extends AppCompatActivity {
 //        deleteDatabase(MailDeliverDBService.DB_NAME);
             db.save(r);
         } else if (getIntent().getStringExtra(EXTRA_TIPO_CONTA).equals(getResources().getString(R.string.tipo_conta_nota))) {
-            NotaServico ns = new NotaServico(getIntent().getStringExtra(getResources().getString(R.string.dados_qr_code)), dateTime,
+            NotaServico ns = new NotaServico(getBaseContext(), getIntent().getStringExtra(getResources().getString(R.string.dados_qr_code)), dateTime,
                     getResources().getString(R.string.prefix_agrupador), file.getName(), getIntent().getDoubleExtra(getResources().getString(R.string.latitude), 0d),
                     getIntent().getDoubleExtra(getResources().getString(R.string.longitude), 0d), file.getAbsolutePath(),
                     getIntent().getStringExtra(getResources().getString(R.string.endereco_manual)), 0,

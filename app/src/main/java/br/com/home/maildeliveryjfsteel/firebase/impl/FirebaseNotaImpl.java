@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.support.annotation.NonNull;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -30,6 +31,8 @@ import br.com.home.maildeliveryjfsteel.persistence.impl.MailDeliveryDBNotaServic
  */
 
 public class FirebaseNotaImpl extends FirebaseServiceImpl<NotaServico> {
+    private static final String TAG = FirebaseNotaImpl.class.getCanonicalName().toUpperCase();
+
     private String matricula;
 
     public FirebaseNotaImpl(Context context, ServiceNotification listener) {
@@ -44,24 +47,45 @@ public class FirebaseNotaImpl extends FirebaseServiceImpl<NotaServico> {
         if (list != null) {
             DatabaseReference reference = database.getReference(getmContext().getResources().getString(R.string.firebase_no_notas));
             for (final NotaServico nota : list) {
-                reference.child(matricula).push().setValue(createDTO(nota)).addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful() && task.isComplete()) {
-                            if (nota.getUriFotoDisp() != null && !nota.getUriFotoDisp().isEmpty()) {
-                                uploadPhoto(nota, nota.getUriFotoDisp(), nota.getIdFoto());
-                            } else {
-                                updateFields(nota, null);
+                if (nota.getKeyRealtimeFb() != null && !nota.getKeyRealtimeFb().trim().isEmpty()) {
+                    if (nota.getUrlStorageFoto() != null && !nota.getUrlStorageFoto().trim().isEmpty()) {
+                        reference.child(nota.getKeyRealtimeFb()).setValue(nota.getUrlStorageFoto()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                if (task.isComplete() && task.isSuccessful()) {
+                                    updateFields(nota, nota.getUrlStorageFoto(), nota.getKeyRealtimeFb(), true);
+                                }
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.e(TAG, "Falha ao atualizar o registro = " + nota.getKeyRealtimeFb() + ". Causa = " + e.getMessage());
+                            }
+                        });
+                    } else {
+                        uploadPhoto(nota, nota.getUriFotoDisp(), nota.getIdFoto(), reference.child(nota.getKeyRealtimeFb()));
+                    }
+                } else {
+                    final DatabaseReference key = reference.child(matricula).push();
+                    key.setValue(createDTO(nota)).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if (task.isSuccessful() && task.isComplete()) {
+                                if (nota.getUriFotoDisp() != null && !nota.getUriFotoDisp().isEmpty()) {
+                                    uploadPhoto(nota, nota.getUriFotoDisp(), nota.getIdFoto(), key);
+                                } else {
+                                    updateFields(nota, null, key.getKey(), true);
+                                }
                             }
                         }
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        e.printStackTrace();
-                        Toast.makeText(getmContext(), getmContext().getResources().getString(R.string.msg_falha_salvar_servidor), Toast.LENGTH_SHORT).show();
-                    }
-                });
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            e.printStackTrace();
+                            Toast.makeText(getmContext(), getmContext().getResources().getString(R.string.msg_falha_salvar_servidor), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
             }
         }
     }
@@ -77,7 +101,7 @@ public class FirebaseNotaImpl extends FirebaseServiceImpl<NotaServico> {
     }
 
     @Override
-    public void uploadPhoto(final NotaServico nota, String uriPhotoDisp, String namePhoto) {
+    public void uploadPhoto(final NotaServico nota, String uriPhotoDisp, String namePhoto, final DatabaseReference key) {
         StorageReference storageReference = storage.getReference().child(getmContext().getResources().getString(R.string.firebase_storage_nota_servico)).child(namePhoto);
 
         Bitmap bitmap = BitmapFactory.decodeFile(uriPhotoDisp);
@@ -90,24 +114,46 @@ public class FirebaseNotaImpl extends FirebaseServiceImpl<NotaServico> {
         uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                updateFields(nota, taskSnapshot.getDownloadUrl().toString());
+                final String downloadUrl = taskSnapshot.getDownloadUrl().toString();
+                key.child(getmContext().getResources().getString(R.string.url_storage_foto)).setValue(downloadUrl).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isComplete() && task.isSuccessful()) {
+                            updateFields(nota, downloadUrl, key.getKey(), true);
+                        } else {
+                            updateFields(nota, downloadUrl, key.getKey(), false);
+                        }
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        updateFields(nota, downloadUrl, key.getKey(), false);
+                        Log.e(TAG, e.getMessage());
+                    }
+                });
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                updateFields(nota, null);
+                updateFields(nota, null, key.getKey(), false);
             }
         });
     }
 
     @Override
-    public void updateFields(NotaServico nota, String downloadUrl) {
+    public void updateFields(NotaServico nota, String downloadUrl, String key, boolean canUpdateColumnSitFirebase) {
         MailDeliveryDBNotaServico db = new MailDeliveryDBNotaServico(getmContext());
-        nota.setSitSalvoFirebase(1);
+        if (canUpdateColumnSitFirebase) {
+            nota.setSitSalvoFirebase(1);
+        }
+        nota.setKeyRealtimeFb(key);
         if (downloadUrl != null) {
             nota.setUrlStorageFoto(downloadUrl);
         } else {
             nota.setUrlStorageFoto(null);
+        }
+        if (nota.getContext() == null) {
+            nota.setContext(getmContext());
         }
         db.save(nota);
         if (getListenerService() != null) {

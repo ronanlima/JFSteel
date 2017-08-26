@@ -20,7 +20,9 @@ public interface MailDeliverDBService<T> {
 
     List<T> findByAgrupador(String prefix);
 
-    List<T> findByQrCode(String table, String qrCode);
+    List<T> findByQrCode(String qrCode);
+
+    List<T> findByQrCodeAndSit(String qrCode, int sitFirebase);
 
     List<T> findBySit(int situacao);
 

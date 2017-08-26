@@ -1,6 +1,9 @@
 package br.com.home.maildeliveryjfsteel.persistence.dto;
 
 import android.content.ContentValues;
+import android.content.Context;
+
+import br.com.home.maildeliveryjfsteel.R;
 
 /**
  * Created by Ronan.lima on 27/07/17.
@@ -8,21 +11,7 @@ import android.content.ContentValues;
 
 public class GenericDelivery {
 
-    public static final String COLUNA_ID = "_id";
-    public static final String COLUNA_DADOS_QR_CODE = "dadosQrCode";
-    public static final String COLUNA_HORA_ENTREGA = "horaEntrega";
-    public static final String COLUNA_PREFIX = "prefixAgrupador";
-    public static final String COLUNA_ID_FOTO = "idFoto";
-    public static final String COLUNA_LATITUDE = "latitude";
-    public static final String COLUNA_LONGITUDE = "longitude";
-    public static final String COLUNA_URI_FOTO = "uriFotoDisp";
-    public static final String COLUNA_ENDERECO_MANUAL = "enderecoManual";
-    public static final String COLUNA_SIT_SALVO_FIREBASE = "sitSalvoFirebase";
-    public static final String COLUNA_LOCAL_ENTREGA_CORRESP = "localEntregaCorresp";
-    public static final String COLUNA_URL_STORAGE = "urlStorageFoto";
-    public static final String COLUNA_CONTA_PROTOCOLADA = "contaProtocolada";
-    public static final String COLUNA_CONTA_COLETIVA = "contaColetiva";
-
+    private Context mContext;
     private Long id;
     private String dadosQrCode;
     private Long timesTamp;
@@ -35,13 +24,12 @@ public class GenericDelivery {
     private String enderecoManual; // para quando o gps nao conseguir recuperar a coordenada.
     private int sitSalvoFirebase;
     private String localEntregaCorresp; // o tipo de residencia em que a conta foi entregue. Ex: condomínio, casa, poste, etc.
-    public static final String[] colunas = {COLUNA_ID, COLUNA_DADOS_QR_CODE, COLUNA_HORA_ENTREGA, COLUNA_PREFIX,
-            COLUNA_ID_FOTO, COLUNA_LATITUDE, COLUNA_LONGITUDE, COLUNA_URI_FOTO, COLUNA_ENDERECO_MANUAL, COLUNA_SIT_SALVO_FIREBASE, COLUNA_LOCAL_ENTREGA_CORRESP,
-            COLUNA_URL_STORAGE, COLUNA_CONTA_PROTOCOLADA, COLUNA_CONTA_COLETIVA};
+    private String keyRealtimeFb;
 
-    public GenericDelivery(String dadosQrCode, Long timesTamp, String prefixAgrupador, String idFoto
+    public GenericDelivery(Context context, String dadosQrCode, Long timesTamp, String prefixAgrupador, String idFoto
             , Double latitude, Double longitude, String uriFotoDisp, String enderecoManual, int sitSalvoFirebase
             , String localEntregaCorresp, String urlStorageFoto) {
+        this.mContext = context;
         setDadosQrCode(dadosQrCode);
         setTimesTamp(timesTamp);
         setPrefixAgrupador(prefixAgrupador);
@@ -64,35 +52,38 @@ public class GenericDelivery {
     public ContentValues getValuesInsert() {
         ContentValues values = new ContentValues();
         if (getId() != null) {
-            values.put(COLUNA_ID, getIdFoto());
+            values.put(mContext.getResources().getString(R.string.id_sqlite), getId());
+        }
+        if (getKeyRealtimeFb() != null) {
+            values.put(mContext.getResources().getString(R.string.key_realtime_fb), getKeyRealtimeFb());
         }
         if (getDadosQrCode() != null) {
-            values.put(COLUNA_DADOS_QR_CODE, getDadosQrCode());
+            values.put(mContext.getResources().getString(R.string.dados_qr_code), getDadosQrCode());
         }
         if (getTimesTamp() != null && getTimesTamp() != 0l) {
-            values.put(COLUNA_HORA_ENTREGA, getTimesTamp());
+            values.put(mContext.getResources().getString(R.string.hora_entrega), getTimesTamp());
         }
         if (getPrefixAgrupador() != null) {
-            values.put(COLUNA_PREFIX, getPrefixAgrupador());
+            values.put(mContext.getResources().getString(R.string.prefix_agrupador), getPrefixAgrupador());
         }
         if (getIdFoto() != null) {
-            values.put(COLUNA_ID_FOTO, getIdFoto());
+            values.put(mContext.getResources().getString(R.string.id_foto), getIdFoto());
         }
         if (getLatitude() != 0) {
-            values.put(COLUNA_LATITUDE, getLatitude());
-            values.put(COLUNA_LONGITUDE, getLongitude());
+            values.put(mContext.getResources().getString(R.string.latitude), getLatitude());
+            values.put(mContext.getResources().getString(R.string.longitude), getLongitude());
         } else {
-            values.put(COLUNA_ENDERECO_MANUAL, getEnderecoManual());
+            values.put(mContext.getResources().getString(R.string.endereco_manual), getEnderecoManual());
         }
         if (getUriFotoDisp() != null) {
-            values.put(COLUNA_URI_FOTO, getUriFotoDisp());
+            values.put(mContext.getResources().getString(R.string.uri_foto_disp), getUriFotoDisp());
         }
-        values.put(COLUNA_SIT_SALVO_FIREBASE, getSitSalvoFirebase());
+        values.put(mContext.getResources().getString(R.string.sit_salvo_firebase), getSitSalvoFirebase());
         if (getLocalEntregaCorresp() != null) {
-            values.put(COLUNA_LOCAL_ENTREGA_CORRESP, getLocalEntregaCorresp());
+            values.put(mContext.getResources().getString(R.string.local_entrega_corresp), getLocalEntregaCorresp());
         }
         if (getUrlStorageFoto() != null) {
-            values.put(COLUNA_URL_STORAGE, getUrlStorageFoto());
+            values.put(mContext.getResources().getString(R.string.url_storage_foto), getUrlStorageFoto());
         }
         return values;
     }
@@ -191,5 +182,21 @@ public class GenericDelivery {
 
     public void setLocalEntregaCorresp(String localEntregaCorresp) {
         this.localEntregaCorresp = localEntregaCorresp;
+    }
+
+    public String getKeyRealtimeFb() {
+        return keyRealtimeFb;
+    }
+
+    public void setKeyRealtimeFb(String keyRealtimeFb) {
+        this.keyRealtimeFb = keyRealtimeFb;
+    }
+
+    public Context getContext() {
+        return mContext;
+    }
+
+    public void setContext(Context mContext) {
+        this.mContext = mContext;
     }
 }

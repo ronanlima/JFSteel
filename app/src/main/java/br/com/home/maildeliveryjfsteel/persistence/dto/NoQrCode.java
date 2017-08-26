@@ -1,19 +1,22 @@
 package br.com.home.maildeliveryjfsteel.persistence.dto;
 
 import android.content.ContentValues;
+import android.content.Context;
+
+import br.com.home.maildeliveryjfsteel.R;
 
 /**
  * Created by Ronan.lima on 27/07/17.
  */
 
 public class NoQrCode extends GenericDelivery {
-    public static final String COLUNA_MEDIDOR = "medidor";
-    public static final String COLUNA_EXISTE_CONTA = "existeConta";
-    public static final String COLUNA_COMENTARIO = "comentario";
     private String medidor;
     private int existeConta;
     private String comentario;
-    public static final String[] colunasNoQr = {COLUNA_MEDIDOR, COLUNA_EXISTE_CONTA, COLUNA_COMENTARIO};
+
+    public NoQrCode(Context context, String dadosQrCode, Long timesTamp, String prefixAgrupador, String idFoto, Double latitude, Double longitude, String uriFotoDisp, String enderecoManual, int sitSalvoFirebase, String localEntregaCorresp, String urlStorageFoto) {
+        super(context, dadosQrCode, timesTamp, prefixAgrupador, idFoto, latitude, longitude, uriFotoDisp, enderecoManual, sitSalvoFirebase, localEntregaCorresp, urlStorageFoto);
+    }
 
     public NoQrCode() {
     }
@@ -22,11 +25,11 @@ public class NoQrCode extends GenericDelivery {
     public ContentValues getValuesInsert() {
         ContentValues values = super.getValuesInsert();
         if (getMedidor() != null && !getMedidor().trim().isEmpty()) {
-            values.put(COLUNA_MEDIDOR, getMedidor());
+            values.put(getContext().getResources().getString(R.string.medidor), getMedidor());
         }
-        values.put(COLUNA_EXISTE_CONTA, getExisteConta());
+        values.put(getContext().getResources().getString(R.string.existe_conta), getExisteConta());
         if (getComentario() != null && !getComentario().trim().isEmpty()) {
-            values.put(COLUNA_COMENTARIO, getComentario());
+            values.put(getContext().getResources().getString(R.string.comentario), getComentario());
         }
         return values;
     }

@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.support.annotation.NonNull;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -23,7 +24,6 @@ import br.com.home.maildeliveryjfsteel.BuildConfig;
 import br.com.home.maildeliveryjfsteel.R;
 import br.com.home.maildeliveryjfsteel.persistence.dto.ContaNormal;
 import br.com.home.maildeliveryjfsteel.persistence.dto.GenericDelivery;
-import br.com.home.maildeliveryjfsteel.persistence.dto.NotaServico;
 import br.com.home.maildeliveryjfsteel.persistence.impl.MailDeliveryDBContaNormal;
 
 /**
@@ -31,6 +31,8 @@ import br.com.home.maildeliveryjfsteel.persistence.impl.MailDeliveryDBContaNorma
  */
 
 public class FirebaseContaNormalImpl extends FirebaseServiceImpl<ContaNormal> {
+    public static final String TAG = FirebaseContaNormalImpl.class.getCanonicalName().toUpperCase();
+
     private String matricula;
 
     public FirebaseContaNormalImpl(Context context, ServiceNotification listener) {
@@ -45,24 +47,45 @@ public class FirebaseContaNormalImpl extends FirebaseServiceImpl<ContaNormal> {
         if (list != null) {
             DatabaseReference reference = database.getReference(getmContext().getResources().getString(R.string.firebase_no_contas));
             for (final ContaNormal ct : list) {
-                reference.child(matricula).push().setValue(createDTO(ct)).addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful() && task.isComplete()) {
-                            if (ct.getUriFotoDisp() != null && !ct.getUriFotoDisp().isEmpty()) {
-                                uploadPhoto(ct, ct.getUriFotoDisp(), ct.getIdFoto());
-                            } else {
-                                updateFields(ct, null);
+                if (ct.getKeyRealtimeFb() != null && !ct.getKeyRealtimeFb().trim().isEmpty()) {
+                    if (ct.getUrlStorageFoto() != null && !ct.getUrlStorageFoto().trim().isEmpty()) {
+                        reference.child(ct.getKeyRealtimeFb()).setValue(ct.getUrlStorageFoto()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                if (task.isComplete() && task.isSuccessful()) {
+                                    updateFields(ct, ct.getUrlStorageFoto(), ct.getKeyRealtimeFb(), true);
+                                }
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.e(TAG, "Falha ao atualizar o registro = " + ct.getKeyRealtimeFb() + ". Causa = " + e.getMessage());
+                            }
+                        });
+                    } else {
+                        uploadPhoto(ct, ct.getUriFotoDisp(), ct.getIdFoto(), reference.child(ct.getKeyRealtimeFb()));
+                    }
+                } else {
+                    final DatabaseReference key = reference.child(matricula).push();
+                    key.setValue(createDTO(ct)).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if (task.isSuccessful() && task.isComplete()) {
+                                if (ct.getUriFotoDisp() != null && !ct.getUriFotoDisp().isEmpty()) {
+                                    uploadPhoto(ct, ct.getUriFotoDisp(), ct.getIdFoto(), key);
+                                } else {
+                                    updateFields(ct, null, key.getKey(), true);
+                                }
                             }
                         }
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        e.printStackTrace();
-                        Toast.makeText(getmContext(), getmContext().getResources().getString(R.string.msg_falha_salvar_servidor), Toast.LENGTH_SHORT).show();
-                    }
-                });
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            e.printStackTrace();
+                            Toast.makeText(getmContext(), getmContext().getResources().getString(R.string.msg_falha_salvar_servidor), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
             }
         }
     }
@@ -77,7 +100,7 @@ public class FirebaseContaNormalImpl extends FirebaseServiceImpl<ContaNormal> {
     }
 
     @Override
-    public void uploadPhoto(final ContaNormal ct, String uriPhotoDisp, String namePhoto) {
+    public void uploadPhoto(final ContaNormal ct, String uriPhotoDisp, String namePhoto, final DatabaseReference key) {
         StorageReference storageReference = storage.getReference().child(getmContext().getResources().getString(R.string.firebase_storage_conta)).child(namePhoto);
 
         Bitmap bitmap = BitmapFactory.decodeFile(uriPhotoDisp);
@@ -90,12 +113,28 @@ public class FirebaseContaNormalImpl extends FirebaseServiceImpl<ContaNormal> {
         uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                updateFields(ct, taskSnapshot.getDownloadUrl().toString());
+                final String downloadUrl = taskSnapshot.getDownloadUrl().toString();
+                key.child(getmContext().getResources().getString(R.string.url_storage_foto)).setValue(downloadUrl).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isComplete() && task.isSuccessful()) {
+                            updateFields(ct, downloadUrl, key.getKey(), true);
+                        } else {
+                            updateFields(ct, downloadUrl, key.getKey(), false);
+                        }
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        updateFields(ct, downloadUrl, key.getKey(), false);
+                        Log.e(TAG, e.getMessage());
+                    }
+                });
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                updateFields(ct, null);
+                updateFields(ct, null, key.getKey(), false);
             }
         });
     }
@@ -106,15 +145,22 @@ public class FirebaseContaNormalImpl extends FirebaseServiceImpl<ContaNormal> {
      *
      * @param ct
      * @param downloadUrl
+     * @param key
      */
     @Override
-    public void updateFields(ContaNormal ct, String downloadUrl) {
+    public void updateFields(ContaNormal ct, String downloadUrl, String key, boolean canUpdateColumnSitFirebase) {
         MailDeliveryDBContaNormal db = new MailDeliveryDBContaNormal(getmContext());
-        ct.setSitSalvoFirebase(1);
+        if (canUpdateColumnSitFirebase) {
+            ct.setSitSalvoFirebase(1);
+        }
+        ct.setKeyRealtimeFb(key);
         if (downloadUrl != null) {
             ct.setUrlStorageFoto(downloadUrl);
         } else {
             ct.setUrlStorageFoto(null);
+        }
+        if (ct.getContext() == null) {
+            ct.setContext(getmContext());
         }
         db.save(ct);
         if (getListenerService() != null) {
