@@ -134,9 +134,10 @@ public class MailDeliveryNoQrCode implements MailDeliverDBService<NoQrCode> {
             do {
                 NoQrCode r = new NoQrCode();
                 r.setId(c.getLong(c.getColumnIndex("_id")));
-                r.setMedidor(c.getString(c.getColumnIndex(mContext.getResources().getString(R.string.medidor))));
+                r.setMedidor(c.getInt(c.getColumnIndex(mContext.getResources().getString(R.string.medidor))));
                 r.setTimesTamp(c.getLong(c.getColumnIndex(mContext.getResources().getString(R.string.hora_entrega))));
                 r.setEnderecoManual(c.getString(c.getColumnIndex(mContext.getResources().getString(R.string.endereco_manual))));
+                r.setLocalEntregaCorresp(c.getString(c.getColumnIndex(mContext.getResources().getString(R.string.local_entrega_corresp))));
                 r.setExisteConta(c.getInt(c.getColumnIndex(mContext.getResources().getString(R.string.existe_conta))));
                 r.setLatitude(c.getDouble(c.getColumnIndex(mContext.getResources().getString(R.string.latitude))));
                 r.setLongitude(c.getDouble(c.getColumnIndex(mContext.getResources().getString(R.string.longitude))));

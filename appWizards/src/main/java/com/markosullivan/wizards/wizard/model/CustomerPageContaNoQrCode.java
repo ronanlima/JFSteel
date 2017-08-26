@@ -19,7 +19,7 @@ package com.markosullivan.wizards.wizard.model;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 
-import com.markosullivan.wizards.wizard.ui.CustomerNotaServicoFragment;
+import com.markosullivan.wizards.wizard.ui.CustomerNoQrCodeFragment;
 
 import java.util.ArrayList;
 
@@ -37,18 +37,8 @@ public class CustomerPageContaNoQrCode extends SingleFixedChoicePage {
     }
 
     @Override
-    public int getOptionCount() {
-        return super.getOptionCount();
-    }
-
-    @Override
-    public String getOptionAt(int position) {
-        return super.getOptionAt(position);
-    }
-
-    @Override
     public Fragment createFragment() {
-        return CustomerNotaServicoFragment.create(getKey());
+        return CustomerNoQrCodeFragment.create(getKey());
     }
 
     @Override

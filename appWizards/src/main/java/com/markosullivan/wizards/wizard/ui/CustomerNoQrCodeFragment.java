@@ -35,6 +35,7 @@ import android.widget.TextView;
 import com.markosullivan.wizards.R;
 import com.markosullivan.wizards.wizard.model.CustomerPageContaNoQrCode;
 import com.markosullivan.wizards.wizard.model.Page;
+import com.markosullivan.wizards.wizard.model.SingleFixedChoicePage;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -75,6 +76,12 @@ public class CustomerNoQrCodeFragment extends ListFragment {
         Bundle args = getArguments();
         mKey = args.getString(ARG_KEY);
         mPage = (CustomerPageContaNoQrCode) mCallbacks.onGetPage(mKey);
+
+        CustomerPageContaNoQrCode fixedChoicePage = mPage;
+        mChoices = new ArrayList<>();
+        for (int i = 0; i < fixedChoicePage.getOptionCount(); i++) {
+            mChoices.add(fixedChoicePage.getOptionAt(i));
+        }
     }
 
     @Override

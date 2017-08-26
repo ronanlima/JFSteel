@@ -33,7 +33,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:saveEnabled="false"
-            android:inputType="textCapWords"
+            android:inputType="number"
             android:hint="@string/hint_leitura_medidor_no_qrcode"
             android:layout_marginBottom="16dp" />
 
@@ -59,9 +59,10 @@
         <EditText android:id="@+id/et_comentario_no_qrcode"
             android:layout_below="@+id/tv_comentario_no_qrcode"
             android:layout_width="match_parent"
-            android:layout_height="150dp"
+            android:layout_height="wrap_content"
             android:saveEnabled="false"
-            android:inputType="textCapWords"
+            android:gravity="top"
+            android:inputType="text|textMultiLine"
             android:hint="@string/hint_comentario_no_qrcode"
             android:layout_marginBottom="16dp" />
 
@@ -76,6 +77,6 @@
         android:paddingLeft="16dp"
         android:paddingRight="16dp"
         android:saveEnabled="false"
-        android:scrollbarStyle="outsideOverlay" />
+        android:scrollbarStyle="insideInset" />
 
 </LinearLayout>

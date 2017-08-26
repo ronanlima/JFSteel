@@ -8,4 +8,5 @@
     <color name="colorAlert">#00897b</color>
     <color name="colorBackgroundDialog">#f1fffe</color>
     <color name="colorForeground">#183736</color>
+    <color name="amarelo">#FFBB33</color>
 </resources>

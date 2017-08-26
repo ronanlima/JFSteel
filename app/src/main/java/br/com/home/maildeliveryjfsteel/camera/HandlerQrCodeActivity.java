@@ -9,6 +9,7 @@ import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -208,11 +209,20 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements
 
     private void initScanner() {
         if (scannerView == null) {
-            scannerView = new ZXingScannerView(this);
+            setContentView(R.layout.activity_scanner);
+            scannerView = (ZXingScannerView) findViewById(R.id.zxing_my_scanner);
+            FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab_sem_conta);
+            fab.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent i = new Intent(getBaseContext(), MainActivityWizard.class);
+                    i.putExtra(EXTRA_TIPO_CONTA, getBaseContext().getResources().getString(R.string.tipo_conta_no_qrcode));
+                    startActivityForResult(i, REQUEST_CODE_WIZARD);
+                }
+            });
             List<BarcodeFormat> formatList = new ArrayList<>();
             formatList.add(BarcodeFormat.AZTEC);
             scannerView.setFormats(formatList);
-            setContentView(scannerView, configScreen());
         }
     }
 

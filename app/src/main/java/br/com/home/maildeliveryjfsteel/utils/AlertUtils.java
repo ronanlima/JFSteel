@@ -28,6 +28,28 @@ public class AlertUtils {
 
         JFSteelDialog dialog = new JFSteelDialog();
         dialog.setArguments(parametros);
+        dialog.setCancelable(false);
+
+        return dialog;
+    }
+
+    /**
+     * @param titulo
+     * @param msg
+     * @param listener
+     * @return
+     */
+    public static JFSteelDialog criarAlertaComInputText(String titulo, String msg, JFSteelDialog.OnClickDialog listener) {
+        Bundle parametros = new Bundle();
+        parametros.putString(JFSteelDialog.TITULO_DIALOG, titulo);
+        parametros.putString(JFSteelDialog.DESCRICAO_DIALOG, msg);
+        parametros.putSerializable(JFSteelDialog.TIPO_ALERTA, JFSteelDialog.TipoAlertaEnum.ENTRADA_DADOS);
+        parametros.putBoolean(JFSteelDialog.POSITIVO_NEGATIVO_BOTAO, false);
+        parametros.putSerializable(JFSteelDialog.OnClickDialog.ON_CLICK_LISTENER_ARG, listener);
+
+        JFSteelDialog dialog = new JFSteelDialog();
+        dialog.setArguments(parametros);
+        dialog.setCancelable(false);
 
         return dialog;
     }

@@ -15,5 +15,6 @@ public class ConstantsUtil {
     public static final String SECOND_DATA_KEY = "x";
     public static final String EXTRA_ENDERECO_DATA_KEY = "endereco";
     public static final String EXTRA_COMENTARIO_DATA_KEY = "comentario";
-    public static final String EXTRA_MEDIRO_EXTERNO = "medidorExterno";
+    public static final String EXTRA_MEDIDOR_EXTERNO = "medidorExterno";
+    public static final String EXTRA_NO_QR_CODE_POSSUI_CONTA = "possuiConta";
 }

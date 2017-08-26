@@ -126,8 +126,8 @@ public class MailDeliveryDBNotaServico implements MailDeliverDBService<NotaServi
 
         try {
             StringBuilder clause = new StringBuilder();
-            clause.append(mContext.getResources().getString(R.string.dados_qr_code)).append(" = ");
-            clause.append(qrCode).append(" and ");
+            clause.append(mContext.getResources().getString(R.string.dados_qr_code)).append(" = '");
+            clause.append(qrCode).append("' and ");
             clause.append(mContext.getResources().getString(R.string.sit_salvo_firebase));
             clause.append(" = ").append(sitFirebase);
             Cursor c = db.query(TABLE_REGISTRO_ENTREGA, null, clause.toString(), null, null, null, null);

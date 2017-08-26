@@ -57,11 +57,12 @@ public class FirebaseNoQrCodeImpl extends FirebaseServiceImpl<NoQrCode> {
     }
 
     @Override
-    public GenericDTO createDTO(GenericDelivery contaDelivery) {
-        NoQrCodeDTO dto = (NoQrCodeDTO) super.createDTO(contaDelivery);
-        dto.setComentario(((NoQrCode) contaDelivery).getComentario());
-        dto.setExisteConta(((NoQrCode) contaDelivery).getExisteConta());
-        dto.setMedidor(((NoQrCode) contaDelivery).getMedidor());
+    public GenericDTO createDTO(GenericDelivery ct) {
+        NoQrCodeDTO dto = new NoQrCodeDTO(ct.getDadosQrCode(), ct.getIdFoto(), ct.getLatitude(), ct.getLongitude(),
+                ct.getEnderecoManual(), ct.getTimesTamp(), ct.getUriFotoDisp(), ct.getLocalEntregaCorresp());
+        dto.setComentario(((NoQrCode) ct).getComentario());
+        dto.setExisteConta(((NoQrCode) ct).getExisteConta());
+        dto.setMedidor(((NoQrCode) ct).getMedidor());
         return dto;
     }
 
@@ -75,13 +76,16 @@ public class FirebaseNoQrCodeImpl extends FirebaseServiceImpl<NoQrCode> {
         MailDeliveryNoQrCode db = new MailDeliveryNoQrCode(getmContext());
         ct.setSitSalvoFirebase(1);
         ct.setKeyRealtimeFb(key);
+        if (ct.getContext() == null) {
+            ct.setContext(getmContext());
+        }
         db.save(ct);
     }
 
 }
 
 class NoQrCodeDTO extends GenericDTO {
-    private String medidor;
+    private int medidor;
     private int existeConta;
     private String comentario;
 
@@ -92,11 +96,11 @@ class NoQrCodeDTO extends GenericDTO {
     public NoQrCodeDTO() {
     }
 
-    public String getMedidor() {
+    public int getMedidor() {
         return medidor;
     }
 
-    public void setMedidor(String medidor) {
+    public void setMedidor(int medidor) {
         this.medidor = medidor;
     }
 

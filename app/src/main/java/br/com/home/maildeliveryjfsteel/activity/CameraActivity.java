@@ -47,8 +47,8 @@ import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_CONTA_COLETIVA;
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_CONTA_PROTOCOLADA;
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_LEITURA_DATA_KEY;
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_LOCAL_ENTREGA_CORRESP;
+import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_MEDIDOR_EXTERNO;
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_MEDIDOR_VIZINHO_DATA_KEY;
-import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_MEDIRO_EXTERNO;
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_TIPO_CONTA;
 import static br.com.home.maildeliveryjfsteel.utils.PermissionUtils.CAMERA_PERMISSION;
 import static br.com.home.maildeliveryjfsteel.utils.PermissionUtils.GPS_PERMISSION;
@@ -155,8 +155,7 @@ public class CameraActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View view) {
                     if (countPhoto != 0) {
-                        new SaveFirebaseAsync().execute(new FirebaseAsyncParam(db.findByQrCodeAndSit(getResources().getString(R.string.dados_qr_code), 0), fService));
-//                        fService.save(db.findByAgrupador(getResources().getString(R.string.prefix_agrupador))); //FIXME arrumar um prefix válido
+                        new SaveFirebaseAsync().execute(new FirebaseAsyncParam(db.findByQrCodeAndSit(dadosQrCode, 0), fService));
                         setResult(Activity.RESULT_OK);
                         finish();
                     }
@@ -242,13 +241,6 @@ public class CameraActivity extends AppCompatActivity {
     }
 
     private void saveIntoSqlite(File file, long dateTime) {
-        /** A conversão para bitmap abaixo está sendo usada aqui somente para efeito de testes. */
-//        Bitmap bitmap = BitmapFactory.decodeFile(file.toURI().getPath());
-//        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-//        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-//        byte[] data = baos.toByteArray();
-//        ByteArrayInputStream in = new ByteArrayInputStream(data);
-
         if (getIntent().getStringExtra(EXTRA_TIPO_CONTA).equals(getResources().getString(R.string.tipo_conta_normal))) {
             ContaNormal r = new ContaNormal(getBaseContext(), getIntent().getStringExtra(getResources().getString(R.string.dados_qr_code)), dateTime,
                     getResources().getString(R.string.prefix_agrupador), file.getName(), getIntent().getDoubleExtra(getResources().getString(R.string.latitude), 0d),
@@ -257,9 +249,6 @@ public class CameraActivity extends AppCompatActivity {
                     getIntent().getStringExtra(EXTRA_LOCAL_ENTREGA_CORRESP), null);
             r.setContaProtocolada(getIntent().getBooleanExtra(EXTRA_CONTA_PROTOCOLADA, false));
             r.setContaColetiva(getIntent().getBooleanExtra(EXTRA_CONTA_COLETIVA, false));
-            r.setLocalEntregaCorresp(getIntent().getStringExtra(EXTRA_LOCAL_ENTREGA_CORRESP));
-            r.setSitSalvoFirebase(0);
-//        deleteDatabase(MailDeliverDBService.DB_NAME);
             db.save(r);
         } else if (getIntent().getStringExtra(EXTRA_TIPO_CONTA).equals(getResources().getString(R.string.tipo_conta_nota))) {
             NotaServico ns = new NotaServico(getBaseContext(), getIntent().getStringExtra(getResources().getString(R.string.dados_qr_code)), dateTime,
@@ -267,7 +256,7 @@ public class CameraActivity extends AppCompatActivity {
                     getIntent().getDoubleExtra(getResources().getString(R.string.longitude), 0d), file.getAbsolutePath(),
                     getIntent().getStringExtra(getResources().getString(R.string.endereco_manual)), 0,
                     getIntent().getStringExtra(EXTRA_LOCAL_ENTREGA_CORRESP), null);
-            ns.setMedidorExterno(getIntent().getStringExtra(EXTRA_MEDIRO_EXTERNO));
+            ns.setMedidorExterno(getIntent().getStringExtra(EXTRA_MEDIDOR_EXTERNO));
             ns.setMedidorVizinho(getIntent().getStringExtra(EXTRA_MEDIDOR_VIZINHO_DATA_KEY));
             ns.setLeitura(getIntent().getStringExtra(EXTRA_LEITURA_DATA_KEY));
             db.save(ns);

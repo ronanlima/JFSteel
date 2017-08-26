@@ -31,7 +31,8 @@ import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_ENDERECO_DATA_KEY;
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_CONTA_COLETIVA;
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_CONTA_PROTOCOLADA;
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_LOCAL_ENTREGA_CORRESP;
-import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_MEDIRO_EXTERNO;
+import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_MEDIDOR_EXTERNO;
+import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_NO_QR_CODE_POSSUI_CONTA;
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_TIPO_CONTA;
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_LEITURA_DATA_KEY;
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_MEDIDOR_VIZINHO_DATA_KEY;
@@ -170,7 +171,7 @@ public class MainActivityWizard extends FragmentActivity implements
             b.putString(EXTRA_LOCAL_ENTREGA_CORRESP, p2.getData().getString(p2.SIMPLE_DATA_KEY));
         }
         if (p2.getData().getString(SECOND_DATA_KEY) != null && !p2.getData().getString(SECOND_DATA_KEY).trim().isEmpty()) {
-            b.putString(EXTRA_MEDIRO_EXTERNO, p2.getData().getString(SECOND_DATA_KEY));
+            b.putString(EXTRA_MEDIDOR_EXTERNO, p2.getData().getString(SECOND_DATA_KEY));
         }
         getIntent().putExtras(b);
         setResult(Activity.RESULT_OK, getIntent());
@@ -188,8 +189,13 @@ public class MainActivityWizard extends FragmentActivity implements
         if (p.getData().getString(EXTRA_COMENTARIO_DATA_KEY) != null && !p.getData().getString(EXTRA_COMENTARIO_DATA_KEY).trim().isEmpty()) {
             b.putString(EXTRA_COMENTARIO_DATA_KEY, p.getData().getString(EXTRA_COMENTARIO_DATA_KEY));
         }
-        if (p.getData().getString(p.SIMPLE_DATA_KEY) != null && !p.getData().getString(p.SIMPLE_DATA_KEY).trim().isEmpty()) {
-            b.putString(p.SIMPLE_DATA_KEY, p.getData().getString(p.SIMPLE_DATA_KEY));
+        if (p.getData().getStringArrayList(p.SIMPLE_DATA_KEY) != null && !p.getData().getStringArrayList(p.SIMPLE_DATA_KEY).isEmpty()) {
+            for (String op : p.getData().getStringArrayList(p.SIMPLE_DATA_KEY)) {
+                if (op.equals(WizardNoQrCode.choicesResidencias[0])) {
+                    b.putString(EXTRA_NO_QR_CODE_POSSUI_CONTA, "Sim");
+                    break;
+                }
+            }
         }
         getIntent().putExtras(b);
         setResult(Activity.RESULT_OK, getIntent());

@@ -10,7 +10,7 @@ import br.com.home.maildeliveryjfsteel.R;
  */
 
 public class NoQrCode extends GenericDelivery {
-    private String medidor;
+    private int medidor;
     private int existeConta;
     private String comentario;
 
@@ -24,9 +24,7 @@ public class NoQrCode extends GenericDelivery {
     @Override
     public ContentValues getValuesInsert() {
         ContentValues values = super.getValuesInsert();
-        if (getMedidor() != null && !getMedidor().trim().isEmpty()) {
-            values.put(getContext().getResources().getString(R.string.medidor), getMedidor());
-        }
+        values.put(getContext().getResources().getString(R.string.medidor), getMedidor());
         values.put(getContext().getResources().getString(R.string.existe_conta), getExisteConta());
         if (getComentario() != null && !getComentario().trim().isEmpty()) {
             values.put(getContext().getResources().getString(R.string.comentario), getComentario());
@@ -34,11 +32,11 @@ public class NoQrCode extends GenericDelivery {
         return values;
     }
 
-    public String getMedidor() {
+    public int getMedidor() {
         return medidor;
     }
 
-    public void setMedidor(String medidor) {
+    public void setMedidor(int medidor) {
         this.medidor = medidor;
     }
 
