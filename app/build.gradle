@@ -5,15 +5,16 @@ android {
     buildToolsVersion "25.0.2"
     defaultConfig {
         applicationId "br.com.home.maildeliveryjfsteel"
-        minSdkVersion 11
+        minSdkVersion 14
         targetSdkVersion 25
-        versionCode 1
-        versionName "1.0"
+        versionCode 3
+        versionName "1.0.2"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }

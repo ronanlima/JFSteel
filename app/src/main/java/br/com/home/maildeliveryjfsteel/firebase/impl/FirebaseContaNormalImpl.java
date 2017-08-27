@@ -92,8 +92,8 @@ public class FirebaseContaNormalImpl extends FirebaseServiceImpl<ContaNormal> {
 
     @Override
     public GenericDTO createDTO(GenericDelivery ct) {
-        ContaNormalFB dto = new ContaNormalFB(ct.getDadosQrCode(), ct.getIdFoto(), ct.getLatitude(), ct.getLongitude(),
-                ct.getEnderecoManual(), ct.getTimesTamp(), ct.getUriFotoDisp(), ct.getLocalEntregaCorresp());
+        ContaNormalDTO dto = new ContaNormalDTO(ct.getDadosQrCode(), ct.getIdFoto(), ct.getLatitude(), ct.getLongitude(),
+                ct.getEnderecoManual(), ct.getTimesTamp(), ct.getLocalEntregaCorresp());
         dto.setContaColetiva(((ContaNormal) ct).isContaColetiva());
         dto.setContaProtocolada(((ContaNormal) ct).isContaProtocolada());
         return dto;
@@ -101,7 +101,7 @@ public class FirebaseContaNormalImpl extends FirebaseServiceImpl<ContaNormal> {
 
     @Override
     public void uploadPhoto(final ContaNormal ct, String uriPhotoDisp, String namePhoto, final DatabaseReference key) {
-        StorageReference storageReference = storage.getReference().child(getmContext().getResources().getString(R.string.firebase_storage_conta)).child(namePhoto);
+        StorageReference storageReference = storage.getReference().child(getmContext().getResources().getString(R.string.firebase_storage_conta)).child(matricula).child(namePhoto);
 
         Bitmap bitmap = BitmapFactory.decodeFile(uriPhotoDisp);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -170,12 +170,12 @@ public class FirebaseContaNormalImpl extends FirebaseServiceImpl<ContaNormal> {
 
 }
 
-class ContaNormalFB extends GenericDTO {
+class ContaNormalDTO extends GenericDTO {
     private boolean isContaProtocolada;
     private boolean isContaColetiva;
 
-    public ContaNormalFB(String dadosQrCode, String idFoto, double latitude, double longitude, String enderecoManual, long timeStamp, String uriFotoDisp, String localEntrega) {
-        super(dadosQrCode, idFoto, latitude, longitude, enderecoManual, timeStamp, uriFotoDisp, localEntrega);
+    public ContaNormalDTO(String dadosQrCode, String idFoto, double latitude, double longitude, String enderecoManual, long timeStamp, String localEntrega) {
+        super(dadosQrCode, idFoto, latitude, longitude, enderecoManual, timeStamp, localEntrega);
     }
 
     public void setContaProtocolada(boolean contaProtocolada) {

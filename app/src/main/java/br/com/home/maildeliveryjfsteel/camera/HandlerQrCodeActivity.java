@@ -92,7 +92,8 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements
             initScanner();
             scannerView.setResultHandler(this);
             scannerView.startCamera();
-        } else if (PermissionUtils.validate(this, GPS_PERMISSION, Manifest.permission.ACCESS_FINE_LOCATION)) {
+        }
+        if (PermissionUtils.validate(this, GPS_PERMISSION, Manifest.permission.ACCESS_FINE_LOCATION)) {
             initApiClient();
         }
     }
@@ -178,7 +179,8 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements
                 if (transformaData(tipoCodigo[5]) != null) {
                     Intent i = new Intent(this, CameraActivity.class);
                     i.putExtra(getResources().getString(R.string.dados_qr_code), resultQrCode);
-                    i.putExtra(getResources().getString(R.string.tipo_conta_grupo_a_reaviso), true);
+                    i.putExtra(EXTRA_TIPO_CONTA, getResources().getString(R.string.tipo_conta_normal));
+//                    i.putExtra(EXTRA_TIPO_CONTA, getResources().getString(R.string.tipo_conta_grupo_a_reaviso));
                     startActivityForResult(i, REQUEST_CODE_CAMERA);
                 } else {
                     showToast(getResources().getString(R.string.msg_falha_leitura_conta));

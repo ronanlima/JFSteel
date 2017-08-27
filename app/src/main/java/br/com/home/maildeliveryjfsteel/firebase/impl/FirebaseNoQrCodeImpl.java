@@ -59,7 +59,7 @@ public class FirebaseNoQrCodeImpl extends FirebaseServiceImpl<NoQrCode> {
     @Override
     public GenericDTO createDTO(GenericDelivery ct) {
         NoQrCodeDTO dto = new NoQrCodeDTO(ct.getDadosQrCode(), ct.getIdFoto(), ct.getLatitude(), ct.getLongitude(),
-                ct.getEnderecoManual(), ct.getTimesTamp(), ct.getUriFotoDisp(), ct.getLocalEntregaCorresp());
+                ct.getEnderecoManual(), ct.getTimesTamp(), ct.getLocalEntregaCorresp());
         dto.setComentario(((NoQrCode) ct).getComentario());
         dto.setExisteConta(((NoQrCode) ct).getExisteConta());
         dto.setMedidor(((NoQrCode) ct).getMedidor());
@@ -89,8 +89,8 @@ class NoQrCodeDTO extends GenericDTO {
     private int existeConta;
     private String comentario;
 
-    public NoQrCodeDTO(String dadosQrCode, String idFoto, double latitude, double longitude, String enderecoManual, long timeStamp, String uriFotoDisp, String localEntrega) {
-        super(dadosQrCode, idFoto, latitude, longitude, enderecoManual, timeStamp, uriFotoDisp, localEntrega);
+    public NoQrCodeDTO(String dadosQrCode, String idFoto, double latitude, double longitude, String enderecoManual, long timeStamp, String localEntrega) {
+        super(dadosQrCode, idFoto, latitude, longitude, enderecoManual, timeStamp, localEntrega);
     }
 
     public NoQrCodeDTO() {

@@ -1,11 +1,13 @@
 package br.com.home.maildeliveryjfsteel.activity;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 
 import java.util.Date;
 
@@ -180,7 +182,9 @@ public class HelloWorldActivity extends AppCompatActivity {
             db = new MailDeliveryNoQrCode(this);
             conta = new NoQrCode(this, null, new Date().getTime(), null, null, latitude, longitude,
                     null, endereco, 0, getIntent().getStringExtra(EXTRA_ENDERECO_DATA_KEY), null);
-            ((NoQrCode) conta).setMedidor(getIntent().getIntExtra(EXTRA_LEITURA_DATA_KEY, 0));
+            if (getIntent().getStringExtra(EXTRA_LEITURA_DATA_KEY) != null && !getIntent().getStringExtra(EXTRA_LEITURA_DATA_KEY).trim().isEmpty()) {
+                ((NoQrCode) conta).setMedidor(Integer.valueOf(getIntent().getStringExtra(EXTRA_LEITURA_DATA_KEY)));
+            }
             ((NoQrCode) conta).setComentario(getIntent().getStringExtra(EXTRA_COMENTARIO_DATA_KEY));
             if (getIntent().getStringExtra(EXTRA_NO_QR_CODE_POSSUI_CONTA) != null) {
                 ((NoQrCode) conta).setExisteConta(getIntent().getStringExtra(EXTRA_NO_QR_CODE_POSSUI_CONTA).equalsIgnoreCase("sim") ? 1 : 0);

@@ -23,7 +23,7 @@ public abstract class FirebaseServiceImpl<T> implements FirebaseService<T> {
     public GenericDTO createDTO(GenericDelivery contaDelivery) {
         GenericDTO dto = new GenericDTO(contaDelivery.getDadosQrCode(), contaDelivery.getIdFoto(),
                 contaDelivery.getLatitude(), contaDelivery.getLongitude(), contaDelivery.getEnderecoManual(),
-                contaDelivery.getTimesTamp(), contaDelivery.getUriFotoDisp(), contaDelivery.getLocalEntregaCorresp());
+                contaDelivery.getTimesTamp(), contaDelivery.getLocalEntregaCorresp());
         return dto;
     }
 
@@ -50,11 +50,10 @@ class GenericDTO {
     private double longitude;
     private String enderecoManual;
     private long timeStamp;
-    private String uriFotoDisp;
     private String localEntrega;
 
     public GenericDTO(String dadosQrCode, String idFoto, double latitude, double longitude,
-                      String enderecoManual, long timeStamp, String uriFotoDisp, String localEntrega) {
+                      String enderecoManual, long timeStamp, String localEntrega) {
         setDadosQrCode(dadosQrCode);
         setIdFoto(idFoto);
         if (latitude != 0d) {
@@ -64,7 +63,6 @@ class GenericDTO {
             setEnderecoManual(enderecoManual);
         }
         setTimeStamp(timeStamp);
-        setUriFotoDisp(uriFotoDisp);
         setLocalEntrega(localEntrega);
     }
 
@@ -117,14 +115,6 @@ class GenericDTO {
 
     public void setTimeStamp(long timeStamp) {
         this.timeStamp = timeStamp;
-    }
-
-    public String getUriFotoDisp() {
-        return uriFotoDisp;
-    }
-
-    public void setUriFotoDisp(String uriFotoDisp) {
-        this.uriFotoDisp = uriFotoDisp;
     }
 
     public String getLocalEntrega() {

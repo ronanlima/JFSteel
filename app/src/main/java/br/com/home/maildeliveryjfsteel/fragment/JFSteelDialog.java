@@ -1,5 +1,6 @@
 package br.com.home.maildeliveryjfsteel.fragment;
 
+import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
@@ -7,6 +8,7 @@ import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -98,6 +100,12 @@ public class JFSteelDialog extends DialogFragment {
 
                 if (tipoAlertaEnum == TipoAlertaEnum.ENTRADA_DADOS) {
                     if (!getEnderecoEditText().getText().toString().isEmpty()) {
+                        InputMethodManager inputManager =
+                                (InputMethodManager) getContext().
+                                        getSystemService(Context.INPUT_METHOD_SERVICE);
+                        inputManager.hideSoftInputFromWindow(
+                                getActivity().getCurrentFocus().getWindowToken(),
+                                InputMethodManager.HIDE_NOT_ALWAYS);
                         onClickDialog.onClickNeutral(v, getEnderecoEditText().getText().toString());
                         dismiss();
                     } else {

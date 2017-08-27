@@ -93,7 +93,7 @@ public class FirebaseNotaImpl extends FirebaseServiceImpl<NotaServico> {
     @Override
     public GenericDTO createDTO(GenericDelivery ct) {
         NotaServicoDTO dto = new NotaServicoDTO(ct.getDadosQrCode(), ct.getIdFoto(), ct.getLatitude(),
-                ct.getLongitude(), ct.getEnderecoManual(), ct.getTimesTamp(), ct.getUriFotoDisp(), ct.getLocalEntregaCorresp());
+                ct.getLongitude(), ct.getEnderecoManual(), ct.getTimesTamp(), ct.getLocalEntregaCorresp());
         dto.setLeitura(((NotaServico) ct).getLeitura());
         dto.setMedidorExterno(((NotaServico) ct).getMedidorExterno());
         dto.setMedidorVizinho(((NotaServico) ct).getMedidorVizinho());
@@ -102,7 +102,7 @@ public class FirebaseNotaImpl extends FirebaseServiceImpl<NotaServico> {
 
     @Override
     public void uploadPhoto(final NotaServico nota, String uriPhotoDisp, String namePhoto, final DatabaseReference key) {
-        StorageReference storageReference = storage.getReference().child(getmContext().getResources().getString(R.string.firebase_storage_nota_servico)).child(namePhoto);
+        StorageReference storageReference = storage.getReference().child(getmContext().getResources().getString(R.string.firebase_storage_nota_servico)).child(matricula).child(namePhoto);
 
         Bitmap bitmap = BitmapFactory.decodeFile(uriPhotoDisp);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -167,8 +167,8 @@ class NotaServicoDTO extends GenericDTO {
     private String medidorVizinho;
     private String medidorExterno;
 
-    public NotaServicoDTO(String dadosQrCode, String idFoto, double latitude, double longitude, String enderecoManual, long timeStamp, String uriFotoDisp, String localEntrega) {
-        super(dadosQrCode, idFoto, latitude, longitude, enderecoManual, timeStamp, uriFotoDisp, localEntrega);
+    public NotaServicoDTO(String dadosQrCode, String idFoto, double latitude, double longitude, String enderecoManual, long timeStamp, String localEntrega) {
+        super(dadosQrCode, idFoto, latitude, longitude, enderecoManual, timeStamp, localEntrega);
     }
 
     public NotaServicoDTO() {
