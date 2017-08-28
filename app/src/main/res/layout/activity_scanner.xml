@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -8,8 +9,8 @@
         android:layout_above="@+id/zxing_my_scanner"
         android:layout_width="56dp"
         android:layout_height="56dp"
-        android:background="#FFBB33"
-        android:src="@mipmap/ic_mailbox_2"
+        app:backgroundTint="#FFBB33"
+        android:src="@mipmap/ic_mailbox_green"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_margin="16dp"

@@ -104,7 +104,7 @@ public class JFSteelDialog extends DialogFragment {
                                 (InputMethodManager) getContext().
                                         getSystemService(Context.INPUT_METHOD_SERVICE);
                         inputManager.hideSoftInputFromWindow(
-                                getActivity().getCurrentFocus().getWindowToken(),
+                                enderecoEditText.getWindowToken(),
                                 InputMethodManager.HIDE_NOT_ALWAYS);
                         onClickDialog.onClickNeutral(v, getEnderecoEditText().getText().toString());
                         dismiss();

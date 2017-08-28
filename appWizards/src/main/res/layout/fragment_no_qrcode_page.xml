@@ -19,64 +19,69 @@
 
     <TextView style="@style/WizardPageTitle" />
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="16dp">
+    <ScrollView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
 
-        <TextView style="@style/WizardFormLabel"
-            android:id="@+id/tv_leitura_no_qrcode"
-            android:text="@string/label_leitura_medidor" />
-
-        <EditText android:id="@+id/numero_leitura_registro_no_qrcode"
-            android:layout_below="@+id/tv_leitura_no_qrcode"
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:saveEnabled="false"
-            android:inputType="number"
-            android:hint="@string/hint_leitura_medidor_no_qrcode"
-            android:layout_marginBottom="16dp" />
+            android:padding="16dp">
 
-        <TextView style="@style/WizardFormLabel"
-            android:id="@+id/tv_endereco_no_qrcode"
-            android:layout_below="@+id/numero_leitura_registro_no_qrcode"
-            android:text="@string/label_endereco_no_qrcode" />
+            <TextView style="@style/WizardFormLabel"
+                android:id="@+id/tv_leitura_no_qrcode"
+                android:text="@string/label_leitura_medidor" />
 
-        <EditText android:id="@+id/endereco_no_qrcode"
-            android:layout_below="@+id/tv_endereco_no_qrcode"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:saveEnabled="false"
-            android:inputType="textCapWords"
-            android:hint="@string/hint_endereco_no_qrcode"
-            android:layout_marginBottom="16dp" />
+            <EditText android:id="@+id/numero_leitura_registro_no_qrcode"
+                android:layout_below="@+id/tv_leitura_no_qrcode"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:saveEnabled="false"
+                android:inputType="number"
+                android:hint="@string/hint_leitura_medidor_no_qrcode"
+                android:layout_marginBottom="16dp" />
 
-        <TextView style="@style/WizardFormLabel"
-            android:id="@+id/tv_comentario_no_qrcode"
-            android:layout_below="@+id/endereco_no_qrcode"
-            android:text="@string/label_comentario_no_qrcode" />
+            <TextView style="@style/WizardFormLabel"
+                android:id="@+id/tv_endereco_no_qrcode"
+                android:layout_below="@+id/numero_leitura_registro_no_qrcode"
+                android:text="@string/label_endereco_no_qrcode" />
 
-        <EditText android:id="@+id/et_comentario_no_qrcode"
-            android:layout_below="@+id/tv_comentario_no_qrcode"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:saveEnabled="false"
-            android:gravity="top"
-            android:inputType="text|textMultiLine"
-            android:hint="@string/hint_comentario_no_qrcode"
-            android:layout_marginBottom="16dp" />
+            <EditText android:id="@+id/endereco_no_qrcode"
+                android:layout_below="@+id/tv_endereco_no_qrcode"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:saveEnabled="false"
+                android:inputType="textCapWords"
+                android:hint="@string/hint_endereco_no_qrcode"
+                android:layout_marginBottom="16dp" />
 
-    </RelativeLayout>
+            <TextView style="@style/WizardFormLabel"
+                android:id="@+id/tv_comentario_no_qrcode"
+                android:layout_below="@+id/endereco_no_qrcode"
+                android:text="@string/label_comentario_no_qrcode" />
 
-    <ListView
-        android:theme="@style/AppTheme"
-        android:id="@android:id/list"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp"
-        android:saveEnabled="false"
-        android:scrollbarStyle="insideInset" />
+            <EditText android:id="@+id/et_comentario_no_qrcode"
+                android:layout_below="@+id/tv_comentario_no_qrcode"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:saveEnabled="false"
+                android:gravity="top"
+                android:inputType="text|textMultiLine"
+                android:hint="@string/hint_comentario_no_qrcode"
+                android:layout_marginBottom="16dp" />
+
+            <ListView
+                android:layout_below="@+id/et_comentario_no_qrcode"
+                android:theme="@style/AppTheme"
+                android:id="@android:id/list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:saveEnabled="false"
+                android:scrollbarStyle="outsideOverlay" />
+        </RelativeLayout>
+
+    </ScrollView>
 
 </LinearLayout>
