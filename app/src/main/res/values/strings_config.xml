@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Gerado do SHA1: FF:9C:3B:73:54:E2:60:3E:E5:52:21:B1:9A:60:1B:85:2E:1D:64:BA -->
-    <string name="API_KEY" translatable="false">AIzaSyDqJgJgT5RBPfmhAhiEcepVFTw5rs7Ou3U</string>
+    <!--<string name="API_KEY" translatable="false">AIzaSyDqJgJgT5RBPfmhAhiEcepVFTw5rs7Ou3U</string>-->
+    <string name="API_KEY" translatable="false">AIzaSyAMiF7n3QsTCzHDz83hkubm3p47pbQSztg</string> <!-- chave criada para a conta jfsteelapp@gmail.com -->
     <string name="sp_matricula" translatable="false">matricula</string>
     <string name="firebase_no_contas" translatable="false">contas</string>
     <string name="firebase_no_notas" translatable="false">notas</string>
