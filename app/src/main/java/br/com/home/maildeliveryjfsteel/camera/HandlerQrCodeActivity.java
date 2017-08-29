@@ -60,7 +60,8 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements
     public static final int LENGTH_GRUPO_A_REAVISO = 6;
     public static final int LENGTH_CONTA_NORMAL = 5;
     public static final int LENGTH_CONTA_DESLIGAMENTO = 4;
-    public static final int LENGTH_NOTA_SERVICO = 2;
+    public static final int LENGTH_COMUNICADO_IMPORTANTE = 2;
+//    public static final int LENGTH_NOTA_SERVICO = 2;
 
     private Context mContext = this;
     private ZXingScannerView scannerView;
@@ -200,7 +201,7 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements
                     showToast(getResources().getString(R.string.msg_falha_leitura_conta));
                 }
                 break;
-            case LENGTH_NOTA_SERVICO:
+            case LENGTH_COMUNICADO_IMPORTANTE:
                 iniciarFluxoWizard(getResources().getString(R.string.tipo_conta_nota));
                 break;
             default:

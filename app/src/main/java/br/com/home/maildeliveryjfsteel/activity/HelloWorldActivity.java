@@ -36,7 +36,10 @@ import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_LOCAL_ENTREGA_CORRESP;
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_MEDIDOR_EXTERNO;
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_MEDIDOR_VIZINHO_DATA_KEY;
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_NO_QR_CODE_POSSUI_CONTA;
+import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_TEM_CAIXA_CORRESP;
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_TIPO_CONTA;
+import static br.com.home.jfsteelbase.ConstantsUtil.FIELD_LOCAL_CONDOMINIO_PORTARIA;
+import static br.com.home.jfsteelbase.ConstantsUtil.FIELD_LOCAL_ENTREGA_RECUSADA;
 
 /**
  * Created by Ronan.lima on 04/08/17.
@@ -53,7 +56,9 @@ public class HelloWorldActivity extends AppCompatActivity {
 
         if (!getIntent().getStringExtra(EXTRA_TIPO_CONTA).equals(getResources().getString(R.string.tipo_conta_no_qrcode))) {
             if (extras.getBoolean(EXTRA_CONTA_PROTOCOLADA) || extras.getBoolean(EXTRA_CONTA_COLETIVA)
-                    || extras.getBoolean(getResources().getString(R.string.tipo_conta_grupo_a_reaviso))) {
+                    || extras.getBoolean(getResources().getString(R.string.tipo_conta_grupo_a_reaviso)) || extras.getBoolean(EXTRA_TEM_CAIXA_CORRESP)
+                    || extras.getString(EXTRA_LOCAL_ENTREGA_CORRESP).equals(FIELD_LOCAL_ENTREGA_RECUSADA)
+                    || extras.getString(EXTRA_LOCAL_ENTREGA_CORRESP).equals(FIELD_LOCAL_CONDOMINIO_PORTARIA)) {
                 if (extras.getDouble(strLatitude) != 0d) {
                     startCameraActivity(extras);
                 } else {

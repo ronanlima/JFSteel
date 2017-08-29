@@ -61,6 +61,16 @@ public class CustomerPageContaNoQrCode extends SingleFixedChoicePage {
 
     @Override
     public boolean isCompleted() {
-        return !TextUtils.isEmpty(mData.getString(EXTRA_ENDERECO_DATA_KEY));
+        boolean isMedidorEmpty = TextUtils.isEmpty(mData.getString(EXTRA_LEITURA_DATA_KEY));
+        boolean isEnderecoEmpty = TextUtils.isEmpty(mData.getString(EXTRA_ENDERECO_DATA_KEY));
+
+        if (!isMedidorEmpty) {
+            return true;
+        } else if (isMedidorEmpty && isEnderecoEmpty) {
+            return false;
+        } else if (isMedidorEmpty && !isEnderecoEmpty) {
+            return true;
+        }
+        return false;
     }
 }

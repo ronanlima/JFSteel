@@ -33,6 +33,7 @@ import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_CONTA_PROTOCOLADA;
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_LOCAL_ENTREGA_CORRESP;
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_MEDIDOR_EXTERNO;
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_NO_QR_CODE_POSSUI_CONTA;
+import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_TEM_CAIXA_CORRESP;
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_TIPO_CONTA;
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_LEITURA_DATA_KEY;
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_MEDIDOR_VIZINHO_DATA_KEY;
@@ -150,6 +151,8 @@ public class MainActivityWizard extends FragmentActivity implements
                     b.putBoolean(EXTRA_CONTA_PROTOCOLADA, true);
                 } else if (op.equals(WizardContaNormal.choicesSobreConta[1])) {
                     b.putBoolean(EXTRA_CONTA_COLETIVA, true);
+                } else if (op.equals(WizardContaNormal.choicesSobreConta[2])) {
+                    b.putBoolean(EXTRA_TEM_CAIXA_CORRESP, true);
                 }
             }
         }
