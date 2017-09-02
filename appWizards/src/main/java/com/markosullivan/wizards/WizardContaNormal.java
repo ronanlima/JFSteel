@@ -18,15 +18,23 @@ public class WizardContaNormal extends AbstractWizardModel {
     public static final String TITLE_PAGE_ENTREGA = "Local de entrega";
     public static final String TITLE_PAGE_SOBRE_CONTA = "Sobre a conta";
     public static final String[] choicesEntrega = {"Caixa de correspondência", "Portão", "Embaixo da porta", "Em mãos",
-            "Caixa do medidor", FIELD_LOCAL_ENTREGA_RECUSADA, FIELD_LOCAL_CONDOMINIO_PORTARIA, "Devolução"};
-    public static final String[] choicesSobreConta = {"Está protocolada", "Coletiva", "Caixa de correspondência"};
+            FIELD_LOCAL_ENTREGA_RECUSADA, FIELD_LOCAL_CONDOMINIO_PORTARIA, "Devolução"};
+    public static final String[] choicesSobreConta = {"Está protocolada", "Coletiva"};
 
-    public WizardContaNormal(Context context) {
-        super(context);
+    public WizardContaNormal(Context context, boolean deveExibirTelaProtocolo) {
+        super(context, deveExibirTelaProtocolo);
     }
 
     @Override
     protected PageList onNewRootPageList() {
+        if (!deveExibirTelaProtocolo) {
+            return new PageList(
+
+                    new SingleFixedChoicePage(this, TITLE_PAGE_ENTREGA)
+                            .setChoices(choicesEntrega)
+                            .setRequired(true)
+            );
+        }
         return new PageList(
 
                 new SingleFixedChoicePage(this, TITLE_PAGE_ENTREGA)

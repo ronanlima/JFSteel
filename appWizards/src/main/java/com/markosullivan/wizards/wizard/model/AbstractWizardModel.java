@@ -33,9 +33,16 @@ public abstract class AbstractWizardModel implements ModelCallbacks {
 
     private List<ModelCallbacks> mListeners = new ArrayList<ModelCallbacks>();
     private PageList mRootPageList;
+    public boolean deveExibirTelaProtocolo;
 
     public AbstractWizardModel(Context context) {
         mContext = context;
+        mRootPageList = onNewRootPageList();
+    }
+
+    public AbstractWizardModel(Context context, boolean deveExibirTelaProtocolada) {
+        mContext = context;
+        this.deveExibirTelaProtocolo = deveExibirTelaProtocolada;
         mRootPageList = onNewRootPageList();
     }
 

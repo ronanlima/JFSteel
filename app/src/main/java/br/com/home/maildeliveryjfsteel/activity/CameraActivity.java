@@ -4,9 +4,13 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.ImageFormat;
 import android.hardware.Camera;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.NonNull;
@@ -18,6 +22,7 @@ import android.view.View;
 import android.view.Window;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -43,6 +48,7 @@ import br.com.home.maildeliveryjfsteel.persistence.impl.MailDeliveryDBNotaServic
 import br.com.home.maildeliveryjfsteel.utils.PermissionUtils;
 import br.com.home.maildeliveryjfsteel.view.CameraImageView;
 
+import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_CAMPO_INSTALACAO;
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_CONTA_COLETIVA;
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_CONTA_PROTOCOLADA;
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_LEITURA_DATA_KEY;
@@ -74,6 +80,10 @@ public class CameraActivity extends AppCompatActivity {
     private FirebaseServiceImpl fService;
     private int countPhoto = 0;
     private String dadosQrCode;
+    private String matricula;
+    private String instalacao;
+    private String tipoConta;
+    private MediaPlayer mediaPlayer;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -81,12 +91,19 @@ public class CameraActivity extends AppCompatActivity {
         requestWindowFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
         setContentView(R.layout.activity_camera);
 
-        dadosQrCode = getIntent().getStringExtra(getResources().getString(R.string.dados_qr_code));
+        SharedPreferences sp = getSharedPreferences(BuildConfig.APPLICATION_ID, MODE_PRIVATE);
+        this.matricula = sp.getString(getResources().getString(R.string.sp_matricula), null);
 
-        if (getIntent().getStringExtra(EXTRA_TIPO_CONTA).equals(getResources().getString(R.string.tipo_conta_normal))) {
+        dadosQrCode = getIntent().getStringExtra(getResources().getString(R.string.dados_qr_code));
+        instalacao = getIntent().getStringExtra(EXTRA_CAMPO_INSTALACAO);
+        tipoConta = getIntent().getStringExtra(EXTRA_TIPO_CONTA);
+
+        if (tipoConta.equals(getResources().getString(R.string.tipo_conta_normal))
+                || tipoConta.equals(getResources().getString(R.string.tipo_conta_grupo_a_reaviso))
+                || tipoConta.equals(getResources().getString(R.string.tipo_conta_desligamento))) {
             db = new MailDeliveryDBContaNormal(this);
             fService = new FirebaseContaNormalImpl(this, null);
-        } else if (getIntent().getStringExtra(EXTRA_TIPO_CONTA).equals(getResources().getString(R.string.tipo_conta_nota))) {
+        } else if (tipoConta.equals(getResources().getString(R.string.tipo_conta_nota))) {
             db = new MailDeliveryDBNotaServico(this);
             fService = new FirebaseNotaImpl(this, null);
         }
@@ -158,6 +175,8 @@ public class CameraActivity extends AppCompatActivity {
                         new SaveFirebaseAsync().execute(new FirebaseAsyncParam(db.findByQrCodeAndSit(dadosQrCode, 0), fService));
                         setResult(Activity.RESULT_OK);
                         finish();
+                    } else {
+                        Toast.makeText(getBaseContext(), mContext.getResources().getString(R.string.msg_nenhuma_foto_capturada), Toast.LENGTH_SHORT).show();
                     }
                 }
             });
@@ -207,7 +226,7 @@ public class CameraActivity extends AppCompatActivity {
 
                     long dateTime = new Date().getTime();
                     String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmsszz").format(dateTime);
-                    final File pictureFile = new File(mediaStorageDir.getPath() + File.separator + FILE_PREFIX + timeStamp + ".jpeg");
+                    final File pictureFile = new File(mediaStorageDir.getPath() + File.separator + matricula + "-" + instalacao + "-" + FILE_PREFIX + timeStamp + ".jpeg");
 
                     try {
                         FileOutputStream fos = new FileOutputStream(pictureFile);
@@ -232,6 +251,7 @@ public class CameraActivity extends AppCompatActivity {
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
+                    shootSound();
                     saveIntoSqlite(pictureFile, dateTime);
                 } else {
                     Log.e(TAG, "Verifique a permissão de escrita para o app.");
@@ -240,21 +260,33 @@ public class CameraActivity extends AppCompatActivity {
         };
     }
 
+    public void shootSound() {
+        AudioManager meng = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
+        int volume = meng.getStreamVolume(AudioManager.STREAM_NOTIFICATION);
+
+        if (mediaPlayer == null)
+            mediaPlayer = MediaPlayer.create(mContext, Uri.parse("file:///system/media/audio/ui/camera_click.ogg"));
+        if (mediaPlayer != null)
+            mediaPlayer.start();
+    }
+
     private void saveIntoSqlite(File file, long dateTime) {
-        if (getIntent().getStringExtra(EXTRA_TIPO_CONTA).equals(getResources().getString(R.string.tipo_conta_normal))) {
-            ContaNormal r = new ContaNormal(getBaseContext(), getIntent().getStringExtra(getResources().getString(R.string.dados_qr_code)), dateTime,
-                    getResources().getString(R.string.prefix_agrupador), file.getName(), getIntent().getDoubleExtra(getResources().getString(R.string.latitude), 0d),
-                    getIntent().getDoubleExtra(getResources().getString(R.string.longitude), 0d), file.getAbsolutePath(),
-                    getIntent().getStringExtra(getResources().getString(R.string.endereco_manual)), 0,
+        if (tipoConta.equals(mContext.getResources().getString(R.string.tipo_conta_normal))
+                || tipoConta.equals(mContext.getResources().getString(R.string.tipo_conta_grupo_a_reaviso))
+                || tipoConta.equals(mContext.getResources().getString(R.string.tipo_conta_desligamento))) {
+            ContaNormal r = new ContaNormal(getBaseContext(), getIntent().getStringExtra(mContext.getResources().getString(R.string.dados_qr_code)), dateTime,
+                    mContext.getResources().getString(R.string.prefix_agrupador), file.getName(), getIntent().getDoubleExtra(mContext.getResources().getString(R.string.latitude), 0d),
+                    getIntent().getDoubleExtra(mContext.getResources().getString(R.string.longitude), 0d), file.getAbsolutePath(),
+                    getIntent().getStringExtra(mContext.getResources().getString(R.string.endereco_manual)), 0,
                     getIntent().getStringExtra(EXTRA_LOCAL_ENTREGA_CORRESP), null);
             r.setContaProtocolada(getIntent().getBooleanExtra(EXTRA_CONTA_PROTOCOLADA, false));
             r.setContaColetiva(getIntent().getBooleanExtra(EXTRA_CONTA_COLETIVA, false));
             db.save(r);
-        } else if (getIntent().getStringExtra(EXTRA_TIPO_CONTA).equals(getResources().getString(R.string.tipo_conta_nota))) {
-            NotaServico ns = new NotaServico(getBaseContext(), getIntent().getStringExtra(getResources().getString(R.string.dados_qr_code)), dateTime,
-                    getResources().getString(R.string.prefix_agrupador), file.getName(), getIntent().getDoubleExtra(getResources().getString(R.string.latitude), 0d),
-                    getIntent().getDoubleExtra(getResources().getString(R.string.longitude), 0d), file.getAbsolutePath(),
-                    getIntent().getStringExtra(getResources().getString(R.string.endereco_manual)), 0,
+        } else if (tipoConta.equals(mContext.getResources().getString(R.string.tipo_conta_nota))) {
+            NotaServico ns = new NotaServico(getBaseContext(), getIntent().getStringExtra(mContext.getResources().getString(R.string.dados_qr_code)), dateTime,
+                    mContext.getResources().getString(R.string.prefix_agrupador), file.getName(), getIntent().getDoubleExtra(mContext.getResources().getString(R.string.latitude), 0d),
+                    getIntent().getDoubleExtra(mContext.getResources().getString(R.string.longitude), 0d), file.getAbsolutePath(),
+                    getIntent().getStringExtra(mContext.getResources().getString(R.string.endereco_manual)), 0,
                     getIntent().getStringExtra(EXTRA_LOCAL_ENTREGA_CORRESP), null);
             ns.setMedidorExterno(getIntent().getStringExtra(EXTRA_MEDIDOR_EXTERNO));
             ns.setMedidorVizinho(getIntent().getStringExtra(EXTRA_MEDIDOR_VIZINHO_DATA_KEY));

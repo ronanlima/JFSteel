@@ -30,13 +30,13 @@ import br.com.home.maildeliveryjfsteel.utils.AlertUtils;
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_COMENTARIO_DATA_KEY;
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_CONTA_COLETIVA;
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_CONTA_PROTOCOLADA;
+import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_DEVE_TIRAR_FOTO;
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_ENDERECO_DATA_KEY;
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_LEITURA_DATA_KEY;
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_LOCAL_ENTREGA_CORRESP;
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_MEDIDOR_EXTERNO;
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_MEDIDOR_VIZINHO_DATA_KEY;
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_NO_QR_CODE_POSSUI_CONTA;
-import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_TEM_CAIXA_CORRESP;
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_TIPO_CONTA;
 import static br.com.home.jfsteelbase.ConstantsUtil.FIELD_LOCAL_CONDOMINIO_PORTARIA;
 import static br.com.home.jfsteelbase.ConstantsUtil.FIELD_LOCAL_ENTREGA_RECUSADA;
@@ -47,95 +47,85 @@ import static br.com.home.jfsteelbase.ConstantsUtil.FIELD_LOCAL_ENTREGA_RECUSADA
 
 public class HelloWorldActivity extends AppCompatActivity {
 
+    private String tipoConta;
+    private String dadosQrCode;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         final Bundle extras = getIntent().getExtras();
         final String strLatitude = getResources().getString(R.string.latitude);
+        tipoConta = extras.getString(EXTRA_TIPO_CONTA);
+        dadosQrCode = extras.getString(getResources().getString(R.string.dados_qr_code));
 
-        if (!getIntent().getStringExtra(EXTRA_TIPO_CONTA).equals(getResources().getString(R.string.tipo_conta_no_qrcode))) {
-            if (extras.getBoolean(EXTRA_CONTA_PROTOCOLADA) || extras.getBoolean(EXTRA_CONTA_COLETIVA)
-                    || extras.getBoolean(getResources().getString(R.string.tipo_conta_grupo_a_reaviso)) || extras.getBoolean(EXTRA_TEM_CAIXA_CORRESP)
-                    || extras.getString(EXTRA_LOCAL_ENTREGA_CORRESP).equals(FIELD_LOCAL_ENTREGA_RECUSADA)
-                    || extras.getString(EXTRA_LOCAL_ENTREGA_CORRESP).equals(FIELD_LOCAL_CONDOMINIO_PORTARIA)) {
-                if (extras.getDouble(strLatitude) != 0d) {
-                    startCameraActivity(extras);
-                } else {
-                    JFSteelDialog alert = AlertUtils.criarAlertaComInputText(getResources().getString(R.string.titulo_pedido_localizacao),
-                            getResources().getString(R.string.msg_falha_pegar_localizacao), new JFSteelDialog.OnClickDialog() {
-                                @Override
-                                public void onClickPositive(View v, String tag) {
-
-                                }
-
-                                @Override
-                                public void onClickNegative(View v, String tag) {
-
-                                }
-
-                                @Override
-                                public void onClickNeutral(View v, String tag) {
-                                    extras.putString(getResources().getString(R.string.endereco_manual), tag);
-                                    startCameraActivity(extras);
-                                }
-                            });
-                    alert.show(getSupportFragmentManager(), "alert");
-                }
-            } else {
-                final String strDadosQrCode = getResources().getString(R.string.dados_qr_code);
-                if (extras.getDouble(strLatitude) != 0d) {
-                    startCameraActivity(extras);
-//                saveRegistroEntrega(extras.getDouble(strLatitude), extras.getDouble(getResources().getString(R.string.longitude)), null, extras.getString(strDadosQrCode));
-//                finish();
-                } else {
-                    JFSteelDialog alert = AlertUtils.criarAlertaComInputText(getResources().getString(R.string.titulo_pedido_localizacao),
-                            getResources().getString(R.string.msg_falha_pegar_localizacao), new JFSteelDialog.OnClickDialog() {
-                                @Override
-                                public void onClickPositive(View v, String tag) {
-
-                                }
-
-                                @Override
-                                public void onClickNegative(View v, String tag) {
-
-                                }
-
-                                @Override
-                                public void onClickNeutral(View v, String tag) {
-                                    extras.putString(getResources().getString(R.string.endereco_manual), tag);
-                                    startCameraActivity(extras);
-                                }
-                            });
-                    alert.show(getSupportFragmentManager(), "alert");
-                }
-            }
+        if (tipoConta.equals(getResources().getString(R.string.tipo_conta_grupo_a_reaviso))
+                || tipoConta.equals(getResources().getString(R.string.tipo_conta_desligamento))) {
+            handleCameraStart(extras, strLatitude);
         } else {
-            if (extras.getDouble(strLatitude) != 0d) {
-                saveRegistroEntrega(extras.getDouble(strLatitude), extras.getDouble(getResources().getString(R.string.longitude)), null, null);
+            if (extras.getBoolean(EXTRA_DEVE_TIRAR_FOTO, false)) {
+                handleCameraStart(extras, strLatitude);
             } else {
-                JFSteelDialog alert = AlertUtils.criarAlertaComInputText(getResources().getString(R.string.titulo_pedido_localizacao),
-                        getResources().getString(R.string.msg_falha_pegar_localizacao), new JFSteelDialog.OnClickDialog() {
-                            @Override
-                            public void onClickPositive(View v, String tag) {
+                if (!tipoConta.equals(getResources().getString(R.string.tipo_conta_no_qrcode))) {
+                    if (extras.getBoolean(EXTRA_CONTA_PROTOCOLADA) || extras.getBoolean(EXTRA_CONTA_COLETIVA)
+                            || extras.getString(EXTRA_LOCAL_ENTREGA_CORRESP).equals(FIELD_LOCAL_ENTREGA_RECUSADA)
+                            || extras.getString(EXTRA_LOCAL_ENTREGA_CORRESP).equals(FIELD_LOCAL_CONDOMINIO_PORTARIA)) {
+                        handleCameraStart(extras, strLatitude);
+                    }
+                } else {
+                    if (extras.getDouble(strLatitude) != 0d) {
+                        saveRegistroEntrega(extras.getDouble(strLatitude), extras.getDouble(getResources().getString(R.string.longitude)), null, null);
+                    } else {
+                        JFSteelDialog alert = AlertUtils.criarAlertaComInputText(getResources().getString(R.string.titulo_pedido_localizacao),
+                                getResources().getString(R.string.msg_falha_pegar_localizacao), new JFSteelDialog.OnClickDialog() {
+                                    @Override
+                                    public void onClickPositive(View v, String tag) {
 
-                            }
+                                    }
 
-                            @Override
-                            public void onClickNegative(View v, String tag) {
+                                    @Override
+                                    public void onClickNegative(View v, String tag) {
 
-                            }
+                                    }
 
-                            @Override
-                            public void onClickNeutral(View v, String tag) {
-                                extras.putString(getResources().getString(R.string.endereco_manual), tag);
-                                saveRegistroEntrega(0, 0, tag, null);
-                            }
-                        });
-                alert.show(getSupportFragmentManager(), "alert");
+                                    @Override
+                                    public void onClickNeutral(View v, String tag) {
+                                        extras.putString(getResources().getString(R.string.endereco_manual), tag);
+                                        saveRegistroEntrega(0, 0, tag, null);
+                                    }
+                                });
+                        alert.show(getSupportFragmentManager(), "alert");
+                    }
+                }
+
             }
         }
+    }
 
+    private void handleCameraStart(final Bundle extras, String strLatitude) {
+        if (extras.getDouble(strLatitude) != 0d) {
+            startCameraActivity(extras);
+        } else {
+            JFSteelDialog alert = AlertUtils.criarAlertaComInputText(getResources().getString(R.string.titulo_pedido_localizacao),
+                    getResources().getString(R.string.msg_falha_pegar_localizacao), new JFSteelDialog.OnClickDialog() {
+                        @Override
+                        public void onClickPositive(View v, String tag) {
+
+                        }
+
+                        @Override
+                        public void onClickNegative(View v, String tag) {
+
+                        }
+
+                        @Override
+                        public void onClickNeutral(View v, String tag) {
+                            extras.putString(getResources().getString(R.string.endereco_manual), tag);
+                            startCameraActivity(extras);
+                        }
+                    });
+            alert.show(getSupportFragmentManager(), "alert");
+        }
     }
 
     @Override
@@ -158,7 +148,9 @@ public class HelloWorldActivity extends AppCompatActivity {
     private void saveRegistroEntrega(double latitude, double longitude, String endereco, String qrCode) {
         MailDeliverDBService db;
         GenericDelivery conta;
-        if (getIntent().getStringExtra(EXTRA_TIPO_CONTA).equals(getResources().getString(R.string.tipo_conta_normal))) {
+        if (tipoConta.equals(getResources().getString(R.string.tipo_conta_normal))
+                || tipoConta.equals(getResources().getString(R.string.tipo_conta_grupo_a_reaviso))
+                || tipoConta.equals(getResources().getString(R.string.tipo_conta_desligamento))) {
             db = new MailDeliveryDBContaNormal(this);
             conta = new ContaNormal(this, qrCode, new Date().getTime(),
                     getIntent().getStringExtra(getString(R.string.prefix_agrupador)), null, latitude,
@@ -169,7 +161,7 @@ public class HelloWorldActivity extends AppCompatActivity {
             db.save(conta);
             new SaveFirebaseAsync().execute(new FirebaseAsyncParam(db.findByQrCodeAndSit(qrCode, 0), new FirebaseContaNormalImpl(this, null)));
 
-        } else if (getIntent().getStringExtra(EXTRA_TIPO_CONTA).equals(getResources().getString(R.string.tipo_conta_nota))) {
+        } else if (tipoConta.equals(getResources().getString(R.string.tipo_conta_nota))) {
             db = new MailDeliveryDBNotaServico(this);
             conta = new NotaServico(this, qrCode, new Date().getTime(),
                     getIntent().getStringExtra(getString(R.string.prefix_agrupador)), null, latitude,

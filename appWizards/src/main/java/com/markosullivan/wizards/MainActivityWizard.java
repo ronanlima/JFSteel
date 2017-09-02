@@ -27,16 +27,16 @@ import com.markosullivan.wizards.wizard.ui.StepPagerStrip;
 import java.util.List;
 
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_COMENTARIO_DATA_KEY;
-import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_ENDERECO_DATA_KEY;
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_CONTA_COLETIVA;
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_CONTA_PROTOCOLADA;
+import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_DEVE_TIRAR_FOTO;
+import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_ENDERECO_DATA_KEY;
+import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_LEITURA_DATA_KEY;
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_LOCAL_ENTREGA_CORRESP;
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_MEDIDOR_EXTERNO;
-import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_NO_QR_CODE_POSSUI_CONTA;
-import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_TEM_CAIXA_CORRESP;
-import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_TIPO_CONTA;
-import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_LEITURA_DATA_KEY;
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_MEDIDOR_VIZINHO_DATA_KEY;
+import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_NO_QR_CODE_POSSUI_CONTA;
+import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_TIPO_CONTA;
 import static br.com.home.jfsteelbase.ConstantsUtil.SECOND_DATA_KEY;
 
 public class MainActivityWizard extends FragmentActivity implements
@@ -51,16 +51,23 @@ public class MainActivityWizard extends FragmentActivity implements
     private boolean mConsumePageSelectedEvent;
     private Button mNextButton;
     private Button mPrevButton;
+    private Button mPhotoButton;
     private List<Page> mCurrentPageSequence;
     private StepPagerStrip mStepPagerStrip;
+    private String tipoConta;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_wizard);
 
-        if (getIntent().getStringExtra(EXTRA_TIPO_CONTA).equals(getResources().getString(R.string.tipo_conta_normal))) {
-            mWizardModel = new WizardContaNormal(this);
-        } else if (getIntent().getStringExtra(EXTRA_TIPO_CONTA).equals(getResources().getString(R.string.tipo_conta_nota))) {
+        tipoConta = getIntent().getStringExtra(EXTRA_TIPO_CONTA);
+
+        if (tipoConta.equals(getResources().getString(R.string.tipo_conta_normal))) {
+            mWizardModel = new WizardContaNormal(this, true);
+        } else if (tipoConta.equals(getResources().getString(R.string.tipo_conta_grupo_a_reaviso))
+                || tipoConta.equals(getResources().getString(R.string.tipo_conta_desligamento))) {
+            mWizardModel = new WizardContaNormal(this, false);
+        } else if (tipoConta.equals(getResources().getString(R.string.tipo_conta_nota))) {
             mWizardModel = new WizardNotaServico(this);
         } else {
             mWizardModel = new WizardNoQrCode(this);
@@ -88,6 +95,7 @@ public class MainActivityWizard extends FragmentActivity implements
 
         mNextButton = (Button) findViewById(R.id.next_button);
         mPrevButton = (Button) findViewById(R.id.prev_button);
+        mPhotoButton = (Button) findViewById(R.id.photo_button);
 
         mPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             @Override
@@ -108,13 +116,29 @@ public class MainActivityWizard extends FragmentActivity implements
             @Override
             public void onClick(View view) {
                 if (mPager.getCurrentItem() == mCurrentPageSequence.size()) {
-                    if (getIntent().getStringExtra(EXTRA_TIPO_CONTA).equals(getResources().getString(R.string.tipo_conta_normal))) {
-                        finalizaFluxoContaNormal();
-                    } else if (getIntent().getStringExtra(EXTRA_TIPO_CONTA).equals(getResources().getString(R.string.tipo_conta_nota))) {
-                        finalizaFluxoNotaServico();
+                    Bundle b = finalizaFluxoWizard();
+                    b.putBoolean(EXTRA_DEVE_TIRAR_FOTO, false);
+                    getIntent().putExtras(b);
+                    setResult(Activity.RESULT_OK, getIntent());
+                    finish();
+                } else {
+                    if (mEditingAfterReview) {
+                        mPager.setCurrentItem(mPagerAdapter.getCount() - 1);
                     } else {
-                        finalizaFluxoNoQrCode();
+                        mPager.setCurrentItem(mPager.getCurrentItem() + 1);
                     }
+                }
+            }
+        });
+
+        mPhotoButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (mPager.getCurrentItem() == mCurrentPageSequence.size()) {
+                    Bundle b = finalizaFluxoWizard();
+                    b.putBoolean(EXTRA_DEVE_TIRAR_FOTO, true);
+                    getIntent().putExtras(b);
+                    setResult(Activity.RESULT_OK, getIntent());
                     finish();
                 } else {
                     if (mEditingAfterReview) {
@@ -139,28 +163,39 @@ public class MainActivityWizard extends FragmentActivity implements
 //        mStepPagerStrip.getPageSelectedListener().onPageStripSelected(mWizardModel.getSizePageList());
     }
 
-    private void finalizaFluxoContaNormal() {
+    private Bundle finalizaFluxoWizard() {
+        if (tipoConta.equals(getResources().getString(R.string.tipo_conta_normal))) {
+            return finalizaFluxoContaNormal(true);
+        } else if (tipoConta.equals(getResources().getString(R.string.tipo_conta_grupo_a_reaviso))
+                || tipoConta.equals(getResources().getString(R.string.tipo_conta_desligamento))) {
+            return finalizaFluxoContaNormal(false);
+        } else if (tipoConta.equals(getResources().getString(R.string.tipo_conta_nota))) {
+            return finalizaFluxoNotaServico();
+        }
+        return finalizaFluxoNoQrCode();
+    }
+
+    private Bundle finalizaFluxoContaNormal(boolean devePegarSegundaTela) {
         Bundle b = new Bundle();
         SingleFixedChoicePage p = (SingleFixedChoicePage) mWizardModel.getPageList().get(0);
         b.putString(EXTRA_LOCAL_ENTREGA_CORRESP, p.getData().getString(p.SIMPLE_DATA_KEY));
 
-        MultipleFixedChoicePage p1 = (MultipleFixedChoicePage) mWizardModel.getPageList().get(1);
-        if (p1.getData().getStringArrayList(p1.SIMPLE_DATA_KEY) != null && !p1.getData().getStringArrayList(p1.SIMPLE_DATA_KEY).isEmpty()) {
-            for (String op : p1.getData().getStringArrayList(p1.SIMPLE_DATA_KEY)) {
-                if (op.equals(WizardContaNormal.choicesSobreConta[0])) {
-                    b.putBoolean(EXTRA_CONTA_PROTOCOLADA, true);
-                } else if (op.equals(WizardContaNormal.choicesSobreConta[1])) {
-                    b.putBoolean(EXTRA_CONTA_COLETIVA, true);
-                } else if (op.equals(WizardContaNormal.choicesSobreConta[2])) {
-                    b.putBoolean(EXTRA_TEM_CAIXA_CORRESP, true);
+        if (devePegarSegundaTela) {
+            MultipleFixedChoicePage p1 = (MultipleFixedChoicePage) mWizardModel.getPageList().get(1);
+            if (p1.getData().getStringArrayList(p1.SIMPLE_DATA_KEY) != null && !p1.getData().getStringArrayList(p1.SIMPLE_DATA_KEY).isEmpty()) {
+                for (String op : p1.getData().getStringArrayList(p1.SIMPLE_DATA_KEY)) {
+                    if (op.equals(WizardContaNormal.choicesSobreConta[0])) {
+                        b.putBoolean(EXTRA_CONTA_PROTOCOLADA, true);
+                    } else if (op.equals(WizardContaNormal.choicesSobreConta[1])) {
+                        b.putBoolean(EXTRA_CONTA_COLETIVA, true);
+                    }
                 }
             }
         }
-        getIntent().putExtras(b);
-        setResult(Activity.RESULT_OK, getIntent());
+        return b;
     }
 
-    private void finalizaFluxoNotaServico() {
+    private Bundle finalizaFluxoNotaServico() {
         Bundle b = new Bundle();
         CustomerNotaServicoPage p = (CustomerNotaServicoPage) mWizardModel.getPageList().get(0);
         if (p.getData().getString(EXTRA_LEITURA_DATA_KEY) != null && !p.getData().getString(EXTRA_LEITURA_DATA_KEY).trim().isEmpty()) {
@@ -176,11 +211,10 @@ public class MainActivityWizard extends FragmentActivity implements
         if (p2.getData().getString(SECOND_DATA_KEY) != null && !p2.getData().getString(SECOND_DATA_KEY).trim().isEmpty()) {
             b.putString(EXTRA_MEDIDOR_EXTERNO, p2.getData().getString(SECOND_DATA_KEY));
         }
-        getIntent().putExtras(b);
-        setResult(Activity.RESULT_OK, getIntent());
+        return b;
     }
 
-    private void finalizaFluxoNoQrCode() {
+    private Bundle finalizaFluxoNoQrCode() {
         Bundle b = new Bundle();
         CustomerPageContaNoQrCode p = (CustomerPageContaNoQrCode) mWizardModel.getPageList().get(0);
         if (p.getData().getString(EXTRA_LEITURA_DATA_KEY) != null && !p.getData().getString(EXTRA_LEITURA_DATA_KEY).trim().isEmpty()) {
@@ -200,8 +234,7 @@ public class MainActivityWizard extends FragmentActivity implements
                 }
             }
         }
-        getIntent().putExtras(b);
-        setResult(Activity.RESULT_OK, getIntent());
+        return b;
     }
 
     @Override
@@ -223,7 +256,11 @@ public class MainActivityWizard extends FragmentActivity implements
         int position = mPager.getCurrentItem();
         if (position == mCurrentPageSequence.size()) {
             mNextButton.setText(R.string.finish);
+            if (!tipoConta.equals(getResources().getString(R.string.tipo_conta_grupo_a_reaviso))) {
+                mPhotoButton.setVisibility(View.VISIBLE);
+            }
         } else {
+            mPhotoButton.setVisibility(View.GONE);
             mNextButton.setText(mEditingAfterReview
                     ? R.string.review
                     : R.string.next);

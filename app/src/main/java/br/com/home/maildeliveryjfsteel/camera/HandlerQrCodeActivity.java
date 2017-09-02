@@ -43,6 +43,7 @@ import br.com.home.maildeliveryjfsteel.utils.PermissionUtils;
 import br.com.home.maildeliveryjfsteel.view.CameraImageView;
 import me.dm7.barcodescanner.zxing.ZXingScannerView;
 
+import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_CAMPO_INSTALACAO;
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_TIPO_CONTA;
 import static br.com.home.maildeliveryjfsteel.utils.PermissionUtils.CAMERA_PERMISSION;
 import static br.com.home.maildeliveryjfsteel.utils.PermissionUtils.GPS_PERMISSION;
@@ -59,9 +60,19 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements
     public static final int REQUEST_CODE_CAMERA = 810;
     public static final int LENGTH_GRUPO_A_REAVISO = 6;
     public static final int LENGTH_CONTA_NORMAL = 5;
+
+    /**
+     * Os dois tipos de desligamento (desligamento com 3o campo sendo instalação e desligamento grupo A, onde o primeiro campo é vazio)
+     * não precisam ir para a tela de 'conta protocolada', pois ela já é uma conta protocolada
+     */
     public static final int LENGTH_CONTA_DESLIGAMENTO = 4;
+
+    /**
+     * Pelo que foi conversado com o Marcelo, comunicado importante e reaviso, devem ter o mesmo tratamento
+     * para perguntas ao entregador: não exibir a tela de conta protocolada/coletiva.
+     */
     public static final int LENGTH_COMUNICADO_IMPORTANTE = 2;
-//    public static final int LENGTH_NOTA_SERVICO = 2;
+    public static final int LENGTH_NOTA_SERVICO = 10;
 
     private Context mContext = this;
     private ZXingScannerView scannerView;
@@ -173,41 +184,56 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements
         return df.parse(data);
     }
 
+    /**
+     * Com base no código lido, dá o tratamento correto.
+     */
     private void continuaFluxoEntrega() {
         String[] tipoCodigo = resultQrCode.split(";");
         switch (tipoCodigo.length) {
+            case LENGTH_NOTA_SERVICO:
+                iniciarFluxoWizard(getResources().getString(R.string.tipo_conta_nota), tipoCodigo[1]);
+                break;
             case LENGTH_GRUPO_A_REAVISO:
-                if (transformaData(tipoCodigo[5]) != null) {
-                    Intent i = new Intent(this, CameraActivity.class);
-                    i.putExtra(getResources().getString(R.string.dados_qr_code), resultQrCode);
-                    i.putExtra(EXTRA_TIPO_CONTA, getResources().getString(R.string.tipo_conta_normal));
-//                    i.putExtra(EXTRA_TIPO_CONTA, getResources().getString(R.string.tipo_conta_grupo_a_reaviso));
-                    startActivityForResult(i, REQUEST_CODE_CAMERA);
-                } else {
-                    showToast(getResources().getString(R.string.msg_falha_leitura_conta));
-                }
+                iniciarFluxoWizard(getResources().getString(R.string.tipo_conta_grupo_a_reaviso), tipoCodigo[2]);
                 break;
             case LENGTH_CONTA_NORMAL:
                 if (transformaData(tipoCodigo[0]) != null && transformaData(tipoCodigo[1]) != null) {
-                    iniciarFluxoWizard(getResources().getString(R.string.tipo_conta_normal));
+                    iniciarFluxoWizard(getResources().getString(R.string.tipo_conta_normal), tipoCodigo[2]);
+                } else if (tipoCodigo[0].indexOf("-") != -1) {
+                    iniciarFluxoWizard(getResources().getString(R.string.tipo_conta_grupo_a_reaviso), tipoCodigo[2]);
                 } else {
                     showToast(getResources().getString(R.string.msg_falha_leitura_conta));
                 }
                 break;
             case LENGTH_CONTA_DESLIGAMENTO:
                 if (transformaData(tipoCodigo[0]) != null) {
-                    iniciarFluxoWizard(getResources().getString(R.string.tipo_conta_normal));
+                    iniciarFluxoWizard(getResources().getString(R.string.tipo_conta_desligamento), tipoCodigo[2]);
+                } else if (tipoCodigo[0] == null || (tipoCodigo[0] != null && tipoCodigo[0].isEmpty())) {
+                    iniciarFluxoWizard(getResources().getString(R.string.tipo_conta_grupo_a_reaviso), tipoCodigo[2]);
                 } else {
                     showToast(getResources().getString(R.string.msg_falha_leitura_conta));
                 }
                 break;
             case LENGTH_COMUNICADO_IMPORTANTE:
-                iniciarFluxoWizard(getResources().getString(R.string.tipo_conta_nota));
+                // entrar no fluxo de reaviso (sem conta protocolada/coletiva).
+//                iniciarFluxoWizard(getResources().getString(R.string.tipo_conta_nota));
+                iniciarFluxoWizard(getResources().getString(R.string.tipo_conta_grupo_a_reaviso), tipoCodigo[1]);
                 break;
             default:
                 showToast(getResources().getString(R.string.msg_falha_leitura_conta));
+                isWizardRespondido = false;
+                resultQrCode = null;
+                onResume();
                 break;
         }
+    }
+
+    private void iniciaFluxoGrupoAReaviso(String tipoConta, String campoInstalacao) {
+        Intent i = new Intent(this, CameraActivity.class);
+        i.putExtra(getResources().getString(R.string.dados_qr_code), resultQrCode);
+        i.putExtra(EXTRA_TIPO_CONTA, tipoConta);
+        i.putExtra(EXTRA_CAMPO_INSTALACAO, campoInstalacao);
+        startActivityForResult(i, REQUEST_CODE_CAMERA);
     }
 
     private void initScanner() {
@@ -297,12 +323,12 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements
     /**
      * Inicia o fluxo de leitura de conta normal
      */
-    private void iniciarFluxoWizard(String tipoConta) {
-        Toast.makeText(getApplicationContext(), resultQrCode, Toast.LENGTH_LONG).show();
+    private void iniciarFluxoWizard(String tipoConta, String campoInstalacao) {
         Log.d("HandlerQrCodeActivity", resultQrCode);
         Intent i = new Intent(this, MainActivityWizard.class);
         i.putExtra(getResources().getString(R.string.dados_qr_code), resultQrCode);
         i.putExtra(EXTRA_TIPO_CONTA, tipoConta);
+        i.putExtra(EXTRA_CAMPO_INSTALACAO, campoInstalacao);
         startActivityForResult(i, REQUEST_CODE_WIZARD);
     }
 
