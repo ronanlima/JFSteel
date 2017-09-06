@@ -71,34 +71,40 @@ public class HelloWorldActivity extends AppCompatActivity {
                             || extras.getString(EXTRA_LOCAL_ENTREGA_CORRESP).equals(FIELD_LOCAL_ENTREGA_RECUSADA)
                             || extras.getString(EXTRA_LOCAL_ENTREGA_CORRESP).equals(FIELD_LOCAL_CONDOMINIO_PORTARIA)) {
                         handleCameraStart(extras, strLatitude);
+                    } else {
+                        handleSaveRegistro(extras, strLatitude);
                     }
                 } else {
-                    if (extras.getDouble(strLatitude) != 0d) {
-                        saveRegistroEntrega(extras.getDouble(strLatitude), extras.getDouble(getResources().getString(R.string.longitude)), null, null);
-                    } else {
-                        JFSteelDialog alert = AlertUtils.criarAlertaComInputText(getResources().getString(R.string.titulo_pedido_localizacao),
-                                getResources().getString(R.string.msg_falha_pegar_localizacao), new JFSteelDialog.OnClickDialog() {
-                                    @Override
-                                    public void onClickPositive(View v, String tag) {
-
-                                    }
-
-                                    @Override
-                                    public void onClickNegative(View v, String tag) {
-
-                                    }
-
-                                    @Override
-                                    public void onClickNeutral(View v, String tag) {
-                                        extras.putString(getResources().getString(R.string.endereco_manual), tag);
-                                        saveRegistroEntrega(0, 0, tag, null);
-                                    }
-                                });
-                        alert.show(getSupportFragmentManager(), "alert");
-                    }
+                    handleSaveRegistro(extras, strLatitude);
                 }
 
             }
+        }
+    }
+
+    private void handleSaveRegistro(final Bundle extras, String strLatitude) {
+        if (extras.getDouble(strLatitude) != 0d) {
+            saveRegistroEntrega(extras.getDouble(strLatitude), extras.getDouble(getResources().getString(R.string.longitude)), null, null);
+        } else {
+            JFSteelDialog alert = AlertUtils.criarAlertaComInputText(getResources().getString(R.string.titulo_pedido_localizacao),
+                    getResources().getString(R.string.msg_falha_pegar_localizacao), new JFSteelDialog.OnClickDialog() {
+                        @Override
+                        public void onClickPositive(View v, String tag) {
+
+                        }
+
+                        @Override
+                        public void onClickNegative(View v, String tag) {
+
+                        }
+
+                        @Override
+                        public void onClickNeutral(View v, String tag) {
+                            extras.putString(getResources().getString(R.string.endereco_manual), tag);
+                            saveRegistroEntrega(0, 0, tag, null);
+                        }
+                    });
+            alert.show(getSupportFragmentManager(), "alert");
         }
     }
 

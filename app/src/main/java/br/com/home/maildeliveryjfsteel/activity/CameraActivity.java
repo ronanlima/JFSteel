@@ -38,6 +38,7 @@ import br.com.home.maildeliveryjfsteel.R;
 import br.com.home.maildeliveryjfsteel.async.FirebaseAsyncParam;
 import br.com.home.maildeliveryjfsteel.async.SaveFirebaseAsync;
 import br.com.home.maildeliveryjfsteel.firebase.impl.FirebaseContaNormalImpl;
+import br.com.home.maildeliveryjfsteel.firebase.impl.FirebaseNoQrCodeImpl;
 import br.com.home.maildeliveryjfsteel.firebase.impl.FirebaseNotaImpl;
 import br.com.home.maildeliveryjfsteel.firebase.impl.FirebaseServiceImpl;
 import br.com.home.maildeliveryjfsteel.persistence.MailDeliverDBService;
@@ -45,6 +46,7 @@ import br.com.home.maildeliveryjfsteel.persistence.dto.ContaNormal;
 import br.com.home.maildeliveryjfsteel.persistence.dto.NotaServico;
 import br.com.home.maildeliveryjfsteel.persistence.impl.MailDeliveryDBContaNormal;
 import br.com.home.maildeliveryjfsteel.persistence.impl.MailDeliveryDBNotaServico;
+import br.com.home.maildeliveryjfsteel.persistence.impl.MailDeliveryNoQrCode;
 import br.com.home.maildeliveryjfsteel.utils.PermissionUtils;
 import br.com.home.maildeliveryjfsteel.view.CameraImageView;
 
@@ -106,6 +108,9 @@ public class CameraActivity extends AppCompatActivity {
         } else if (tipoConta.equals(getResources().getString(R.string.tipo_conta_nota))) {
             db = new MailDeliveryDBNotaServico(this);
             fService = new FirebaseNotaImpl(this, null);
+        } else {
+            db = new MailDeliveryNoQrCode(this);
+            fService = new FirebaseNoQrCodeImpl(this, null);
         }
 
         btnPhoto = (ImageView) findViewById(R.id.btn_capturar_foto);

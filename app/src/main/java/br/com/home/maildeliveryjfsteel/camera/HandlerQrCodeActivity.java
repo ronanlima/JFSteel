@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -14,9 +15,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.Window;
-import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -40,7 +39,6 @@ import br.com.home.maildeliveryjfsteel.activity.HelloWorldActivity;
 import br.com.home.maildeliveryjfsteel.fragment.JFSteelDialog;
 import br.com.home.maildeliveryjfsteel.utils.AlertUtils;
 import br.com.home.maildeliveryjfsteel.utils.PermissionUtils;
-import br.com.home.maildeliveryjfsteel.view.CameraImageView;
 import me.dm7.barcodescanner.zxing.ZXingScannerView;
 
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_CAMPO_INSTALACAO;
@@ -129,7 +127,9 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements
     @Override
     protected void onActivityResult(int requestCode, int resultCode, final Intent data) {
         if (requestCode == REQUEST_CODE_WIZARD && resultCode == Activity.RESULT_OK) {
-            scannerView.stopCamera();
+            if (scannerView != null) {
+                scannerView.stopCamera();
+            }
             String strLatitude = getResources().getString(R.string.latitude);
             String strLongitude = getResources().getString(R.string.longitude);
             if (location != null) {
@@ -255,21 +255,6 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements
         }
     }
 
-    private ViewGroup.LayoutParams configScreen() {
-        RelativeLayout relativeLayout = new RelativeLayout(this);
-
-        RelativeLayout.LayoutParams rlp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-        CameraImageView imgView = new CameraImageView(this);
-
-        RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-        lp.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-        lp.setMargins(0, 10, 10, 0);
-        imgView.setLayoutParams(lp);
-        relativeLayout.setLayoutParams(rlp);
-        relativeLayout.addView(imgView);
-        return relativeLayout.getLayoutParams();
-    }
-
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (grantResults.length != 0) {
@@ -309,15 +294,32 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements
         if (apiClient != null) {
             apiClient.disconnect();
         }
+        if (scannerView != null) {
+            scannerView.invalidate();
+            if (Build.VERSION_CODES.LOLLIPOP <= Build.VERSION.SDK_INT) {
+                scannerView.stopCameraPreview();
+                scannerView.stopCamera();
+            }
+            scannerView = null;
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (scannerView != null) {
+            scannerView.stopCameraPreview();
+            scannerView.stopCamera();
+        }
     }
 
     @Override
     protected void onDestroy() {
+        super.onDestroy();
         if (apiClient != null) {
             apiClient.unregisterConnectionCallbacks(this);
         }
         apiClient = null;
-        super.onDestroy();
     }
 
     /**
