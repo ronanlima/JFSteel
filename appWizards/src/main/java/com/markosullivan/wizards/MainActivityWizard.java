@@ -115,7 +115,7 @@ public class MainActivityWizard extends FragmentActivity implements
         mNextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (mPager.getCurrentItem() == mCurrentPageSequence.size()) {
+                if (mPager.getCurrentItem() == mCurrentPageSequence.size() - 1) {
                     Bundle b = finalizaFluxoWizard();
                     b.putBoolean(EXTRA_DEVE_TIRAR_FOTO, false);
                     getIntent().putExtras(b);
@@ -134,7 +134,7 @@ public class MainActivityWizard extends FragmentActivity implements
         mPhotoButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (mPager.getCurrentItem() == mCurrentPageSequence.size()) {
+                if (mPager.getCurrentItem() == mCurrentPageSequence.size() - 1) {
                     Bundle b = finalizaFluxoWizard();
                     b.putBoolean(EXTRA_DEVE_TIRAR_FOTO, true);
                     getIntent().putExtras(b);
@@ -247,14 +247,15 @@ public class MainActivityWizard extends FragmentActivity implements
     public void onPageTreeChanged() {
         mCurrentPageSequence = mWizardModel.getCurrentPageSequence();
         recalculateCutOffPage();
-        mStepPagerStrip.setPageCount(mCurrentPageSequence.size() + 1); // + 1 = review step
+        mStepPagerStrip.setPageCount(mCurrentPageSequence.size()); // + 1 = review step
+//        mStepPagerStrip.setPageCount(mCurrentPageSequence.size() + 1); // + 1 = review step
         mPagerAdapter.notifyDataSetChanged();
         updateBottomBar();
     }
 
     private void updateBottomBar() {
         int position = mPager.getCurrentItem();
-        if (position == mCurrentPageSequence.size()) {
+        if (position == mCurrentPageSequence.size() - 1) {
             mNextButton.setText(R.string.finish);
             if (!tipoConta.equals(getResources().getString(R.string.tipo_conta_grupo_a_reaviso))) {
                 mPhotoButton.setVisibility(View.VISIBLE);
@@ -316,7 +317,8 @@ public class MainActivityWizard extends FragmentActivity implements
 
     private boolean recalculateCutOffPage() {
         // Cut off the pager adapter at first required page that isn't completed
-        int cutOffPage = mCurrentPageSequence.size() + 1;
+//        int cutOffPage = mCurrentPageSequence.size() + 1;
+        int cutOffPage = mCurrentPageSequence.size();
         for (int i = 0; i < mCurrentPageSequence.size(); i++) {
             Page page = mCurrentPageSequence.get(i);
             if (page.isRequired() && !page.isCompleted()) {
@@ -343,9 +345,9 @@ public class MainActivityWizard extends FragmentActivity implements
 
         @Override
         public Fragment getItem(int i) {
-            if (i >= mCurrentPageSequence.size()) {
-                return new ReviewFragment();
-            }
+//            if (i >= mCurrentPageSequence.size()) {
+//                return new ReviewFragment();
+//            }
 
             return mCurrentPageSequence.get(i).createFragment();
         }
@@ -372,7 +374,8 @@ public class MainActivityWizard extends FragmentActivity implements
             if (mCurrentPageSequence == null) {
                 return 0;
             }
-            return Math.min(mCutOffPage + 1, mCurrentPageSequence.size() + 1);
+            return mCurrentPageSequence.size();
+//            return Math.min(mCutOffPage + 1, mCurrentPageSequence.size() + 1);
         }
 
         public void setCutOffPage(int cutOffPage) {
