@@ -46,6 +46,8 @@ public abstract class AbstractWizardModel implements ModelCallbacks {
         mRootPageList = onNewRootPageList();
     }
 
+    public abstract Bundle getBundleOfPages(Bundle bundle);
+
     /**
      * Override this to define a new wizard model.
      */

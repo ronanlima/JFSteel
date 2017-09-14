@@ -17,6 +17,7 @@
 package com.markosullivan.wizards;
 
 import android.content.Context;
+import android.os.Bundle;
 
 import com.markosullivan.wizards.wizard.model.AbstractWizardModel;
 import com.markosullivan.wizards.wizard.model.BranchPage;
@@ -28,6 +29,11 @@ import com.markosullivan.wizards.wizard.model.SingleFixedChoicePage;
 public class PresentWizardModel extends AbstractWizardModel {
     public PresentWizardModel(Context context) {
         super(context);
+    }
+
+    @Override
+    public Bundle getBundleOfPages(Bundle bundle) {
+        return null;
     }
 
     @Override

@@ -13,31 +13,16 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import com.markosullivan.wizards.wizard.model.AbstractWizardModel;
-import com.markosullivan.wizards.wizard.model.CustomerNotaServicoPage;
-import com.markosullivan.wizards.wizard.model.CustomerPageContaNoQrCode;
-import com.markosullivan.wizards.wizard.model.MixedNotaServicoChoicePage;
 import com.markosullivan.wizards.wizard.model.ModelCallbacks;
-import com.markosullivan.wizards.wizard.model.MultipleFixedChoicePage;
 import com.markosullivan.wizards.wizard.model.Page;
-import com.markosullivan.wizards.wizard.model.SingleFixedChoicePage;
 import com.markosullivan.wizards.wizard.ui.PageFragmentCallbacks;
 import com.markosullivan.wizards.wizard.ui.ReviewFragment;
 import com.markosullivan.wizards.wizard.ui.StepPagerStrip;
 
 import java.util.List;
 
-import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_COMENTARIO_DATA_KEY;
-import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_CONTA_COLETIVA;
-import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_CONTA_PROTOCOLADA;
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_DEVE_TIRAR_FOTO;
-import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_ENDERECO_DATA_KEY;
-import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_LEITURA_DATA_KEY;
-import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_LOCAL_ENTREGA_CORRESP;
-import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_MEDIDOR_EXTERNO;
-import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_MEDIDOR_VIZINHO_DATA_KEY;
-import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_NO_QR_CODE_POSSUI_CONTA;
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_TIPO_CONTA;
-import static br.com.home.jfsteelbase.ConstantsUtil.SECOND_DATA_KEY;
 
 public class MainActivityWizard extends FragmentActivity implements
         PageFragmentCallbacks,
@@ -55,12 +40,14 @@ public class MainActivityWizard extends FragmentActivity implements
     private List<Page> mCurrentPageSequence;
     private StepPagerStrip mStepPagerStrip;
     private String tipoConta;
+    private Intent mIntent;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_wizard);
 
-        tipoConta = getIntent().getStringExtra(EXTRA_TIPO_CONTA);
+        mIntent = getIntent();
+        tipoConta = mIntent.getStringExtra(EXTRA_TIPO_CONTA);
 
         if (tipoConta.equals(getResources().getString(R.string.tipo_conta_normal))) {
             mWizardModel = new WizardContaNormal(this, true);
@@ -116,9 +103,9 @@ public class MainActivityWizard extends FragmentActivity implements
             @Override
             public void onClick(View view) {
                 if (mPager.getCurrentItem() == mCurrentPageSequence.size() - 1) {
-                    Bundle b = finalizaFluxoWizard();
-                    b.putBoolean(EXTRA_DEVE_TIRAR_FOTO, false);
-                    getIntent().putExtras(b);
+//                    Bundle b = finalizaFluxoWizard();
+                    mIntent.putExtras(mWizardModel.getBundleOfPages(mIntent.getExtras()));
+                    mIntent.getExtras().putBoolean(EXTRA_DEVE_TIRAR_FOTO, false);
                     setResult(Activity.RESULT_OK, getIntent());
                     finish();
                 } else {
@@ -135,9 +122,9 @@ public class MainActivityWizard extends FragmentActivity implements
             @Override
             public void onClick(View view) {
                 if (mPager.getCurrentItem() == mCurrentPageSequence.size() - 1) {
-                    Bundle b = finalizaFluxoWizard();
-                    b.putBoolean(EXTRA_DEVE_TIRAR_FOTO, true);
-                    getIntent().putExtras(b);
+//                    Bundle b = finalizaFluxoWizard();
+                    mIntent.putExtras(mWizardModel.getBundleOfPages(mIntent.getExtras()));
+                    mIntent.getExtras().putBoolean(EXTRA_DEVE_TIRAR_FOTO, true);
                     setResult(Activity.RESULT_OK, getIntent());
                     finish();
                 } else {
@@ -161,80 +148,6 @@ public class MainActivityWizard extends FragmentActivity implements
         updateBottomBar();
 //    FIXME *MEMORIZACAO_WIZARD* foi solicitado que o sistema grave a última resposta do wizard, no entanto, como é algo mais trabalhoso, acordar um prazo e/ou valor para que seja feito.
 //        mStepPagerStrip.getPageSelectedListener().onPageStripSelected(mWizardModel.getSizePageList());
-    }
-
-    private Bundle finalizaFluxoWizard() {
-        if (tipoConta.equals(getResources().getString(R.string.tipo_conta_normal))) {
-            return finalizaFluxoContaNormal(true);
-        } else if (tipoConta.equals(getResources().getString(R.string.tipo_conta_grupo_a_reaviso))
-                || tipoConta.equals(getResources().getString(R.string.tipo_conta_desligamento))) {
-            return finalizaFluxoContaNormal(false);
-        } else if (tipoConta.equals(getResources().getString(R.string.tipo_conta_nota))) {
-            return finalizaFluxoNotaServico();
-        }
-        return finalizaFluxoNoQrCode();
-    }
-
-    private Bundle finalizaFluxoContaNormal(boolean devePegarSegundaTela) {
-        Bundle b = new Bundle();
-        SingleFixedChoicePage p = (SingleFixedChoicePage) mWizardModel.getPageList().get(0);
-        b.putString(EXTRA_LOCAL_ENTREGA_CORRESP, p.getData().getString(p.SIMPLE_DATA_KEY));
-
-        if (devePegarSegundaTela) {
-            MultipleFixedChoicePage p1 = (MultipleFixedChoicePage) mWizardModel.getPageList().get(1);
-            if (p1.getData().getStringArrayList(p1.SIMPLE_DATA_KEY) != null && !p1.getData().getStringArrayList(p1.SIMPLE_DATA_KEY).isEmpty()) {
-                for (String op : p1.getData().getStringArrayList(p1.SIMPLE_DATA_KEY)) {
-                    if (op.equals(WizardContaNormal.choicesSobreConta[0])) {
-                        b.putBoolean(EXTRA_CONTA_PROTOCOLADA, true);
-                    } else if (op.equals(WizardContaNormal.choicesSobreConta[1])) {
-                        b.putBoolean(EXTRA_CONTA_COLETIVA, true);
-                    }
-                }
-            }
-        }
-        return b;
-    }
-
-    private Bundle finalizaFluxoNotaServico() {
-        Bundle b = new Bundle();
-        CustomerNotaServicoPage p = (CustomerNotaServicoPage) mWizardModel.getPageList().get(0);
-        if (p.getData().getString(EXTRA_LEITURA_DATA_KEY) != null && !p.getData().getString(EXTRA_LEITURA_DATA_KEY).trim().isEmpty()) {
-            b.putString(EXTRA_LEITURA_DATA_KEY, p.getData().getString(EXTRA_LEITURA_DATA_KEY));
-        }
-        if (p.getData().getString(EXTRA_MEDIDOR_VIZINHO_DATA_KEY) != null && !p.getData().getString(EXTRA_MEDIDOR_VIZINHO_DATA_KEY).trim().isEmpty()) {
-            b.putString(EXTRA_MEDIDOR_VIZINHO_DATA_KEY, p.getData().getString(EXTRA_MEDIDOR_VIZINHO_DATA_KEY));
-        }
-        MixedNotaServicoChoicePage p2 = (MixedNotaServicoChoicePage) mWizardModel.getPageList().get(1);
-        if (p2.getData().getString(p2.SIMPLE_DATA_KEY) != null && !p2.getData().getString(p2.SIMPLE_DATA_KEY).trim().isEmpty()) {
-            b.putString(EXTRA_LOCAL_ENTREGA_CORRESP, p2.getData().getString(p2.SIMPLE_DATA_KEY));
-        }
-        if (p2.getData().getString(SECOND_DATA_KEY) != null && !p2.getData().getString(SECOND_DATA_KEY).trim().isEmpty()) {
-            b.putString(EXTRA_MEDIDOR_EXTERNO, p2.getData().getString(SECOND_DATA_KEY));
-        }
-        return b;
-    }
-
-    private Bundle finalizaFluxoNoQrCode() {
-        Bundle b = new Bundle();
-        CustomerPageContaNoQrCode p = (CustomerPageContaNoQrCode) mWizardModel.getPageList().get(0);
-        if (p.getData().getString(EXTRA_LEITURA_DATA_KEY) != null && !p.getData().getString(EXTRA_LEITURA_DATA_KEY).trim().isEmpty()) {
-            b.putString(EXTRA_LEITURA_DATA_KEY, p.getData().getString(EXTRA_LEITURA_DATA_KEY));
-        }
-        if (p.getData().getString(EXTRA_ENDERECO_DATA_KEY) != null && !p.getData().getString(EXTRA_ENDERECO_DATA_KEY).trim().isEmpty()) {
-            b.putString(EXTRA_ENDERECO_DATA_KEY, p.getData().getString(EXTRA_ENDERECO_DATA_KEY));
-        }
-        if (p.getData().getString(EXTRA_COMENTARIO_DATA_KEY) != null && !p.getData().getString(EXTRA_COMENTARIO_DATA_KEY).trim().isEmpty()) {
-            b.putString(EXTRA_COMENTARIO_DATA_KEY, p.getData().getString(EXTRA_COMENTARIO_DATA_KEY));
-        }
-        if (p.getData().getStringArrayList(p.SIMPLE_DATA_KEY) != null && !p.getData().getStringArrayList(p.SIMPLE_DATA_KEY).isEmpty()) {
-            for (String op : p.getData().getStringArrayList(p.SIMPLE_DATA_KEY)) {
-                if (op.equals(WizardNoQrCode.choicesResidencias[0])) {
-                    b.putString(EXTRA_NO_QR_CODE_POSSUI_CONTA, "Sim");
-                    break;
-                }
-            }
-        }
-        return b;
     }
 
     @Override

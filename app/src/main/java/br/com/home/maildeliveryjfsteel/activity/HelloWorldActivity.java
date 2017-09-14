@@ -84,7 +84,7 @@ public class HelloWorldActivity extends AppCompatActivity {
 
     private void handleSaveRegistro(final Bundle extras, String strLatitude) {
         if (extras.getDouble(strLatitude) != 0d) {
-            saveRegistroEntrega(extras.getDouble(strLatitude), extras.getDouble(getResources().getString(R.string.longitude)), null, null);
+            saveRegistroEntrega(extras.getDouble(strLatitude), extras.getDouble(getResources().getString(R.string.longitude)), null, dadosQrCode);
         } else {
             JFSteelDialog alert = AlertUtils.criarAlertaComInputText(getResources().getString(R.string.titulo_pedido_localizacao),
                     getResources().getString(R.string.msg_falha_pegar_localizacao), new JFSteelDialog.OnClickDialog() {
