@@ -101,7 +101,7 @@ public class HelloWorldActivity extends AppCompatActivity {
                         @Override
                         public void onClickNeutral(View v, String tag) {
                             extras.putString(getResources().getString(R.string.endereco_manual), tag);
-                            saveRegistroEntrega(0, 0, tag, null);
+                            saveRegistroEntrega(0, 0, tag, dadosQrCode);
                         }
                     });
             alert.show(getSupportFragmentManager(), "alert");
