@@ -59,8 +59,7 @@ public class HelloWorldActivity extends AppCompatActivity {
         tipoConta = extras.getString(EXTRA_TIPO_CONTA);
         dadosQrCode = extras.getString(getResources().getString(R.string.dados_qr_code));
 
-        if (tipoConta.equals(getResources().getString(R.string.tipo_conta_grupo_a_reaviso))
-                || tipoConta.equals(getResources().getString(R.string.tipo_conta_desligamento))) {
+        if (tipoConta.equals(getResources().getString(R.string.tipo_conta_grupo_a_reaviso))) {
             handleCameraStart(extras, strLatitude);
         } else {
             if (extras.getBoolean(EXTRA_DEVE_TIRAR_FOTO, false)) {

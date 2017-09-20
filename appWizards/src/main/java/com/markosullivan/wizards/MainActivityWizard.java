@@ -103,7 +103,6 @@ public class MainActivityWizard extends FragmentActivity implements
             @Override
             public void onClick(View view) {
                 if (mPager.getCurrentItem() == mCurrentPageSequence.size() - 1) {
-//                    Bundle b = finalizaFluxoWizard();
                     mIntent.putExtras(mWizardModel.getBundleOfPages(mIntent.getExtras()));
                     mIntent.getExtras().putBoolean(EXTRA_DEVE_TIRAR_FOTO, false);
                     setResult(Activity.RESULT_OK, getIntent());
@@ -122,7 +121,6 @@ public class MainActivityWizard extends FragmentActivity implements
             @Override
             public void onClick(View view) {
                 if (mPager.getCurrentItem() == mCurrentPageSequence.size() - 1) {
-//                    Bundle b = finalizaFluxoWizard();
                     mIntent.putExtras(mWizardModel.getBundleOfPages(mIntent.getExtras()));
                     mIntent.getExtras().putBoolean(EXTRA_DEVE_TIRAR_FOTO, true);
                     setResult(Activity.RESULT_OK, getIntent());
