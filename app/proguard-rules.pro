@@ -26,3 +26,8 @@
 -keepclassmembers class br.com.home.maildeliveryjfsteel.** {
     *;
 }
+
+-keep public class com.google.android.gms.* {
+    public *;
+}
+-dontwarn com.google.android.gms.**

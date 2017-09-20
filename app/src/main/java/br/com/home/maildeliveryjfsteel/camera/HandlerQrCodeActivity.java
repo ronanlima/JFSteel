@@ -300,7 +300,7 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements
                 scannerView.stopCameraPreview();
                 scannerView.stopCamera();
             }
-            scannerView = null;
+//            scannerView = null;
         }
     }
 
@@ -320,6 +320,7 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements
             apiClient.unregisterConnectionCallbacks(this);
         }
         apiClient = null;
+        scannerView = null;
     }
 
     /**

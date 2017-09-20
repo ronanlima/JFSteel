@@ -99,7 +99,7 @@ public class JFSteelDialog extends DialogFragment {
             public void onClick(View v) {
 
                 if (tipoAlertaEnum == TipoAlertaEnum.ENTRADA_DADOS) {
-                    if (!getEnderecoEditText().getText().toString().isEmpty()) {
+                    if (!getEnderecoEditText().getText().toString().trim().isEmpty()) {
                         InputMethodManager inputManager =
                                 (InputMethodManager) getContext().
                                         getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -109,17 +109,16 @@ public class JFSteelDialog extends DialogFragment {
                         onClickDialog.onClickNeutral(v, getEnderecoEditText().getText().toString());
                         dismiss();
                     } else {
+                        getEnderecoEditText().setText("");
                         getEnderecoEditText().setHint(getResources().getString(R.string.hint_alert_endereco));
                     }
                 } else {
-                    onClickDialog.onClickNeutral(v, getTag());
-                    dismiss();
+                    if (onClickDialog != null) {
+                        onClickDialog.onClickNegative(v, getTag());
+                        dismiss();
+                    }
                 }
 
-                if (onClickDialog != null) {
-                    onClickDialog.onClickNegative(v, getTag());
-                }
-                dismiss();
             }
         });
 
