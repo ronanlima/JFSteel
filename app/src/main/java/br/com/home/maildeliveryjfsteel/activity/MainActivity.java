@@ -22,6 +22,7 @@ import br.com.home.maildeliveryjfsteel.persistence.impl.MailDeliveryDBNotaServic
 import br.com.home.maildeliveryjfsteel.persistence.impl.MailDeliveryNoQrCode;
 
 public class MainActivity extends AppCompatActivity {
+    private DialogFragment dialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,15 +30,38 @@ public class MainActivity extends AppCompatActivity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
 
         if (!isMatriculaNotNull()) {
-            DialogFragment dialog = MatriculaDialogFragment.newInstance(setListener());
+            dialog = MatriculaDialogFragment.newInstance(setListener());
             dialog.setCancelable(false);
-            dialog.show(getSupportFragmentManager(), "dialogMatricula");
         } else {
             startActivity(new Intent(this, HandlerQrCodeActivity.class));
             new SaveFirebaseAsync().execute(new FirebaseAsyncParam(new MailDeliveryDBContaNormal(getBaseContext()).findBySit(MailDeliverDBService.SIT_FALSE), new FirebaseContaNormalImpl(getBaseContext(), null)));
             new SaveFirebaseAsync().execute(new FirebaseAsyncParam(new MailDeliveryDBNotaServico(getBaseContext()).findBySit(MailDeliverDBService.SIT_FALSE), new FirebaseNotaImpl(getBaseContext(), null)));
             new SaveFirebaseAsync().execute(new FirebaseAsyncParam(new MailDeliveryNoQrCode(getBaseContext()).findBySit(MailDeliverDBService.SIT_FALSE), new FirebaseNoQrCodeImpl(getBaseContext(), null)));
             finish();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (dialog != null) {
+            dialog.show(getSupportFragmentManager(), "dialogMatricula");
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (dialog != null) {
+            dialog.dismiss();
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (dialog != null) {
+            dialog = null;
         }
     }
 

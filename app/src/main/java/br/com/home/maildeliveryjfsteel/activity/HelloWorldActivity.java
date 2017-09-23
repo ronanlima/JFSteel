@@ -49,6 +49,7 @@ public class HelloWorldActivity extends AppCompatActivity {
 
     private String tipoConta;
     private String dadosQrCode;
+    private JFSteelDialog alert;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -85,7 +86,7 @@ public class HelloWorldActivity extends AppCompatActivity {
         if (extras.getDouble(strLatitude) != 0d) {
             saveRegistroEntrega(extras.getDouble(strLatitude), extras.getDouble(getResources().getString(R.string.longitude)), null, dadosQrCode);
         } else {
-            JFSteelDialog alert = AlertUtils.criarAlertaComInputText(getResources().getString(R.string.titulo_pedido_localizacao),
+            alert = AlertUtils.criarAlertaComInputText(getResources().getString(R.string.titulo_pedido_localizacao),
                     getResources().getString(R.string.msg_falha_pegar_localizacao), new JFSteelDialog.OnClickDialog() {
                         @Override
                         public void onClickPositive(View v, String tag) {
@@ -103,7 +104,7 @@ public class HelloWorldActivity extends AppCompatActivity {
                             saveRegistroEntrega(0, 0, tag, dadosQrCode);
                         }
                     });
-            alert.show(getSupportFragmentManager(), "alert");
+//            alert.show(getSupportFragmentManager(), "alert");
         }
     }
 
@@ -111,7 +112,7 @@ public class HelloWorldActivity extends AppCompatActivity {
         if (extras.getDouble(strLatitude) != 0d) {
             startCameraActivity(extras);
         } else {
-            JFSteelDialog alert = AlertUtils.criarAlertaComInputText(getResources().getString(R.string.titulo_pedido_localizacao),
+            alert = AlertUtils.criarAlertaComInputText(getResources().getString(R.string.titulo_pedido_localizacao),
                     getResources().getString(R.string.msg_falha_pegar_localizacao), new JFSteelDialog.OnClickDialog() {
                         @Override
                         public void onClickPositive(View v, String tag) {
@@ -129,7 +130,7 @@ public class HelloWorldActivity extends AppCompatActivity {
                             startCameraActivity(extras);
                         }
                     });
-            alert.show(getSupportFragmentManager(), "alert");
+//            alert.show(getSupportFragmentManager(), "alert");
         }
     }
 
@@ -206,4 +207,33 @@ public class HelloWorldActivity extends AppCompatActivity {
         startActivityForResult(i, HandlerQrCodeActivity.REQUEST_CODE_CAMERA);
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (alert != null) {
+            alert.dismiss();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (alert != null) {
+            alert.show(getSupportFragmentManager(), "alert");
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (alert != null) {
+            alert = null;
+        }
+    }
 }

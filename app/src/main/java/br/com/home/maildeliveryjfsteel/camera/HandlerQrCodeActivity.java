@@ -6,8 +6,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -18,10 +21,6 @@ import android.view.View;
 import android.view.Window;
 import android.widget.Toast;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.LocationListener;
-import com.google.android.gms.location.LocationServices;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.Result;
 import com.markosullivan.wizards.MainActivityWizard;
@@ -50,9 +49,7 @@ import static br.com.home.maildeliveryjfsteel.utils.PermissionUtils.GPS_PERMISSI
  * Created by ronanlima on 17/05/17.
  */
 
-public class HandlerQrCodeActivity extends AppCompatActivity implements
-        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener,
-        ZXingScannerView.ResultHandler {
+public class HandlerQrCodeActivity extends AppCompatActivity implements ZXingScannerView.ResultHandler {
 
     public static final int REQUEST_CODE_WIZARD = 999;
     public static final int REQUEST_CODE_CAMERA = 810;
@@ -75,9 +72,10 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements
     private Context mContext = this;
     private ZXingScannerView scannerView;
     private String resultQrCode;
-    private GoogleApiClient apiClient;
+    //    private GoogleApiClient apiClient;
     private Location location;
     private boolean isWizardRespondido = false;
+    private LocationManager locationManager;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -283,17 +281,17 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements
     @Override
     protected void onStart() {
         super.onStart();
-        if (apiClient != null) {
-            apiClient.connect();
-        }
+//        if (apiClient != null) {
+//            apiClient.connect();
+//        }
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        if (apiClient != null) {
-            apiClient.disconnect();
-        }
+//        if (apiClient != null) {
+//            apiClient.disconnect();
+//        }
         if (scannerView != null) {
             scannerView.invalidate();
             if (Build.VERSION_CODES.LOLLIPOP <= Build.VERSION.SDK_INT) {
@@ -316,11 +314,12 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (apiClient != null) {
-            apiClient.unregisterConnectionCallbacks(this);
-        }
-        apiClient = null;
+//        if (apiClient != null) {
+//            apiClient.unregisterConnectionCallbacks(this);
+//        }
+//        apiClient = null;
         scannerView = null;
+        locationManager = null;
     }
 
     /**
@@ -344,13 +343,24 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements
      * Inicializa o objeto para recuperar a apiClient do Google, para utilizar as informações de gps.
      */
     private void initApiClient() {
-        if (apiClient == null) {
-            apiClient = new GoogleApiClient.Builder(mContext)
-                    .addConnectionCallbacks(this)
-                    .addOnConnectionFailedListener(this)
-                    .addApi(LocationServices.API)
-                    .build();
-            apiClient.connect();
+//        if (apiClient == null) {
+//            apiClient = new GoogleApiClient.Builder(mContext)
+//                    .addConnectionCallbacks(this)
+//                    .addOnConnectionFailedListener(this)
+//                    .addApi(LocationServices.API)
+//                    .build();
+//            apiClient.connect();
+//        }
+        if (locationManager == null) {
+            locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+            LocationListener locationListener = new GPSLocationListener(this);
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    PermissionUtils.requestPermissions(this, GPS_PERMISSION, Arrays.asList(Manifest.permission.ACCESS_COARSE_LOCATION));
+                    return;
+                }
+            }
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000 * 180, 0, locationListener);
         }
     }
 
@@ -359,36 +369,74 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements
      *
      * @param s
      */
-    private void showToast(String s) {
+    public void showToast(String s) {
         Toast.makeText(mContext, s, Toast.LENGTH_SHORT).show();
     }
 
-    @Override
-    public void onConnected(@Nullable Bundle bundle) {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            PermissionUtils.requestPermissions(this, GPS_PERMISSION, Arrays.asList(Manifest.permission.ACCESS_COARSE_LOCATION));
-            return;
-        }
+//    @Override
+//    public void onConnected(@Nullable Bundle bundle) {
+//        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+//            PermissionUtils.requestPermissions(this, GPS_PERMISSION, Arrays.asList(Manifest.permission.ACCESS_COARSE_LOCATION));
+//            return;
+//        }
+//
+//        location = LocationServices.FusedLocationApi.getLastLocation(apiClient);
+//        if (location == null) {
+//            showToast(mContext.getResources().getString(R.string.msg_falha_pegar_localizacao));
+//        }
+//    }
+//
+//    @Override
+//    public void onConnectionSuspended(int i) {
+//
+//    }
+//
+//    @Override
+//    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+//        showToast(connectionResult.getErrorMessage());
+//    }
+//
+//    @Override
+//    public void onLocationChanged(Location location) {
+//        this.location = location;
+//    }
 
-        location = LocationServices.FusedLocationApi.getLastLocation(apiClient);
-        if (location == null) {
-            showToast(mContext.getResources().getString(R.string.msg_falha_pegar_localizacao));
-        }
+    public Location getLocation() {
+        return location;
     }
 
-    @Override
-    public void onConnectionSuspended(int i) {
-
+    public void setLocation(Location location) {
+        this.location = location;
     }
+}
 
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        showToast(connectionResult.getErrorMessage());
+class GPSLocationListener implements LocationListener {
+    private Context mContext;
+
+    public GPSLocationListener(Context mContext) {
+        this.mContext = mContext;
     }
 
     @Override
     public void onLocationChanged(Location location) {
-        this.location = location;
+        ((HandlerQrCodeActivity) mContext).setLocation(location);
     }
 
+    @Override
+    public void onStatusChanged(String s, int i, Bundle bundle) {
+
+    }
+
+    @Override
+    public void onProviderEnabled(String s) {
+        ((HandlerQrCodeActivity) mContext).showToast("GPS Habilitado");
+    }
+
+    @Override
+    public void onProviderDisabled(String s) {
+//        Intent i = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+//        mContext.startActivity(i);
+        ((HandlerQrCodeActivity) mContext).showToast("GPS desabilitado");
+        ((HandlerQrCodeActivity) mContext).setLocation(null);
+    }
 }
