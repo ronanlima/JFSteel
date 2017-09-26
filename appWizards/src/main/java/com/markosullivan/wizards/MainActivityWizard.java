@@ -166,7 +166,7 @@ public class MainActivityWizard extends FragmentActivity implements
 
     private void updateBottomBar() {
         int position = mPager.getCurrentItem();
-        if (position == mCurrentPageSequence.size() - 1) {
+        if (position == mCurrentPageSequence.size()) {
             mNextButton.setText(R.string.finish);
             if (!tipoConta.equals(getResources().getString(R.string.tipo_conta_grupo_a_reaviso))) {
                 mPhotoButton.setVisibility(View.VISIBLE);
@@ -228,8 +228,8 @@ public class MainActivityWizard extends FragmentActivity implements
 
     private boolean recalculateCutOffPage() {
         // Cut off the pager adapter at first required page that isn't completed
-//        int cutOffPage = mCurrentPageSequence.size() + 1;
-        int cutOffPage = mCurrentPageSequence.size();
+        int cutOffPage = mCurrentPageSequence.size() - 1;
+//        int cutOffPage = mCurrentPageSequence.size();
         for (int i = 0; i < mCurrentPageSequence.size(); i++) {
             Page page = mCurrentPageSequence.get(i);
             if (page.isRequired() && !page.isCompleted()) {
@@ -285,8 +285,8 @@ public class MainActivityWizard extends FragmentActivity implements
             if (mCurrentPageSequence == null) {
                 return 0;
             }
-            return mCurrentPageSequence.size();
-//            return Math.min(mCutOffPage + 1, mCurrentPageSequence.size() + 1);
+//            return mCurrentPageSequence.size();
+            return Math.min(mCutOffPage + 1, mCurrentPageSequence.size() + 1);
         }
 
         public void setCutOffPage(int cutOffPage) {
