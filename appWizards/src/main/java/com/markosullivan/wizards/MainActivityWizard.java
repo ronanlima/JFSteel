@@ -11,6 +11,7 @@ import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.markosullivan.wizards.wizard.model.AbstractWizardModel;
 import com.markosullivan.wizards.wizard.model.ModelCallbacks;
@@ -31,7 +32,6 @@ public class MainActivityWizard extends FragmentActivity implements
 
     private ViewPager mPager;
     private MyPagerAdapter mPagerAdapter;
-    private boolean mEditingAfterReview;
     private AbstractWizardModel mWizardModel;
     private boolean mConsumePageSelectedEvent;
     private Button mNextButton;
@@ -94,7 +94,6 @@ public class MainActivityWizard extends FragmentActivity implements
                     return;
                 }
 
-                mEditingAfterReview = false;
                 updateBottomBar();
             }
         });
@@ -103,16 +102,15 @@ public class MainActivityWizard extends FragmentActivity implements
             @Override
             public void onClick(View view) {
                 if (mPager.getCurrentItem() == mCurrentPageSequence.size() - 1) {
-                    mIntent.putExtras(mWizardModel.getBundleOfPages(mIntent.getExtras()));
-                    mIntent.getExtras().putBoolean(EXTRA_DEVE_TIRAR_FOTO, false);
-                    setResult(Activity.RESULT_OK, getIntent());
-                    finish();
-                } else {
-                    if (mEditingAfterReview) {
-                        mPager.setCurrentItem(mPagerAdapter.getCount() - 1);
+                    if (mCurrentPageSequence.get(mPager.getCurrentItem()).isRequired() && mCurrentPageSequence.get(mPager.getCurrentItem()).isCompleted()) {
+                        finishWizard(false);
+                    } else if (!mCurrentPageSequence.get(mPager.getCurrentItem()).isRequired()) {
+                        finishWizard(false);
                     } else {
-                        mPager.setCurrentItem(mPager.getCurrentItem() + 1);
+                        Toast.makeText(getBaseContext(), "É necessário responder o questionário antes de continuar", Toast.LENGTH_SHORT).show();
                     }
+                } else {
+                    mPager.setCurrentItem(mPager.getCurrentItem() + 1);
                 }
             }
         });
@@ -121,16 +119,15 @@ public class MainActivityWizard extends FragmentActivity implements
             @Override
             public void onClick(View view) {
                 if (mPager.getCurrentItem() == mCurrentPageSequence.size() - 1) {
-                    mIntent.putExtras(mWizardModel.getBundleOfPages(mIntent.getExtras()));
-                    mIntent.getExtras().putBoolean(EXTRA_DEVE_TIRAR_FOTO, true);
-                    setResult(Activity.RESULT_OK, getIntent());
-                    finish();
-                } else {
-                    if (mEditingAfterReview) {
-                        mPager.setCurrentItem(mPagerAdapter.getCount() - 1);
+                    if (mCurrentPageSequence.get(mPager.getCurrentItem()).isCompleted()) {
+                        finishWizard(true);
+                    } else if (!mCurrentPageSequence.get(mPager.getCurrentItem()).isRequired()) {
+                        finishWizard(true);
                     } else {
-                        mPager.setCurrentItem(mPager.getCurrentItem() + 1);
+                        Toast.makeText(getBaseContext(), "É necessário responder o questionário antes de continuar", Toast.LENGTH_SHORT).show();
                     }
+                } else {
+                    mPager.setCurrentItem(mPager.getCurrentItem() + 1);
                 }
             }
         });
@@ -146,6 +143,13 @@ public class MainActivityWizard extends FragmentActivity implements
         updateBottomBar();
 //    FIXME *MEMORIZACAO_WIZARD* foi solicitado que o sistema grave a última resposta do wizard, no entanto, como é algo mais trabalhoso, acordar um prazo e/ou valor para que seja feito.
 //        mStepPagerStrip.getPageSelectedListener().onPageStripSelected(mWizardModel.getSizePageList());
+    }
+
+    private void finishWizard(boolean value) {
+        mIntent.putExtras(mWizardModel.getBundleOfPages(mIntent.getExtras()));
+        mIntent.getExtras().putBoolean(EXTRA_DEVE_TIRAR_FOTO, value);
+        setResult(Activity.RESULT_OK, getIntent());
+        finish();
     }
 
     @Override
@@ -166,16 +170,14 @@ public class MainActivityWizard extends FragmentActivity implements
 
     private void updateBottomBar() {
         int position = mPager.getCurrentItem();
-        if (position == mCurrentPageSequence.size()) {
+        if (position == mCurrentPageSequence.size() - 1) {
             mNextButton.setText(R.string.finish);
             if (!tipoConta.equals(getResources().getString(R.string.tipo_conta_grupo_a_reaviso))) {
                 mPhotoButton.setVisibility(View.VISIBLE);
             }
         } else {
             mPhotoButton.setVisibility(View.GONE);
-            mNextButton.setText(mEditingAfterReview
-                    ? R.string.review
-                    : R.string.next);
+            mNextButton.setText(R.string.next);
         }
 
         mPrevButton.setVisibility(position <= 0 ? View.INVISIBLE : View.VISIBLE);
@@ -203,7 +205,6 @@ public class MainActivityWizard extends FragmentActivity implements
         for (int i = mCurrentPageSequence.size() - 1; i >= 0; i--) {
             if (mCurrentPageSequence.get(i).getKey().equals(key)) {
                 mConsumePageSelectedEvent = true;
-                mEditingAfterReview = true;
                 mPager.setCurrentItem(i);
                 updateBottomBar();
                 break;
