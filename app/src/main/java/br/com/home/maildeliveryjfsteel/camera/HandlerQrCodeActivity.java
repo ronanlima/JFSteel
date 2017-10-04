@@ -340,9 +340,11 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements ZXingSca
         }
         if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
             location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000 * 3 * 60, 10, this);
             locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000 * 3 * 60, 10, this);
         } else if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000 * 3 * 60, 10, this);
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000 * 3 * 60, 10, this);
         }
     }

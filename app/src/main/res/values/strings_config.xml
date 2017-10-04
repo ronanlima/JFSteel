@@ -2,7 +2,9 @@
 <resources>
     <!-- Gerado do SHA1: FF:9C:3B:73:54:E2:60:3E:E5:52:21:B1:9A:60:1B:85:2E:1D:64:BA -->
     <!--<string name="API_KEY" translatable="false">AIzaSyDqJgJgT5RBPfmhAhiEcepVFTw5rs7Ou3U</string>-->
-    <string name="API_KEY" translatable="false">AIzaSyAMiF7n3QsTCzHDz83hkubm3p47pbQSztg</string> <!-- chave criada para a conta jfsteelapp@gmail.com -->
+    <!--<string name="API_KEY" translatable="false">AIzaSyAMiF7n3QsTCzHDz83hkubm3p47pbQSztg</string> &lt;!&ndash; chave criada para a conta jfsteelapp@gmail.com &ndash;&gt;-->
+    <!-- Gerado do SHA1: DC:5D:78:2B:FA:29:2D:13:E0:6B:49:E3:B6:30:B9:5F:66:F4:B3:0D , keytool -list -v -keystore /Users/Ronan.lima/Documents/Git2/minhaKeystore.jks -->
+    <string name="API_KEY" translatable="false">AIzaSyDV6aCWE3T5fE1LG-FqUvshJ21QsPoKh8s</string> <!-- chave criada para a conta jfsteelapp@gmail.com -->
     <string name="sp_matricula" translatable="false">matricula</string>
     <string name="firebase_no_contas" translatable="false">cartas</string>
     <string name="firebase_no_notas" translatable="false">notas</string>
