@@ -90,7 +90,7 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements ZXingSca
                 .addApi(LocationServices.API)
                 .build();
 
-        if (PermissionUtils.validate(this, CAMERA_PERMISSION, Manifest.permission.CAMERA, Manifest.permission.ACCESS_FINE_LOCATION)) {
+        if (PermissionUtils.validate(this, CAMERA_PERMISSION, Manifest.permission.CAMERA, Manifest.permission.ACCESS_COARSE_LOCATION)) {
             initScanner();
         }
     }
@@ -357,22 +357,23 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements ZXingSca
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             PermissionUtils.requestPermissions(this, GPS_PERMISSION, Arrays.asList(Manifest.permission.ACCESS_COARSE_LOCATION));
             return;
         }
         setLocation(LocationServices.FusedLocationApi.getLastLocation(apiClient));
         locationRequest = new LocationRequest();
-        locationRequest.setInterval(0);
-        locationRequest.setFastestInterval(0); //1000 * 60 * 3
-        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        locationRequest.setInterval(1000 * 20);
+        locationRequest.setFastestInterval(1000 * 10); //1000 * 60 * 3
+        locationRequest.setPriority(LocationRequest.PRIORITY_LOW_POWER);
         LocationServices.FusedLocationApi.requestLocationUpdates(apiClient, locationRequest, this);
         if (getLocation() == null) {
             showToast(mContext.getResources().getString(R.string.msg_falha_pegar_localizacao));
+            LocationServices.FusedLocationApi.removeLocationUpdates(apiClient, this);
             locationRequest = new LocationRequest();
-            locationRequest.setInterval(0);
-            locationRequest.setFastestInterval(0); //1000 * 60 * 3
-            locationRequest.setPriority(LocationRequest.PRIORITY_LOW_POWER);
+            locationRequest.setInterval(1000 * 20);
+            locationRequest.setFastestInterval(1000 * 10); //1000 * 60 * 3
+            locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
             LocationServices.FusedLocationApi.requestLocationUpdates(apiClient, locationRequest, this);
         }
     }
