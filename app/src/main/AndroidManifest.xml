@@ -23,7 +23,7 @@
     <uses-feature android:name="android.hardware.location" android:required="true"/>
     <uses-feature android:name="android.hardware.location.gps" android:required="true"/>
     <!-- Requisito para os mapas funcionarem, como não teremos mapas, não precisa. -->
-    <uses-feature android:glEsVersion="0x00010000" android:required="true"/>
+    <uses-feature android:glEsVersion="0x00020000" android:required="true"/>
 
     <permission
         android:name="br.com.home.maildeliveryjfsteel.permission.MAPS_RECEIVE"
