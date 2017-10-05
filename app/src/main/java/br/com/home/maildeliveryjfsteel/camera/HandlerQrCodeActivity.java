@@ -290,6 +290,7 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements ZXingSca
 
     @Override
     protected void onStop() {
+        LocationServices.FusedLocationApi.removeLocationUpdates(apiClient, this);
         apiClient.disconnect();
         super.onStop();
         if (scannerView != null) {
@@ -308,7 +309,6 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements ZXingSca
             scannerView.stopCameraPreview();
             scannerView.stopCamera();
         }
-        LocationServices.FusedLocationApi.removeLocationUpdates(apiClient, this);
     }
 
     @Override
@@ -362,17 +362,18 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements ZXingSca
             return;
         }
         setLocation(LocationServices.FusedLocationApi.getLastLocation(apiClient));
-        if (locationRequest == null) {
+        locationRequest = new LocationRequest();
+        locationRequest.setInterval(0);
+        locationRequest.setFastestInterval(0); //1000 * 60 * 3
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        LocationServices.FusedLocationApi.requestLocationUpdates(apiClient, locationRequest, this);
+        if (getLocation() == null) {
+            showToast(mContext.getResources().getString(R.string.msg_falha_pegar_localizacao));
             locationRequest = new LocationRequest();
             locationRequest.setInterval(0);
             locationRequest.setFastestInterval(0); //1000 * 60 * 3
-            locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+            locationRequest.setPriority(LocationRequest.PRIORITY_LOW_POWER);
             LocationServices.FusedLocationApi.requestLocationUpdates(apiClient, locationRequest, this);
-        } else {
-            LocationServices.FusedLocationApi.requestLocationUpdates(apiClient, locationRequest, this);
-        }
-        if (getLocation() == null) {
-            showToast(mContext.getResources().getString(R.string.msg_falha_pegar_localizacao));
         }
     }
 
