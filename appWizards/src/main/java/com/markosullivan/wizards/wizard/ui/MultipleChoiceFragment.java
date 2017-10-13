@@ -70,6 +70,7 @@ public class MultipleChoiceFragment extends ListFragment {
         for (int i = 0; i < fixedChoicePage.getOptionCount(); i++) {
             mChoices.add(fixedChoicePage.getOptionAt(i));
         }
+        setRetainInstance(true);
     }
 
     @Override

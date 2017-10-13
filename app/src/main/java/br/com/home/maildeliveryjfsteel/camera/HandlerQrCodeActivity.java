@@ -290,9 +290,10 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements ZXingSca
 
     @Override
     protected void onStop() {
-        LocationServices.FusedLocationApi.removeLocationUpdates(apiClient, this);
-        apiClient.disconnect();
-        super.onStop();
+        if (apiClient != null) {
+            LocationServices.FusedLocationApi.removeLocationUpdates(apiClient, this);
+            apiClient.disconnect();
+        }
         if (scannerView != null) {
             scannerView.invalidate();
             if (Build.VERSION_CODES.LOLLIPOP <= Build.VERSION.SDK_INT) {
@@ -300,6 +301,7 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements ZXingSca
                 scannerView.stopCamera();
             }
         }
+        super.onStop();
     }
 
     @Override

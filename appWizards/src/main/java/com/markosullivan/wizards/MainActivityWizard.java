@@ -147,8 +147,8 @@ public class MainActivityWizard extends FragmentActivity implements
 
     private void finishWizard(boolean value) {
         mIntent.putExtras(mWizardModel.getBundleOfPages(mIntent.getExtras()));
-        mIntent.getExtras().putBoolean(EXTRA_DEVE_TIRAR_FOTO, value);
-        setResult(Activity.RESULT_OK, getIntent());
+        mIntent.putExtra(EXTRA_DEVE_TIRAR_FOTO, value);
+        setResult(Activity.RESULT_OK, mIntent);
         finish();
     }
 

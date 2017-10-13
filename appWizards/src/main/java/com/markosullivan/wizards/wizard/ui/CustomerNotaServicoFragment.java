@@ -62,6 +62,7 @@ public class CustomerNotaServicoFragment extends Fragment {
         Bundle args = getArguments();
         mKey = args.getString(ARG_KEY);
         mPage = (CustomerNotaServicoPage) mCallbacks.onGetPage(mKey);
+        setRetainInstance(true);
     }
 
     @Override

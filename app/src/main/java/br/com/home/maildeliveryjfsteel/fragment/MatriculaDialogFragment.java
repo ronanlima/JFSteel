@@ -61,6 +61,7 @@ public class MatriculaDialogFragment extends DialogFragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setStyle(DialogFragment.STYLE_NO_FRAME, android.R.style.Theme_Holo_Light_Panel);
+        setRetainInstance(true);
     }
 
     @NonNull
