@@ -30,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
 
         if (!isMatriculaNotNull()) {
-            dialog = MatriculaDialogFragment.newInstance(setListener());
+            dialog = MatriculaDialogFragment.newInstance(setListener(), 0);
             dialog.setCancelable(false);
         } else {
             startActivity(new Intent(this, HandlerQrCodeActivity.class));
