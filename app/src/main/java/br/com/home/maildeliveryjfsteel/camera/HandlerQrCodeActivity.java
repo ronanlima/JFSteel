@@ -57,6 +57,8 @@ import static br.com.home.maildeliveryjfsteel.utils.PermissionUtils.GPS_PERMISSI
 public class HandlerQrCodeActivity extends AppCompatActivity implements ZXingScannerView.ResultHandler,
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, com.google.android.gms.location.LocationListener {
 
+    public static final String TAG = HandlerQrCodeActivity.class.getCanonicalName().toUpperCase();
+
     public static final int REQUEST_CODE_WIZARD = 999;
     public static final int REQUEST_CODE_CAMERA = 810;
     public static final int LENGTH_GRUPO_A_REAVISO = 6;
@@ -321,9 +323,13 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements ZXingSca
 
     @Override
     protected void onStop() {
-        if (apiClient != null) {
-            LocationServices.FusedLocationApi.removeLocationUpdates(apiClient, this);
-            apiClient.disconnect();
+        if (apiClient.isConnected()) {
+            try {
+                LocationServices.FusedLocationApi.removeLocationUpdates(apiClient, this);
+                apiClient.disconnect();
+            } catch (Exception e) {
+                Log.e(TAG, e.getMessage());
+            }
         }
         if (scannerView != null) {
             scannerView.invalidate();

@@ -61,76 +61,24 @@ public class HelloWorldActivity extends AppCompatActivity {
         dadosQrCode = extras.getString(getResources().getString(R.string.dados_qr_code));
 
         if (tipoConta.equals(getResources().getString(R.string.tipo_conta_grupo_a_reaviso))) {
-            handleCameraStart(extras, strLatitude);
+            startCameraActivity(extras);
         } else {
             if (extras.getBoolean(EXTRA_DEVE_TIRAR_FOTO, false)) {
-                handleCameraStart(extras, strLatitude);
+                startCameraActivity(extras);
             } else {
                 if (!tipoConta.equals(getResources().getString(R.string.tipo_conta_no_qrcode))) {
                     if (extras.getBoolean(EXTRA_CONTA_PROTOCOLADA) || extras.getBoolean(EXTRA_CONTA_COLETIVA)
                             || extras.getString(EXTRA_LOCAL_ENTREGA_CORRESP).equals(FIELD_LOCAL_ENTREGA_RECUSADA)
                             || extras.getString(EXTRA_LOCAL_ENTREGA_CORRESP).equals(FIELD_LOCAL_CONDOMINIO_PORTARIA)) {
-                        handleCameraStart(extras, strLatitude);
+                        startCameraActivity(extras);
                     } else {
-                        handleSaveRegistro(extras, strLatitude);
+                        saveRegistroEntrega(extras.getDouble(strLatitude, 0d), extras.getDouble(getResources().getString(R.string.longitude), 0d), null, dadosQrCode);
                     }
                 } else {
-                    handleSaveRegistro(extras, strLatitude);
+                    saveRegistroEntrega(extras.getDouble(strLatitude, 0d), extras.getDouble(getResources().getString(R.string.longitude), 0d), null, dadosQrCode);
                 }
 
             }
-        }
-    }
-
-    private void handleSaveRegistro(final Bundle extras, String strLatitude) {
-        if (extras.getDouble(strLatitude) != 0d) {
-            saveRegistroEntrega(extras.getDouble(strLatitude), extras.getDouble(getResources().getString(R.string.longitude)), null, dadosQrCode);
-        } else {
-            alert = AlertUtils.criarAlertaComInputText(getResources().getString(R.string.titulo_pedido_localizacao),
-                    getResources().getString(R.string.msg_falha_pegar_localizacao), new JFSteelDialog.OnClickDialog() {
-                        @Override
-                        public void onClickPositive(View v, String tag) {
-
-                        }
-
-                        @Override
-                        public void onClickNegative(View v, String tag) {
-
-                        }
-
-                        @Override
-                        public void onClickNeutral(View v, String tag) {
-                            extras.putString(getResources().getString(R.string.endereco_manual), tag);
-                            saveRegistroEntrega(0, 0, tag, dadosQrCode);
-                        }
-                    });
-//            alert.show(getSupportFragmentManager(), "alert");
-        }
-    }
-
-    private void handleCameraStart(final Bundle extras, String strLatitude) {
-        if (extras.getDouble(strLatitude) != 0d) {
-            startCameraActivity(extras);
-        } else {
-            alert = AlertUtils.criarAlertaComInputText(getResources().getString(R.string.titulo_pedido_localizacao),
-                    getResources().getString(R.string.msg_falha_pegar_localizacao), new JFSteelDialog.OnClickDialog() {
-                        @Override
-                        public void onClickPositive(View v, String tag) {
-
-                        }
-
-                        @Override
-                        public void onClickNegative(View v, String tag) {
-
-                        }
-
-                        @Override
-                        public void onClickNeutral(View v, String tag) {
-                            extras.putString(getResources().getString(R.string.endereco_manual), tag);
-                            startCameraActivity(extras);
-                        }
-                    });
-//            alert.show(getSupportFragmentManager(), "alert");
         }
     }
 
