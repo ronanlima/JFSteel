@@ -281,6 +281,7 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements ZXingSca
                 dialog.dismiss();
                 dialog = null;
                 saveMatricula(matricula);
+                showToast(mContext.getResources().getString(R.string.msg_matricula_atualizada));
             }
         };
     }
