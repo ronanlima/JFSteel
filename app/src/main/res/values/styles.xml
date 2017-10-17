@@ -13,4 +13,8 @@
         <item name="windowNoTitle">true</item>
     </style>
 
+    <style name="DialogAppTheme" parent="Theme.AppCompat.Light.Dialog">
+        <item name="android:windowBackground">@color/colorBackgroundDialog</item>
+    </style>
+
 </resources>

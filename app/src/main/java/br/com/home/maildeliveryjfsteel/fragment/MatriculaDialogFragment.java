@@ -47,11 +47,12 @@ public class MatriculaDialogFragment extends DialogFragment {
         }
     };
 
-    public static MatriculaDialogFragment newInstance(ClickButtonEntrar listenerEntrar) {
+    public static MatriculaDialogFragment newInstance(ClickButtonEntrar listenerEntrar, int androidStyle) {
         MatriculaDialogFragment mdf = new MatriculaDialogFragment();
 
         Bundle b = new Bundle();
         b.putSerializable("listener", listenerEntrar);
+        b.putInt("androidStyle", androidStyle);
         mdf.setArguments(b);
 
         return mdf;
@@ -60,7 +61,13 @@ public class MatriculaDialogFragment extends DialogFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setStyle(DialogFragment.STYLE_NO_FRAME, android.R.style.Theme_Holo_Light_Panel);
+        int androidStyle = getArguments().getInt("androidStyle", 0);
+
+        if (androidStyle == 0) {
+            setStyle(DialogFragment.STYLE_NO_FRAME, android.R.style.Theme_Holo_Light_Panel);
+        } else {
+            setStyle(DialogFragment.STYLE_NORMAL, androidStyle);
+        }
         setRetainInstance(true);
     }
 

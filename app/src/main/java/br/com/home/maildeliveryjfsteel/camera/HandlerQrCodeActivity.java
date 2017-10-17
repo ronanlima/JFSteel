@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Build;
@@ -12,10 +13,12 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -33,10 +36,12 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import br.com.home.jfsteelbase.ConstantsUtil;
+import br.com.home.maildeliveryjfsteel.BuildConfig;
 import br.com.home.maildeliveryjfsteel.R;
-import br.com.home.maildeliveryjfsteel.activity.CameraActivity;
 import br.com.home.maildeliveryjfsteel.activity.HelloWorldActivity;
 import br.com.home.maildeliveryjfsteel.fragment.JFSteelDialog;
+import br.com.home.maildeliveryjfsteel.fragment.MatriculaDialogFragment;
 import br.com.home.maildeliveryjfsteel.utils.AlertUtils;
 import br.com.home.maildeliveryjfsteel.utils.PermissionUtils;
 import me.dm7.barcodescanner.zxing.ZXingScannerView;
@@ -78,6 +83,8 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements ZXingSca
     private Location location;
     private boolean isWizardRespondido = false;
     private LocationRequest locationRequest;
+    private ImageView imgSettings;
+    private DialogFragment dialog;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -217,8 +224,6 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements ZXingSca
                 }
                 break;
             case LENGTH_COMUNICADO_IMPORTANTE:
-                // entrar no fluxo de reaviso (sem conta protocolada/coletiva).
-//                iniciarFluxoWizard(getResources().getString(R.string.tipo_conta_nota));
                 iniciarFluxoWizard(getResources().getString(R.string.tipo_conta_grupo_a_reaviso), tipoCodigo[1]);
                 break;
             default:
@@ -228,14 +233,6 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements ZXingSca
                 onResume();
                 break;
         }
-    }
-
-    private void iniciaFluxoGrupoAReaviso(String tipoConta, String campoInstalacao) {
-        Intent i = new Intent(this, CameraActivity.class);
-        i.putExtra(getResources().getString(R.string.dados_qr_code), resultQrCode);
-        i.putExtra(EXTRA_TIPO_CONTA, tipoConta);
-        i.putExtra(EXTRA_CAMPO_INSTALACAO, campoInstalacao);
-        startActivityForResult(i, REQUEST_CODE_CAMERA);
     }
 
     private void initScanner() {
@@ -254,7 +251,40 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements ZXingSca
             List<BarcodeFormat> formatList = new ArrayList<>();
             formatList.add(BarcodeFormat.AZTEC);
             scannerView.setFormats(formatList);
+
+            imgSettings = (ImageView) findViewById(R.id.img_reset_matricula);
+            imgSettings.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    dialog = MatriculaDialogFragment.newInstance(resetMatricula(), R.style.DialogAppTheme);
+                    dialog.show(getSupportFragmentManager(), "dialogMatricula");
+//                    dialog.setCancelable(false);
+                }
+            });
         }
+    }
+
+    /**
+     * Salva a matrícula informada no sharedPreferences para consulta no próximo acesso.
+     *
+     * @param matricula
+     */
+    private void saveMatricula(String matricula) {
+        SharedPreferences sp = getSharedPreferences(BuildConfig.APPLICATION_ID, MODE_PRIVATE);
+        SharedPreferences.Editor edit = sp.edit();
+        edit.putString(getResources().getString(R.string.sp_matricula), matricula);
+        edit.commit();
+    }
+
+    public MatriculaDialogFragment.ClickButtonEntrar resetMatricula() {
+        return new MatriculaDialogFragment.ClickButtonEntrar() {
+            @Override
+            public void nextActivity(String matricula) {
+                dialog.dismiss();
+                dialog = null;
+                saveMatricula(matricula);
+            }
+        };
     }
 
     @Override
@@ -301,6 +331,9 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements ZXingSca
                 scannerView.stopCamera();
             }
         }
+        if (dialog != null) {
+            dialog = null;
+        }
         super.onStop();
     }
 
@@ -310,6 +343,9 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements ZXingSca
         if (scannerView != null) {
             scannerView.stopCameraPreview();
             scannerView.stopCamera();
+        }
+        if (dialog != null) {
+            dialog.dismiss();
         }
     }
 
