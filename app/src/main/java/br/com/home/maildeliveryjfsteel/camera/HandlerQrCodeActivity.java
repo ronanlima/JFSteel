@@ -36,7 +36,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import br.com.home.jfsteelbase.ConstantsUtil;
 import br.com.home.maildeliveryjfsteel.BuildConfig;
 import br.com.home.maildeliveryjfsteel.R;
 import br.com.home.maildeliveryjfsteel.activity.HelloWorldActivity;
@@ -104,8 +103,6 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements ZXingSca
 
     @Override
     protected void onResume() {
-        super.onResume();
-
         boolean isPermissaoCameraConcedida = PermissionUtils.validate(this, CAMERA_PERMISSION, Manifest.permission.CAMERA);
         if (scannerView != null && isPermissaoCameraConcedida && !isWizardRespondido) {
             scannerView.setResultHandler(this);
@@ -115,6 +112,7 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements ZXingSca
             scannerView.setResultHandler(this);
             scannerView.startCamera();
         }
+        super.onResume();
     }
 
     @Override
@@ -315,7 +313,9 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements ZXingSca
     @Override
     protected void onStart() {
         super.onStart();
-        apiClient.connect();
+        if (apiClient != null) {
+            apiClient.connect();
+        }
     }
 
     @Override
@@ -339,7 +339,6 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements ZXingSca
 
     @Override
     protected void onPause() {
-        super.onPause();
         if (scannerView != null) {
             scannerView.stopCameraPreview();
             scannerView.stopCamera();
@@ -347,6 +346,7 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements ZXingSca
         if (dialog != null) {
             dialog.dismiss();
         }
+        super.onPause();
     }
 
     @Override
