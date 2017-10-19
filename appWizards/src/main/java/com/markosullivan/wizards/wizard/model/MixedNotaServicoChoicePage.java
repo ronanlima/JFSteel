@@ -19,7 +19,7 @@ package com.markosullivan.wizards.wizard.model;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 
-import com.markosullivan.wizards.wizard.ui.MixedChoiceFragment;
+import com.markosullivan.wizards.wizard.ui.MixedNotaServicoChoiceFragment;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,7 +39,7 @@ public class MixedNotaServicoChoicePage extends Page {
 
     @Override
     public Fragment createFragment() {
-        return MixedChoiceFragment.create(getKey());
+        return MixedNotaServicoChoiceFragment.create(getKey());
     }
 
     public String getOptionAt(int position) {

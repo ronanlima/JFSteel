@@ -46,4 +46,5 @@
     <string name="hint_endereco_no_qrcode">Rua, bairro, cep</string>
     <string name="label_comentario_no_qrcode">Comentário</string>
     <string name="hint_comentario_no_qrcode">Digite aqui</string>
+    <string name="label_sobre_a_conta">Sobre a conta</string>
 </resources>

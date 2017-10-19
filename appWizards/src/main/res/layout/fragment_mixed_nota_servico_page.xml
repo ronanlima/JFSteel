@@ -6,7 +6,7 @@
   You may obtain a copy of the License at
 
       http://www.apache.org/licenses/LICENSE-2.0
-
+  
   Unless required by applicable law or agreed to in writing, software
   distributed under the License is distributed on an "AS IS" BASIS,
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,28 +19,26 @@
 
     <TextView style="@style/WizardPageTitle" />
 
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/titulo_medidor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <CheckBox
+            android:id="@+id/check_medidor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"/>
+    </RelativeLayout>
+
     <ListView
         android:theme="@style/AppTheme"
         android:id="@android:id/list"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="3.3"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp"
-        android:saveEnabled="false"
-        android:scrollbarStyle="outsideOverlay" />
-
-    <TextView
-        android:id="@+id/title_tipo_entrega"
-        style="@style/SubtitleText"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
-        android:layout_marginBottom="10dp"
-        android:layout_marginTop="10dp"/>
-
-    <ListView
-        android:theme="@style/AppTheme"
-        android:id="@+id/list_tipo_entrega"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"

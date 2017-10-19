@@ -50,7 +50,8 @@ public class MainActivityWizard extends FragmentActivity implements
         tipoConta = mIntent.getStringExtra(EXTRA_TIPO_CONTA);
 
         if (tipoConta.equals(getResources().getString(R.string.tipo_conta_normal))) {
-            mWizardModel = new WizardContaNormal(this, true);
+//            mWizardModel = new WizardContaNormal(this, true);
+            mWizardModel = new SingleWizard(this, true);
         } else if (tipoConta.equals(getResources().getString(R.string.tipo_conta_grupo_a_reaviso))
                 || tipoConta.equals(getResources().getString(R.string.tipo_conta_desligamento))) {
             mWizardModel = new WizardContaNormal(this, false);
