@@ -7,8 +7,8 @@ android {
         applicationId "br.com.home.maildeliveryjfsteel"
         minSdkVersion 14
         targetSdkVersion 25
-        versionCode 24
-        versionName "1.0.15.7"
+        versionCode 25
+        versionName "1.0.16"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
     }
