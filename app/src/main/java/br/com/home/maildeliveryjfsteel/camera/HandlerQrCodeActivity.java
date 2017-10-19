@@ -38,6 +38,7 @@ import java.util.List;
 
 import br.com.home.maildeliveryjfsteel.BuildConfig;
 import br.com.home.maildeliveryjfsteel.R;
+import br.com.home.maildeliveryjfsteel.WizardCallback;
 import br.com.home.maildeliveryjfsteel.activity.HelloWorldActivity;
 import br.com.home.maildeliveryjfsteel.fragment.JFSteelDialog;
 import br.com.home.maildeliveryjfsteel.fragment.MatriculaDialogFragment;
@@ -55,7 +56,8 @@ import static br.com.home.maildeliveryjfsteel.utils.PermissionUtils.GPS_PERMISSI
  */
 
 public class HandlerQrCodeActivity extends AppCompatActivity implements ZXingScannerView.ResultHandler,
-        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, com.google.android.gms.location.LocationListener {
+        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, com.google.android.gms.location.LocationListener,
+        WizardCallback {
 
     public static final String TAG = HandlerQrCodeActivity.class.getCanonicalName().toUpperCase();
 
@@ -161,6 +163,11 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements ZXingSca
         } else {
             super.onActivityResult(requestCode, resultCode, data);
         }
+    }
+
+    @Override
+    public void finishWizard(Bundle mBudle) {
+
     }
 
     /**
@@ -370,12 +377,13 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements ZXingSca
      * Inicia o fluxo de leitura de conta normal
      */
     private void iniciarFluxoWizard(String tipoConta, String campoInstalacao) {
-        Log.d("HandlerQrCodeActivity", resultQrCode);
-        Intent i = new Intent(this, MainActivityWizard.class);
-        i.putExtra(getResources().getString(R.string.dados_qr_code), resultQrCode);
-        i.putExtra(EXTRA_TIPO_CONTA, tipoConta);
-        i.putExtra(EXTRA_CAMPO_INSTALACAO, campoInstalacao);
-        startActivityForResult(i, REQUEST_CODE_WIZARD);
+//        Log.d("HandlerQrCodeActivity", resultQrCode);
+//        Intent i = new Intent(this, MainActivityWizard.class);
+//        i.putExtra(getResources().getString(R.string.dados_qr_code), resultQrCode);
+//        i.putExtra(EXTRA_TIPO_CONTA, tipoConta);
+//        i.putExtra(EXTRA_CAMPO_INSTALACAO, campoInstalacao);
+//        startActivityForResult(i, REQUEST_CODE_WIZARD);
+
     }
 
     @Override
@@ -438,4 +446,6 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements ZXingSca
     public void onLocationChanged(Location location) {
         setLocation(location);
     }
+
+
 }

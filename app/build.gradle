@@ -35,7 +35,6 @@ final playServicesVersion = '11.2.2'
 
 dependencies {
     compile 'com.android.support:multidex:1.0.1'
-    compile project(':appWizards')
     compile project(':jfsteelbase')
     compile fileTree(dir: 'libs', include: ['*.jar'])
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {

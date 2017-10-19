@@ -20,4 +20,9 @@
     <string name="msg_qrcode_repetido">O Qr Code lido anteriormente foi atualizado!</string>
     <string name="msg_nenhuma_foto_capturada">Nenhuma foto capturada</string>
     <string name="msg_matricula_atualizada">Sua matrícula foi atualizada com sucesso!</string>
+    <string name="label_sobre_a_conta">Sobre a conta</string>
+    <string name="next">Prosseguir</string>
+    <string name="photo">Foto</string>
+    <string name="herp_derpsum">Herp derpsum sherpus derpler berps tee herp ter sherper der derpus terp? Merp ner, dee der perp.
+        Sherpus ter berp derpler derperker pee herpler. Le ner derpus terpus, der ter herpy? Ner terp serp herpem berps herpy der ter.</string>
 </resources>
