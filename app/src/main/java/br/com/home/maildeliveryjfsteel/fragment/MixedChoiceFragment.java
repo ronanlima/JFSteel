@@ -19,7 +19,6 @@ package br.com.home.maildeliveryjfsteel.fragment;
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.app.Fragment;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -44,27 +43,22 @@ import static br.com.home.jfsteelbase.ConstantsUtil.FIELD_LOCAL_ENTREGA_RECUSADA
 import static br.com.home.jfsteelbase.ConstantsUtil.SECOND_DATA_KEY;
 import static br.com.home.jfsteelbase.ConstantsUtil.SIMPLE_DATA_KEY;
 
-public class MixedChoiceFragment extends Fragment {
-    private static final String ARG_KEY = "key";
-    private static final String ARG_TITLE = "title";
+public class MixedChoiceFragment extends WizardFragment {
     private static final String ARG_BOOLEAN = "question";
     public static final String[] optsEntrega = {"Portão", "Embaixo da porta", "Em mãos",
             FIELD_LOCAL_ENTREGA_RECUSADA, FIELD_LOCAL_CONDOMINIO_PORTARIA, "Devolução", "Caixa de correspondência"};
     public static final String[] optsConta = {"Está protocolada", "Coletiva"};
+    public static final String TITLE_PAGE_ENTREGA = "Local de entrega";
 
     private WizardCallback mCallback;
 
     private List<String> mChoicesEntrega;
     private List<String> mChoicesTiposEntrega;
-    private String mKey, mTitle;
     private boolean mBoolean;
     private ListAdapter listAdapterEntrega, listAdapterTipoEntrega;
-    private Bundle mBundle;
 
-    public static MixedChoiceFragment create(String key, String title, boolean deveExibirPerguntasTipoConta) {
+    public static MixedChoiceFragment create(String key, boolean deveExibirPerguntasTipoConta) {
         Bundle args = new Bundle();
-        args.putString(ARG_KEY, key);
-        args.putString(ARG_KEY, title);
         args.putBoolean(ARG_BOOLEAN, deveExibirPerguntasTipoConta);
 
         MixedChoiceFragment fragment = new MixedChoiceFragment();
@@ -80,8 +74,6 @@ public class MixedChoiceFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         Bundle args = getArguments();
-        mKey = args.getString(ARG_KEY);
-        mTitle = args.getString(ARG_TITLE);
         mBoolean = args.getBoolean(ARG_BOOLEAN);
 
         mChoicesEntrega = Arrays.asList(optsEntrega);
@@ -90,14 +82,14 @@ public class MixedChoiceFragment extends Fragment {
             mChoicesTiposEntrega = Arrays.asList(optsConta);
         }
 
-        mBundle = new Bundle();
+        setBundle(new Bundle());
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_mixed_page, container, false);
-        ((TextView) rootView.findViewById(android.R.id.title)).setText(mTitle);
+        ((TextView) rootView.findViewById(android.R.id.title)).setText(TITLE_PAGE_ENTREGA);
 
         final ListView listView = (ListView) rootView.findViewById(android.R.id.list);
         listAdapterEntrega = new ArrayAdapter<String>(getActivity(),
@@ -109,7 +101,7 @@ public class MixedChoiceFragment extends Fragment {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                mBundle.putString(SIMPLE_DATA_KEY,
+                getBundle().putString(SIMPLE_DATA_KEY,
                         listAdapterEntrega.getItem(position).toString());
             }
         });
@@ -134,7 +126,7 @@ public class MixedChoiceFragment extends Fragment {
                         }
                     }
 
-                    mBundle.putStringArrayList(SECOND_DATA_KEY, selections);
+                    getBundle().putStringArrayList(SECOND_DATA_KEY, selections);
                 }
             });
         }
@@ -143,7 +135,7 @@ public class MixedChoiceFragment extends Fragment {
         new Handler().post(new Runnable() {
             @Override
             public void run() {
-                String selection = mBundle.getString(SIMPLE_DATA_KEY);
+                String selection = getBundle().getString(SIMPLE_DATA_KEY);
                 for (int i = 0; i < mChoicesEntrega.size(); i++) {
                     if (mChoicesEntrega.get(i).equals(selection)) {
                         listView.setItemChecked(i, true);
@@ -152,7 +144,7 @@ public class MixedChoiceFragment extends Fragment {
                 }
 
                 if (mBoolean) {
-                    ArrayList<String> selectedItems = mBundle.getStringArrayList(
+                    ArrayList<String> selectedItems = getBundle().getStringArrayList(
                             SECOND_DATA_KEY);
                     if (selectedItems == null || selectedItems.size() == 0) {
                         return;
@@ -170,6 +162,14 @@ public class MixedChoiceFragment extends Fragment {
         });
 
         return rootView;
+    }
+
+    @Override
+    public boolean isCompleted() {
+        if (getBundle().get(SIMPLE_DATA_KEY) != null && !getBundle().get(SIMPLE_DATA_KEY).toString().isEmpty()) {
+            return true;
+        }
+        return false;
     }
 
     @Override

@@ -49,30 +49,4 @@
         android:saveEnabled="false"
         android:scrollbarStyle="outsideOverlay" />
 
-    <LinearLayout
-        style="?android:attr/buttonBarStyle"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <Button
-            style="?android:attr/buttonBarButtonStyle"
-            android:background="@drawable/selectable_item_background"
-            android:id="@+id/photo_button"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
-            android:text="@string/photo"
-            android:visibility="gone"/>
-
-        <Button
-            style="?android:attr/buttonBarButtonStyle"
-            android:background="@drawable/selectable_item_background"
-            android:id="@+id/next_button"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
-            android:text="@string/next" />
-
-    </LinearLayout>
 </LinearLayout>

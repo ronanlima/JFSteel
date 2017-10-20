@@ -27,7 +27,6 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.Result;
-import com.markosullivan.wizards.MainActivityWizard;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -40,6 +39,7 @@ import br.com.home.maildeliveryjfsteel.BuildConfig;
 import br.com.home.maildeliveryjfsteel.R;
 import br.com.home.maildeliveryjfsteel.WizardCallback;
 import br.com.home.maildeliveryjfsteel.activity.HelloWorldActivity;
+import br.com.home.maildeliveryjfsteel.activity.WizardActivity;
 import br.com.home.maildeliveryjfsteel.fragment.JFSteelDialog;
 import br.com.home.maildeliveryjfsteel.fragment.MatriculaDialogFragment;
 import br.com.home.maildeliveryjfsteel.utils.AlertUtils;
@@ -250,7 +250,7 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements ZXingSca
             fab.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Intent i = new Intent(getBaseContext(), MainActivityWizard.class);
+                    Intent i = new Intent(getBaseContext(), WizardActivity.class);
                     i.putExtra(EXTRA_TIPO_CONTA, getBaseContext().getResources().getString(R.string.tipo_conta_no_qrcode));
                     startActivityForResult(i, REQUEST_CODE_WIZARD);
                 }
@@ -377,13 +377,12 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements ZXingSca
      * Inicia o fluxo de leitura de conta normal
      */
     private void iniciarFluxoWizard(String tipoConta, String campoInstalacao) {
-//        Log.d("HandlerQrCodeActivity", resultQrCode);
-//        Intent i = new Intent(this, MainActivityWizard.class);
-//        i.putExtra(getResources().getString(R.string.dados_qr_code), resultQrCode);
-//        i.putExtra(EXTRA_TIPO_CONTA, tipoConta);
-//        i.putExtra(EXTRA_CAMPO_INSTALACAO, campoInstalacao);
-//        startActivityForResult(i, REQUEST_CODE_WIZARD);
-
+        Log.d("HandlerQrCodeActivity", resultQrCode);
+        Intent i = new Intent(this, WizardActivity.class);
+        i.putExtra(getResources().getString(R.string.dados_qr_code), resultQrCode);
+        i.putExtra(EXTRA_TIPO_CONTA, tipoConta);
+        i.putExtra(EXTRA_CAMPO_INSTALACAO, campoInstalacao);
+        startActivityForResult(i, REQUEST_CODE_WIZARD);
     }
 
     @Override
