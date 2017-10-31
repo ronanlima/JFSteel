@@ -100,14 +100,14 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements ZXingSca
                 .addApi(LocationServices.API)
                 .build();
 
-        if (PermissionUtils.validate(this, CAMERA_PERMISSION, Manifest.permission.CAMERA, Manifest.permission.ACCESS_COARSE_LOCATION)) {
+        if (PermissionUtils.validate(this, CAMERA_PERMISSION, Manifest.permission.CAMERA, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)) {
             initScanner();
         }
     }
 
     @Override
     protected void onResume() {
-        boolean isPermissaoCameraConcedida = PermissionUtils.validate(this, CAMERA_PERMISSION, Manifest.permission.CAMERA);
+        boolean isPermissaoCameraConcedida = PermissionUtils.validate(this, CAMERA_PERMISSION, Manifest.permission.CAMERA, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION);
         if (scannerView != null && isPermissaoCameraConcedida && !isWizardRespondido) {
             scannerView.setResultHandler(this);
             scannerView.startCamera();
@@ -115,6 +115,9 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements ZXingSca
             initScanner();
             scannerView.setResultHandler(this);
             scannerView.startCamera();
+        }
+        if (apiClient.isConnected()) {
+            startLocationUpdates();
         }
         super.onResume();
     }
@@ -322,10 +325,10 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements ZXingSca
 
     @Override
     protected void onStart() {
-        super.onStart();
-        if (apiClient != null) {
+        if (apiClient != null && !apiClient.isConnected()) {
             apiClient.connect();
         }
+        super.onStart();
     }
 
     @Override
@@ -415,19 +418,27 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements ZXingSca
         }
         setLocation(LocationServices.FusedLocationApi.getLastLocation(apiClient));
         locationRequest = new LocationRequest();
-        locationRequest.setInterval(1000 * 20);
-        locationRequest.setFastestInterval(1000 * 10); //1000 * 60 * 3
-        locationRequest.setPriority(LocationRequest.PRIORITY_LOW_POWER);
-        LocationServices.FusedLocationApi.requestLocationUpdates(apiClient, locationRequest, this);
+        locationRequest.setInterval(1000 * 60 * 5);
+        locationRequest.setFastestInterval(1000 * 60 * 3); //1000 * 60 * 3
+        locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+        startLocationUpdates();
         if (getLocation() == null) {
             showToast(mContext.getResources().getString(R.string.msg_falha_pegar_localizacao));
             LocationServices.FusedLocationApi.removeLocationUpdates(apiClient, this);
             locationRequest = new LocationRequest();
-            locationRequest.setInterval(1000 * 20);
-            locationRequest.setFastestInterval(1000 * 10); //1000 * 60 * 3
+            locationRequest.setInterval(1000 * 60 * 5);
+            locationRequest.setFastestInterval(1000 * 60 * 3); //1000 * 60 * 3
             locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-            LocationServices.FusedLocationApi.requestLocationUpdates(apiClient, locationRequest, this);
+            startLocationUpdates();
         }
+    }
+    
+    private void startLocationUpdates() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            PermissionUtils.requestPermissions(this, GPS_PERMISSION, Arrays.asList(Manifest.permission.ACCESS_COARSE_LOCATION));
+            return;
+        }
+        LocationServices.FusedLocationApi.requestLocationUpdates(apiClient, locationRequest, this);
     }
 
     @Override
@@ -445,6 +456,5 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements ZXingSca
     public void onLocationChanged(Location location) {
         setLocation(location);
     }
-
 
 }
