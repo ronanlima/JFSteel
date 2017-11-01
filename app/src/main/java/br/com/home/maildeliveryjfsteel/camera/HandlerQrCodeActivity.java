@@ -116,7 +116,7 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements ZXingSca
             scannerView.setResultHandler(this);
             scannerView.startCamera();
         }
-        if (apiClient.isConnected()) {
+        if (apiClient != null && apiClient.isConnected()) {
             startLocationUpdates();
         }
         super.onResume();
