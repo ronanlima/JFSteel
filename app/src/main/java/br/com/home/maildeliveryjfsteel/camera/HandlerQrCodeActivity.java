@@ -411,16 +411,16 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements ZXingSca
         }
         setLocation(LocationServices.FusedLocationApi.getLastLocation(apiClient));
         locationRequest = new LocationRequest();
-        locationRequest.setInterval(1000 * 60 * 5);
-        locationRequest.setFastestInterval(1000 * 60 * 3); //1000 * 60 * 3
+        locationRequest.setInterval(1000 * 30);
+        locationRequest.setFastestInterval(1000 * 30);
         locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
         startLocationUpdates();
         if (getLocation() == null) {
             showToast(mContext.getResources().getString(R.string.msg_falha_pegar_localizacao));
             LocationServices.FusedLocationApi.removeLocationUpdates(apiClient, this);
             locationRequest = new LocationRequest();
-            locationRequest.setInterval(1000 * 60 * 5);
-            locationRequest.setFastestInterval(1000 * 60 * 3); //1000 * 60 * 3
+            locationRequest.setInterval(1000 * 30);
+            locationRequest.setFastestInterval(1000 * 30);
             locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
             startLocationUpdates();
         }
