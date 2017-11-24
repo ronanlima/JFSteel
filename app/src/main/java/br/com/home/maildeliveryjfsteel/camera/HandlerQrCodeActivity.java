@@ -412,8 +412,8 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements ZXingSca
         setLocation(LocationServices.FusedLocationApi.getLastLocation(apiClient));
         if (locationRequest == null) {
             locationRequest = new LocationRequest();
-            locationRequest.setInterval(1000 * 2);
-            locationRequest.setFastestInterval(1000 * 1);
+            locationRequest.setInterval(1000 * 30);
+            locationRequest.setFastestInterval(1000 * 30);
             locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         }
         startLocationUpdates();
