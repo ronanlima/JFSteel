@@ -122,6 +122,7 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements ZXingSca
 
     @Override
     public void handleResult(Result result) {
+        connect();
         if (result != null) {
             if (resultQrCode != null && result.getText().equals(resultQrCode)) {
                 Toast.makeText(getApplicationContext(), getResources().getString(R.string.msg_qrcode_repetido), Toast.LENGTH_LONG).show();
@@ -319,21 +320,19 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements ZXingSca
     @Override
     protected void onStart() {
         super.onStart();
-        if (apiClient != null) {
+        connect();
+    }
+
+    private void connect() {
+        if (apiClient != null && !apiClient.isConnected()) {
             apiClient.connect();
+//            startLocationUpdates();
         }
     }
 
     @Override
     protected void onStop() {
-        if (apiClient.isConnected()) {
-            try {
-                LocationServices.FusedLocationApi.removeLocationUpdates(apiClient, this);
-                apiClient.disconnect();
-            } catch (Exception e) {
-                Log.e(TAG, e.getMessage());
-            }
-        }
+        removeLocationUpdates();
         if (scannerView != null) {
             scannerView.invalidate();
             if (Build.VERSION_CODES.LOLLIPOP <= Build.VERSION.SDK_INT) {
@@ -345,6 +344,17 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements ZXingSca
             dialog = null;
         }
         super.onStop();
+    }
+
+    private void removeLocationUpdates() {
+        if (apiClient.isConnected()) {
+            try {
+                LocationServices.FusedLocationApi.removeLocationUpdates(apiClient, this);
+                apiClient.disconnect();
+            } catch (Exception e) {
+                Log.e(TAG, e.getMessage());
+            }
+        }
     }
 
     @Override
@@ -364,8 +374,8 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements ZXingSca
         scannerView = null;
         if (apiClient != null) {
             apiClient.unregisterConnectionCallbacks(this);
+            apiClient = null;
         }
-        apiClient = null;
         super.onDestroy();
     }
 
@@ -410,10 +420,11 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements ZXingSca
             return;
         }
         setLocation(LocationServices.FusedLocationApi.getLastLocation(apiClient));
+        Log.d("onConnected ", String.valueOf(getLocation().getLatitude()) + ", " + String.valueOf(getLocation().getLongitude()));
         if (locationRequest == null) {
             locationRequest = new LocationRequest();
-            locationRequest.setInterval(1000 * 30);
-            locationRequest.setFastestInterval(1000 * 30);
+            locationRequest.setInterval(1000 * 2);
+            locationRequest.setFastestInterval(1000 * 1);
             locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         }
         startLocationUpdates();
@@ -446,6 +457,8 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements ZXingSca
     @Override
     public void onLocationChanged(Location location) {
         showToast(location.toString());
+        Log.d("onLocationChanged ", String.valueOf(location.getLatitude()) + ", " + String.valueOf(location.getLongitude()));
         setLocation(location);
+        removeLocationUpdates();
     }
 }
