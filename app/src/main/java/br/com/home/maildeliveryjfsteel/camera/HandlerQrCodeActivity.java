@@ -420,7 +420,6 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements ZXingSca
             return;
         }
         setLocation(LocationServices.FusedLocationApi.getLastLocation(apiClient));
-        Log.d("onConnected ", String.valueOf(getLocation().getLatitude()) + ", " + String.valueOf(getLocation().getLongitude()));
         if (locationRequest == null) {
             locationRequest = new LocationRequest();
             locationRequest.setInterval(1000 * 2);
