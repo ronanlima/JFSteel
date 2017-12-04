@@ -63,12 +63,19 @@ public class LocationActivityTest extends AppCompatActivity implements LocationL
             countPermission++;
             return;
         }
+        Location lastKnownLocation;
         if (provider.equals(LocationManager.GPS_PROVIDER)) {
-            gpsLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000 * 15, 0, this);
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000 * 2, 0, this);
+            lastKnownLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            gpsLocation = lastKnownLocation;
         } else {
-            netLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000 * 15, 0, this);
+            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
+            lastKnownLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+            netLocation = lastKnownLocation;
+        }
+        if (lastKnownLocation != null) {
+            textView.setText(textView.getText().toString() + "\n" + lastKnownLocation.getProvider() + ", " + lastKnownLocation.getLatitude() + ", " + lastKnownLocation.getLongitude() + "\n");
+            textView.setTextColor(ContextCompat.getColor(this, R.color.colorBackgroundDialog));
         }
         getBestLocation();
     }
@@ -116,13 +123,13 @@ public class LocationActivityTest extends AppCompatActivity implements LocationL
         }
 //        removeLocationUpdates();
         getBestLocation();
-        textView.setText(textView.getText().toString() + "\n" + location.getProvider() + ", " + location.getLatitude() + ", " + location.getLongitude() + "\n");
+        textView.setText(textView.getText().toString() + "\n" + getLocation().getProvider() + ", " + getLocation().getLatitude() + ", " + getLocation().getLongitude() + "\n");
         textView.setTextColor(ContextCompat.getColor(this, R.color.colorBackgroundDialog));
     }
 
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
-        showToast("O " + provider + " foi atualizado!\nStatus = " + status);
+//        showToast("O " + provider + " foi atualizado!\nStatus = " + status);
         Log.d("statusChanged = ", extras.toString());
         textView.setText(textView.getText().toString() + "\n" + "O " + provider + " foi atualizado!Status = " + status + "\n");
         textView.setTextColor(ContextCompat.getColor(this, R.color.colorForeground));
@@ -131,6 +138,20 @@ public class LocationActivityTest extends AppCompatActivity implements LocationL
     @Override
     public void onProviderEnabled(String provider) {
         showToast("O " + provider + " foi ligado!");
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            if (countPermission == 0) {
+                PermissionUtils.requestPermissions(this, GPS_PERMISSION, Arrays.asList(Manifest.permission.ACCESS_FINE_LOCATION));
+            }
+            countPermission++;
+            return;
+        }
+        if (provider.equals(LocationManager.GPS_PROVIDER)) {
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000 * 2, 0, this);
+            gpsLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        } else {
+            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
+            netLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+        }
         textView.setText(textView.getText().toString() + "\n" + "O " + provider + " foi ligado!\n");
         textView.setTextColor(ContextCompat.getColor(this, R.color.colorPrimary));
     }

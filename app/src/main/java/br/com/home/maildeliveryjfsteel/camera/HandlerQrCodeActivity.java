@@ -455,7 +455,6 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements ZXingSca
 
     @Override
     public void onLocationChanged(Location location) {
-        showToast(location.toString());
         Log.d("onLocationChanged ", String.valueOf(location.getLatitude()) + ", " + String.valueOf(location.getLongitude()));
         if (location.getProvider().equals(LocationManager.NETWORK_PROVIDER)) {
             netLocation = location;
@@ -464,6 +463,7 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements ZXingSca
         }
         removeLocationUpdates();
         getBestLocation();
+        showToast(getLocation().toString());
     }
 
     @Override
