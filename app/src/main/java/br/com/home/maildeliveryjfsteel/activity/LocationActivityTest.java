@@ -19,6 +19,7 @@ import android.widget.Toast;
 
 import java.util.Arrays;
 
+import br.com.home.maildeliveryjfsteel.MyLocation;
 import br.com.home.maildeliveryjfsteel.R;
 import br.com.home.maildeliveryjfsteel.utils.PermissionUtils;
 
@@ -38,12 +39,35 @@ public class LocationActivityTest extends AppCompatActivity implements LocationL
     private Location location, netLocation, gpsLocation;
     private Context mContext = this;
     private FloatingActionButton fab;
+    private MyLocation.LocationResult locationResult;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_location);
 
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        locationResult = new MyLocation.LocationResult() {
+
+            @Override
+            public void gotLocation(Location location) {
+                setLocation(location);
+                if (location != null) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            textView.setText(textView.getText().toString() + "\n" + getLocation().getProvider() + ", " + getLocation().getLatitude() + ", " + getLocation().getLongitude() + "\n");
+                            textView.setTextColor(ContextCompat.getColor(mContext, R.color.colorBackgroundDialog));
+                        }
+                    });
+                }
+            }
+
+        };
+
+        MyLocation myLocation = new MyLocation();
+        myLocation.getLocation(this, this, locationResult);
+
+//        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         textView = (TextView) findViewById(R.id.text_location);
         fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -52,8 +76,9 @@ public class LocationActivityTest extends AppCompatActivity implements LocationL
                 locationManager.removeUpdates(LocationActivityTest.this);
             }
         });
-        verifyProviderLocation();
+//        verifyProviderLocation();
     }
+
 
     private void getLastKnowLocation(String provider) {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {

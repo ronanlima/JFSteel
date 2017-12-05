@@ -5,16 +5,12 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -23,7 +19,6 @@ import android.view.Window;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.google.android.gms.location.LocationRequest;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.Result;
 import com.markosullivan.wizards.MainActivityWizard;
@@ -31,11 +26,11 @@ import com.markosullivan.wizards.MainActivityWizard;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
 import br.com.home.maildeliveryjfsteel.BuildConfig;
+import br.com.home.maildeliveryjfsteel.MyLocation;
 import br.com.home.maildeliveryjfsteel.R;
 import br.com.home.maildeliveryjfsteel.activity.HelloWorldActivity;
 import br.com.home.maildeliveryjfsteel.fragment.JFSteelDialog;
@@ -47,13 +42,12 @@ import me.dm7.barcodescanner.zxing.ZXingScannerView;
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_CAMPO_INSTALACAO;
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_TIPO_CONTA;
 import static br.com.home.maildeliveryjfsteel.utils.PermissionUtils.CAMERA_PERMISSION;
-import static br.com.home.maildeliveryjfsteel.utils.PermissionUtils.GPS_PERMISSION;
 
 /**
  * Created by ronanlima on 17/05/17.
  */
 
-public class HandlerQrCodeActivity extends AppCompatActivity implements ZXingScannerView.ResultHandler, LocationListener {
+public class HandlerQrCodeActivity extends AppCompatActivity implements ZXingScannerView.ResultHandler {
 
     public static final String TAG = HandlerQrCodeActivity.class.getCanonicalName().toUpperCase();
 
@@ -79,43 +73,60 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements ZXingSca
     private ZXingScannerView scannerView;
     private String resultQrCode;
     //    private GoogleApiClient apiClient;
-    private Location location, netLocation, gpsLocation;
+    private Location location;//, netLocation, gpsLocation;
     private boolean isWizardRespondido = false;
-    private LocationRequest locationRequest;
+    //    private LocationRequest locationRequest;
     private ImageView imgSettings;
     private DialogFragment dialog;
-    private boolean gps_enabled = false;
-    private boolean network_enabled = false;
+    //    private boolean gps_enabled = false;
+//    private boolean network_enabled = false;
     private boolean isNegouAlgumaPermissao = false;
-    private LocationManager locationManager;
+    //    private LocationManager locationManager;
     private int countPermission = 0;
+    private MyLocation.LocationResult locationResult;
+    private MyLocation myLocation;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
 
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        locationResult = new MyLocation.LocationResult() {
+
+            @Override
+            public void gotLocation(Location location) {
+                if (location != null) {
+                    showToast(location.getProvider() + ", " + location.getLatitude() + ", " + location.getLongitude());
+                }
+                setLocation(location);
+            }
+
+        };
+
+        myLocation = new MyLocation();
+        myLocation.getLocation(this, this, locationResult);
 
         if (PermissionUtils.validate(this, CAMERA_PERMISSION, Manifest.permission.CAMERA, Manifest.permission.ACCESS_FINE_LOCATION)) {
             initScanner();
         }
     }
 
-    private void verifyProviderLocation() {
-        gps_enabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-        network_enabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-        if (gps_enabled) {
-            getLastKnowLocation(LocationManager.GPS_PROVIDER);
-        }
-        if (network_enabled) {
-            getLastKnowLocation(LocationManager.NETWORK_PROVIDER);
-        }
-        if (!gps_enabled && !network_enabled) {
-            setLocation(null);
-            showToast("Nenhuma forma de rastreamento habilitada!");
-        }
-    }
+    /**
+     * private void verifyProviderLocation() {
+     * gps_enabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+     * network_enabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+     * if (gps_enabled) {
+     * getLastKnowLocation(LocationManager.GPS_PROVIDER);
+     * }
+     * if (network_enabled) {
+     * getLastKnowLocation(LocationManager.NETWORK_PROVIDER);
+     * }
+     * if (!gps_enabled && !network_enabled) {
+     * setLocation(null);
+     * showToast("Nenhuma forma de rastreamento habilitada!");
+     * }
+     * }
+     */
 
     @Override
     protected void onResume() {
@@ -135,7 +146,8 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements ZXingSca
 
     @Override
     public void handleResult(Result result) {
-        verifyProviderLocation();
+//        verifyProviderLocation();
+        myLocation.getLocation(mContext, HandlerQrCodeActivity.this, locationResult);
         if (result != null) {
             if (resultQrCode != null && result.getText().equals(resultQrCode)) {
                 Toast.makeText(getApplicationContext(), getResources().getString(R.string.msg_qrcode_repetido), Toast.LENGTH_LONG).show();
@@ -349,7 +361,7 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements ZXingSca
 
     @Override
     protected void onStop() {
-        removeLocationUpdates();
+//        removeLocationUpdates();
         if (scannerView != null) {
             scannerView.invalidate();
             if (Build.VERSION_CODES.LOLLIPOP <= Build.VERSION.SDK_INT) {
@@ -363,9 +375,11 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements ZXingSca
         super.onStop();
     }
 
-    private void removeLocationUpdates() {
-        locationManager.removeUpdates(this);
-    }
+    /**
+     * private void removeLocationUpdates() {
+     * locationManager.removeUpdates(this);
+     * }
+     */
 
     @Override
     protected void onPause() {
@@ -418,69 +432,65 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements ZXingSca
     public void setLocation(Location location) {
         this.location = location;
     }
+/**
+ private void getLastKnowLocation(String provider) {
+ if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+ if (countPermission == 0) {
+ PermissionUtils.requestPermissions(this, GPS_PERMISSION, Arrays.asList(Manifest.permission.ACCESS_FINE_LOCATION));
+ }
+ countPermission++;
+ return;
+ }
+ if (provider.equals(LocationManager.GPS_PROVIDER)) {
+ gpsLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+ locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+ } else {
+ netLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+ locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
+ }
+ getBestLocation();
+ }
 
-    private void getLastKnowLocation(String provider) {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            if (countPermission == 0) {
-                PermissionUtils.requestPermissions(this, GPS_PERMISSION, Arrays.asList(Manifest.permission.ACCESS_FINE_LOCATION));
-            }
-            countPermission++;
-            return;
-        }
-        if (provider.equals(LocationManager.GPS_PROVIDER)) {
-            gpsLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
-        } else {
-            netLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
-        }
-        getBestLocation();
-    }
+ private void getBestLocation() {
+ if (gpsLocation != null && netLocation != null) {
+ if (gpsLocation.getAccuracy() > netLocation.getAccuracy()) {
+ setLocation(netLocation);
+ } else {
+ setLocation(gpsLocation);
+ }
+ } else {
+ if (gpsLocation != null) {
+ setLocation(gpsLocation);
+ } else if (netLocation != null) {
+ setLocation(netLocation);
+ }
+ }
+ }
 
-    private void getBestLocation() {
-        if (gpsLocation != null && netLocation != null) {
-            if (gpsLocation.getAccuracy() > netLocation.getAccuracy()) {
-                setLocation(netLocation);
-            } else {
-                setLocation(gpsLocation);
-            }
-        } else {
-            if (gpsLocation != null) {
-                setLocation(gpsLocation);
-            } else if (netLocation != null) {
-                setLocation(netLocation);
-            }
-        }
-    }
+ @Override public void onLocationChanged(Location location) {
+ Log.d("onLocationChanged ", String.valueOf(location.getLatitude()) + ", " + String.valueOf(location.getLongitude()));
+ if (location.getProvider().equals(LocationManager.NETWORK_PROVIDER)) {
+ netLocation = location;
+ } else {
+ gpsLocation = location;
+ }
+ removeLocationUpdates();
+ getBestLocation();
+ showToast(getLocation().toString());
+ }
 
-    @Override
-    public void onLocationChanged(Location location) {
-        Log.d("onLocationChanged ", String.valueOf(location.getLatitude()) + ", " + String.valueOf(location.getLongitude()));
-        if (location.getProvider().equals(LocationManager.NETWORK_PROVIDER)) {
-            netLocation = location;
-        } else {
-            gpsLocation = location;
-        }
-        removeLocationUpdates();
-        getBestLocation();
-        showToast(getLocation().toString());
-    }
+ @Override public void onStatusChanged(String provider, int status, Bundle extras) {
+ //        showToast("O " + provider + " foi atualizado!\nStatus = " + status);
+ Log.d("statusChanged = ", extras.toString());
+ }
 
-    @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) {
-//        showToast("O " + provider + " foi atualizado!\nStatus = " + status);
-        Log.d("statusChanged = ", extras.toString());
-    }
+ @Override public void onProviderEnabled(String provider) {
+ showToast("O " + provider + " foi ligado!");
+ }
 
-    @Override
-    public void onProviderEnabled(String provider) {
-        showToast("O " + provider + " foi ligado!");
-    }
-
-    @Override
-    public void onProviderDisabled(String provider) {
-        showToast("O " + provider + " foi desligado!");
-        setLocation(null);
-    }
+ @Override public void onProviderDisabled(String provider) {
+ showToast("O " + provider + " foi desligado!");
+ setLocation(null);
+ }*/
 
 }
