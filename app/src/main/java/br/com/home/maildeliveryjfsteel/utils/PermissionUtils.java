@@ -1,9 +1,9 @@
 package br.com.home.maildeliveryjfsteel.utils;
 
+import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +27,7 @@ public class PermissionUtils {
      * @param permissions
      * @return
      */
-    public static boolean validate(AppCompatActivity activity, int requestCode, String... permissions) {
+    public static boolean validate(Activity activity, int requestCode, String... permissions) {
         List<String> list = justCheckPermission(activity, permissions);
         if (list.isEmpty()) {
             return true;
@@ -37,12 +37,11 @@ public class PermissionUtils {
     }
 
     /**
-     *
      * @param activity
      * @param requestCode
      * @param list
      */
-    public static void requestPermissions(AppCompatActivity activity, int requestCode, List<String> list) {
+    public static void requestPermissions(Activity activity, int requestCode, List<String> list) {
         String[] newPermissions = new String[list.size()];
         list.toArray(newPermissions);
         ActivityCompat.requestPermissions(activity, newPermissions, requestCode);
@@ -51,11 +50,12 @@ public class PermissionUtils {
     /**
      * Apenas verifica se a permissão solicitada foi concedida, sem pedir acesso à ela caso a lista
      * retornada seja diferente de vazia.
+     *
      * @param activity
      * @param permissions
      * @return
      */
-    public static List<String> justCheckPermission(AppCompatActivity activity, String... permissions) {
+    public static List<String> justCheckPermission(Activity activity, String... permissions) {
         List<String> list = new ArrayList<>();
         for (String perm : permissions) {
             boolean ok = ContextCompat.checkSelfPermission(activity, perm) == PackageManager.PERMISSION_GRANTED;
@@ -79,7 +79,7 @@ public class PermissionUtils {
             if (permissoes[i] > PackageManager.PERMISSION_DENIED) {
                 isPermissaoConcedida = true;
             } else {
-                isPermissaoConcedida = false;
+                return false;
             }
         }
         return isPermissaoConcedida;

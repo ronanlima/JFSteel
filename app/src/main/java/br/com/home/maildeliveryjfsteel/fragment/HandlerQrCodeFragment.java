@@ -1,6 +1,5 @@
 package br.com.home.maildeliveryjfsteel.fragment;
 
-import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -8,12 +7,10 @@ import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -35,14 +32,10 @@ import br.com.home.maildeliveryjfsteel.BuildConfig;
 import br.com.home.maildeliveryjfsteel.MyLocation;
 import br.com.home.maildeliveryjfsteel.R;
 import br.com.home.maildeliveryjfsteel.activity.HelloWorldActivity;
-import br.com.home.maildeliveryjfsteel.camera.HandlerQrCodeActivity;
-import br.com.home.maildeliveryjfsteel.utils.AlertUtils;
-import br.com.home.maildeliveryjfsteel.utils.PermissionUtils;
 import me.dm7.barcodescanner.zxing.ZXingScannerView;
 
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_CAMPO_INSTALACAO;
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_TIPO_CONTA;
-import static br.com.home.maildeliveryjfsteel.utils.PermissionUtils.CAMERA_PERMISSION;
 
 /**
  * Created by Ronan.lima on 04/04/2018.
@@ -67,15 +60,11 @@ public class HandlerQrCodeFragment extends Fragment implements ZXingScannerView.
     public static final int LENGTH_COMUNICADO_IMPORTANTE = 2;
     public static final int LENGTH_NOTA_SERVICO = 10;
 
-    private Context mContext = getActivity();
     private ZXingScannerView scannerView;
     private String resultQrCode;
     private Location location;
-    private boolean isWizardRespondido = false;
     private ImageView imgSettings;
     private DialogFragment dialog;
-    private boolean isNegouAlgumaPermissao = false;
-    private int countPermission = 0;
     private MyLocation.LocationResult locationResult;
     private MyLocation myLocation;
 
@@ -101,35 +90,25 @@ public class HandlerQrCodeFragment extends Fragment implements ZXingScannerView.
         };
 
         myLocation = new MyLocation();
-        myLocation.getLocation(mContext, (AppCompatActivity) mContext, locationResult);
-
-        if (PermissionUtils.validate((AppCompatActivity) mContext, CAMERA_PERMISSION, Manifest.permission.CAMERA, Manifest.permission.ACCESS_FINE_LOCATION)) {
-            initScanner();
-        }
+        myLocation.getLocation(getActivity().getBaseContext(), getActivity(), locationResult);
     }
 
     @Override
     public void onResume() {
-        if (!isNegouAlgumaPermissao) {
-            boolean isPermissaoCameraConcedida = PermissionUtils.validate((AppCompatActivity) getActivity(), CAMERA_PERMISSION, Manifest.permission.CAMERA);
-            if (isPermissaoCameraConcedida && scannerView != null && !isWizardRespondido) {
-                scannerView.setResultHandler(this);
-                scannerView.startCamera();
-            } else if (isPermissaoCameraConcedida && scannerView == null) {
-                initScanner();
-                scannerView.setResultHandler(this);
-                scannerView.startCamera();
-            }
+        if (scannerView == null) {
+            initScanner();
         }
+        scannerView.setResultHandler(this);
+        scannerView.startCamera();
         super.onResume();
     }
 
     @Override
     public void handleResult(Result result) {
-        myLocation.getLocation(mContext, (AppCompatActivity) mContext, locationResult);
+        myLocation.getLocation(getActivity(), getActivity(), locationResult);
         if (result != null) {
             if (resultQrCode != null && result.getText().equals(resultQrCode)) {
-                Toast.makeText(mContext, getResources().getString(R.string.msg_qrcode_repetido), Toast.LENGTH_LONG).show();
+                Toast.makeText(getActivity(), getResources().getString(R.string.msg_qrcode_repetido), Toast.LENGTH_LONG).show();
             }
             resultQrCode = result.getText();
             Log.d("HandlerQrCodeActivity", resultQrCode);
@@ -137,7 +116,7 @@ public class HandlerQrCodeFragment extends Fragment implements ZXingScannerView.
                 continuaFluxoEntrega();
             }
         } else {
-            Toast.makeText(mContext, getResources().getString(R.string.msg_falha_leitura_qrcode), Toast.LENGTH_LONG).show();
+            Toast.makeText(getActivity(), getResources().getString(R.string.msg_falha_leitura_qrcode), Toast.LENGTH_LONG).show();
         }
     }
 
@@ -156,16 +135,10 @@ public class HandlerQrCodeFragment extends Fragment implements ZXingScannerView.
                 data.putExtra(strLatitude, 0d);
                 data.putExtra(strLongitude, 0d);
             }
-            data.setClass(mContext, HelloWorldActivity.class);
+            data.setClass(getActivity(), HelloWorldActivity.class);
             startActivityForResult(data, REQUEST_CODE_CAMERA);
-            isWizardRespondido = true;
-        } else if (requestCode == REQUEST_CODE_WIZARD && Activity.RESULT_CANCELED == resultCode) {
-            isWizardRespondido = false;
         } else if (requestCode == REQUEST_CODE_CAMERA && resultCode == Activity.RESULT_OK) {
-            isWizardRespondido = false;
             resultQrCode = null;
-        } else if (requestCode == REQUEST_CODE_CAMERA && resultCode == Activity.RESULT_CANCELED) {
-            isWizardRespondido = false;
         } else {
             super.onActivityResult(requestCode, resultCode, data);
         }
@@ -236,7 +209,6 @@ public class HandlerQrCodeFragment extends Fragment implements ZXingScannerView.
                 break;
             default:
                 showToast(getResources().getString(R.string.msg_falha_leitura_conta));
-                isWizardRespondido = false;
                 resultQrCode = null;
                 onResume();
                 break;
@@ -245,14 +217,13 @@ public class HandlerQrCodeFragment extends Fragment implements ZXingScannerView.
 
     private void initScanner() {
         if (scannerView == null) {
-//            setContentView(R.layout.activity_scanner);
             scannerView = (ZXingScannerView) getView().findViewById(R.id.zxing_my_scanner);
             FloatingActionButton fab = (FloatingActionButton) getView().findViewById(R.id.fab_sem_conta);
             fab.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Intent i = new Intent(mContext, MainActivityWizard.class);
-                    i.putExtra(EXTRA_TIPO_CONTA, mContext.getResources().getString(R.string.tipo_conta_no_qrcode));
+                    Intent i = new Intent(getActivity(), MainActivityWizard.class);
+                    i.putExtra(EXTRA_TIPO_CONTA, getActivity().getResources().getString(R.string.tipo_conta_no_qrcode));
                     startActivityForResult(i, REQUEST_CODE_WIZARD);
                 }
             });
@@ -277,7 +248,7 @@ public class HandlerQrCodeFragment extends Fragment implements ZXingScannerView.
      * @param matricula
      */
     private void saveMatricula(String matricula) {
-        SharedPreferences sp = mContext.getSharedPreferences(BuildConfig.APPLICATION_ID, Context.MODE_PRIVATE);
+        SharedPreferences sp = getActivity().getSharedPreferences(BuildConfig.APPLICATION_ID, Context.MODE_PRIVATE);
         SharedPreferences.Editor edit = sp.edit();
         edit.putString(getResources().getString(R.string.sp_matricula), matricula);
         edit.commit();
@@ -290,42 +261,9 @@ public class HandlerQrCodeFragment extends Fragment implements ZXingScannerView.
                 dialog.dismiss();
                 dialog = null;
                 saveMatricula(matricula);
-                showToast(mContext.getResources().getString(R.string.msg_matricula_atualizada));
+                showToast(getActivity().getResources().getString(R.string.msg_matricula_atualizada));
             }
         };
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (grantResults.length != 0) {
-            if (!PermissionUtils.isPermissaoConcedida(grantResults)) {
-                isNegouAlgumaPermissao = true;
-                JFSteelDialog dialog = AlertUtils.criarAlerta(mContext.getResources().getString(R.string.titulo_alerta_permissoes), mContext.getResources().getString(R.string.msg_permissao), JFSteelDialog.TipoAlertaEnum.ALERTA, false, new JFSteelDialog.OnClickDialog() {
-                    @Override
-                    public void onClickPositive(View v, String tag) {
-
-                    }
-
-                    @Override
-                    public void onClickNegative(View v, String tag) {
-//                        finish(); TODO popBackStack()
-                    }
-
-                    @Override
-                    public void onClickNeutral(View v, String tag) {
-
-                    }
-                });
-                dialog.show(getActivity().getSupportFragmentManager(), "dialog");
-            } else {
-                for (int i = 0; i < permissions.length; i++) {
-                    if (permissions[i].equals(Manifest.permission.ACCESS_FINE_LOCATION)) {
-                        countPermission = 0;
-                        break;
-                    }
-                }
-            }
-        }
     }
 
     @Override
@@ -358,6 +296,7 @@ public class HandlerQrCodeFragment extends Fragment implements ZXingScannerView.
     @Override
     public void onDestroy() {
         scannerView = null;
+
         super.onDestroy();
     }
 
@@ -366,7 +305,7 @@ public class HandlerQrCodeFragment extends Fragment implements ZXingScannerView.
      */
     private void iniciarFluxoWizard(String tipoConta, String campoInstalacao) {
         Log.d("HandlerQrCodeActivity", resultQrCode);
-        Intent i = new Intent(mContext, MainActivityWizard.class);
+        Intent i = new Intent(getActivity(), MainActivityWizard.class);
         i.putExtra(getResources().getString(R.string.dados_qr_code), resultQrCode);
         i.putExtra(EXTRA_TIPO_CONTA, tipoConta);
         i.putExtra(EXTRA_CAMPO_INSTALACAO, campoInstalacao);
@@ -379,7 +318,7 @@ public class HandlerQrCodeFragment extends Fragment implements ZXingScannerView.
      * @param s
      */
     public void showToast(String s) {
-        Toast.makeText(mContext, s, Toast.LENGTH_SHORT).show();
+        Toast.makeText(getActivity(), s, Toast.LENGTH_SHORT).show();
     }
 
     public Location getLocation() {
