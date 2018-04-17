@@ -5,16 +5,17 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
 
 import java.util.Date;
 
 import br.com.home.maildeliveryjfsteel.R;
 import br.com.home.maildeliveryjfsteel.async.FirebaseAsyncParam;
 import br.com.home.maildeliveryjfsteel.async.SaveFirebaseAsync;
+import br.com.home.maildeliveryjfsteel.camera.HandlerQrCodeActivity;
 import br.com.home.maildeliveryjfsteel.firebase.impl.FirebaseContaNormalImpl;
 import br.com.home.maildeliveryjfsteel.firebase.impl.FirebaseNoQrCodeImpl;
 import br.com.home.maildeliveryjfsteel.firebase.impl.FirebaseNotaImpl;
-import br.com.home.maildeliveryjfsteel.fragment.HandlerQrCodeFragment;
 import br.com.home.maildeliveryjfsteel.fragment.JFSteelDialog;
 import br.com.home.maildeliveryjfsteel.persistence.MailDeliverDBService;
 import br.com.home.maildeliveryjfsteel.persistence.dto.ContaNormal;
@@ -24,6 +25,7 @@ import br.com.home.maildeliveryjfsteel.persistence.dto.NotaServico;
 import br.com.home.maildeliveryjfsteel.persistence.impl.MailDeliveryDBContaNormal;
 import br.com.home.maildeliveryjfsteel.persistence.impl.MailDeliveryDBNotaServico;
 import br.com.home.maildeliveryjfsteel.persistence.impl.MailDeliveryNoQrCode;
+import br.com.home.maildeliveryjfsteel.utils.AlertUtils;
 
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_COMENTARIO_DATA_KEY;
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_CONTA_COLETIVA;
@@ -82,10 +84,10 @@ public class HelloWorldActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == HandlerQrCodeFragment.REQUEST_CODE_CAMERA && resultCode == Activity.RESULT_OK) {
+        if (requestCode == HandlerQrCodeActivity.REQUEST_CODE_CAMERA && resultCode == Activity.RESULT_OK) {
             setResult(Activity.RESULT_OK);
             finish();
-        } else if (requestCode == HandlerQrCodeFragment.REQUEST_CODE_CAMERA && resultCode == Activity.RESULT_CANCELED) {
+        } else if (requestCode == HandlerQrCodeActivity.REQUEST_CODE_CAMERA && resultCode == Activity.RESULT_CANCELED) {
             setResult(Activity.RESULT_CANCELED);
             finish();
         } else {
@@ -150,7 +152,7 @@ public class HelloWorldActivity extends AppCompatActivity {
     private void startCameraActivity(Bundle bundle) {
         Intent i = new Intent(this, CameraActivity.class);
         i.putExtras(bundle);
-        startActivityForResult(i, HandlerQrCodeFragment.REQUEST_CODE_CAMERA);
+        startActivityForResult(i, HandlerQrCodeActivity.REQUEST_CODE_CAMERA);
     }
 
     @Override

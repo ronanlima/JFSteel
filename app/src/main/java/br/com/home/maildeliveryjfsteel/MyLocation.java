@@ -1,6 +1,5 @@
 package br.com.home.maildeliveryjfsteel;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -8,6 +7,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AppCompatActivity;
 
 import java.util.Arrays;
 import java.util.Timer;
@@ -28,9 +28,9 @@ public class MyLocation {
     boolean gps_enabled = false;
     boolean network_enabled = false;
     private Context mContext;
-    private Activity mActivity;
+    private AppCompatActivity mActivity;
 
-    public boolean getLocation(Context context, Activity activity, LocationResult result) {
+    public boolean getLocation(Context context, AppCompatActivity activity, LocationResult result) {
         //I use LocationResult callback class to pass location value from MyLocation to user code.
         locationResult = result;
         if (lm == null) {
@@ -68,6 +68,8 @@ public class MyLocation {
         if (network_enabled) {
             lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListenerNetwork);
         }
+//        timer1 = new Timer();
+//        timer1.schedule(new GetLastLocation(), 20000);
         return true;
     }
 
