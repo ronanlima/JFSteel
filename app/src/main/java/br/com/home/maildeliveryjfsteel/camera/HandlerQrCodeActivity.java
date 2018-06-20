@@ -5,14 +5,12 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -21,25 +19,20 @@ import android.view.Window;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationServices;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.Result;
+import com.markosullivan.wizards.MainActivityWizard;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
 import br.com.home.maildeliveryjfsteel.BuildConfig;
+import br.com.home.maildeliveryjfsteel.MyLocation;
 import br.com.home.maildeliveryjfsteel.R;
-import br.com.home.maildeliveryjfsteel.WizardCallback;
 import br.com.home.maildeliveryjfsteel.activity.HelloWorldActivity;
-import br.com.home.maildeliveryjfsteel.activity.WizardActivity;
 import br.com.home.maildeliveryjfsteel.fragment.JFSteelDialog;
 import br.com.home.maildeliveryjfsteel.fragment.MatriculaDialogFragment;
 import br.com.home.maildeliveryjfsteel.utils.AlertUtils;
@@ -49,15 +42,12 @@ import me.dm7.barcodescanner.zxing.ZXingScannerView;
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_CAMPO_INSTALACAO;
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_TIPO_CONTA;
 import static br.com.home.maildeliveryjfsteel.utils.PermissionUtils.CAMERA_PERMISSION;
-import static br.com.home.maildeliveryjfsteel.utils.PermissionUtils.GPS_PERMISSION;
 
 /**
  * Created by ronanlima on 17/05/17.
  */
 
-public class HandlerQrCodeActivity extends AppCompatActivity implements ZXingScannerView.ResultHandler,
-        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, com.google.android.gms.location.LocationListener,
-        WizardCallback {
+public class HandlerQrCodeActivity extends AppCompatActivity implements ZXingScannerView.ResultHandler {
 
     public static final String TAG = HandlerQrCodeActivity.class.getCanonicalName().toUpperCase();
 
@@ -82,48 +72,59 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements ZXingSca
     private Context mContext = this;
     private ZXingScannerView scannerView;
     private String resultQrCode;
-    private GoogleApiClient apiClient;
     private Location location;
     private boolean isWizardRespondido = false;
-    private LocationRequest locationRequest;
     private ImageView imgSettings;
     private DialogFragment dialog;
+    private boolean isNegouAlgumaPermissao = false;
+    private int countPermission = 0;
+    private MyLocation.LocationResult locationResult;
+    private MyLocation myLocation;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
 
-        apiClient = new GoogleApiClient.Builder(this)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .addApi(LocationServices.API)
-                .build();
+        locationResult = new MyLocation.LocationResult() {
 
-        if (PermissionUtils.validate(this, CAMERA_PERMISSION, Manifest.permission.CAMERA, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)) {
+            @Override
+            public void gotLocation(Location location) {
+                if (location != null) {
+                    showToast(location.getProvider() + ", " + location.getLatitude() + ", " + location.getLongitude());
+                }
+                setLocation(location);
+            }
+
+        };
+
+        myLocation = new MyLocation();
+        myLocation.getLocation(this, this, locationResult);
+
+        if (PermissionUtils.validate(this, CAMERA_PERMISSION, Manifest.permission.CAMERA, Manifest.permission.ACCESS_FINE_LOCATION)) {
             initScanner();
         }
     }
 
     @Override
     protected void onResume() {
-        boolean isPermissaoCameraConcedida = PermissionUtils.validate(this, CAMERA_PERMISSION, Manifest.permission.CAMERA, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION);
-        if (scannerView != null && isPermissaoCameraConcedida && !isWizardRespondido) {
-            scannerView.setResultHandler(this);
-            scannerView.startCamera();
-        } else if (isPermissaoCameraConcedida && scannerView == null) {
-            initScanner();
-            scannerView.setResultHandler(this);
-            scannerView.startCamera();
-        }
-        if (apiClient != null && apiClient.isConnected()) {
-            startLocationUpdates();
+        if (!isNegouAlgumaPermissao) {
+            boolean isPermissaoCameraConcedida = PermissionUtils.validate(this, CAMERA_PERMISSION, Manifest.permission.CAMERA);
+            if (isPermissaoCameraConcedida && scannerView != null && !isWizardRespondido) {
+                scannerView.setResultHandler(this);
+                scannerView.startCamera();
+            } else if (isPermissaoCameraConcedida && scannerView == null) {
+                initScanner();
+                scannerView.setResultHandler(this);
+                scannerView.startCamera();
+            }
         }
         super.onResume();
     }
 
     @Override
     public void handleResult(Result result) {
+        myLocation.getLocation(mContext, HandlerQrCodeActivity.this, locationResult);
         if (result != null) {
             if (resultQrCode != null && result.getText().equals(resultQrCode)) {
                 Toast.makeText(getApplicationContext(), getResources().getString(R.string.msg_qrcode_repetido), Toast.LENGTH_LONG).show();
@@ -166,11 +167,6 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements ZXingSca
         } else {
             super.onActivityResult(requestCode, resultCode, data);
         }
-    }
-
-    @Override
-    public void finishWizard(Bundle mBudle) {
-
     }
 
     /**
@@ -222,6 +218,7 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements ZXingSca
                     iniciarFluxoWizard(getResources().getString(R.string.tipo_conta_grupo_a_reaviso), tipoCodigo[2]);
                 } else {
                     showToast(getResources().getString(R.string.msg_falha_leitura_conta));
+                    continueReading();
                 }
                 break;
             case LENGTH_CONTA_DESLIGAMENTO:
@@ -231,6 +228,7 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements ZXingSca
                     iniciarFluxoWizard(getResources().getString(R.string.tipo_conta_grupo_a_reaviso), tipoCodigo[2]);
                 } else {
                     showToast(getResources().getString(R.string.msg_falha_leitura_conta));
+                    continueReading();
                 }
                 break;
             case LENGTH_COMUNICADO_IMPORTANTE:
@@ -238,11 +236,15 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements ZXingSca
                 break;
             default:
                 showToast(getResources().getString(R.string.msg_falha_leitura_conta));
-                isWizardRespondido = false;
-                resultQrCode = null;
-                onResume();
+                continueReading();
                 break;
         }
+    }
+
+    private void continueReading() {
+        isWizardRespondido = false;
+        resultQrCode = null;
+        onResume();
     }
 
     private void initScanner() {
@@ -253,7 +255,7 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements ZXingSca
             fab.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Intent i = new Intent(getBaseContext(), WizardActivity.class);
+                    Intent i = new Intent(getBaseContext(), MainActivityWizard.class);
                     i.putExtra(EXTRA_TIPO_CONTA, getBaseContext().getResources().getString(R.string.tipo_conta_no_qrcode));
                     startActivityForResult(i, REQUEST_CODE_WIZARD);
                 }
@@ -268,7 +270,6 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements ZXingSca
                 public void onClick(View view) {
                     dialog = MatriculaDialogFragment.newInstance(resetMatricula(), R.style.DialogAppTheme);
                     dialog.show(getSupportFragmentManager(), "dialogMatricula");
-//                    dialog.setCancelable(false);
                 }
             });
         }
@@ -299,9 +300,15 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements ZXingSca
     }
 
     @Override
+    protected void onSaveInstanceState(Bundle outState) {
+
+    }
+
+    @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (grantResults.length != 0) {
             if (!PermissionUtils.isPermissaoConcedida(grantResults)) {
+                isNegouAlgumaPermissao = true;
                 JFSteelDialog dialog = AlertUtils.criarAlerta(mContext.getResources().getString(R.string.titulo_alerta_permissoes), mContext.getResources().getString(R.string.msg_permissao), JFSteelDialog.TipoAlertaEnum.ALERTA, false, new JFSteelDialog.OnClickDialog() {
                     @Override
                     public void onClickPositive(View v, String tag) {
@@ -319,28 +326,24 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements ZXingSca
                     }
                 });
                 dialog.show(getSupportFragmentManager(), "dialog");
+            } else {
+                for (int i = 0; i < permissions.length; i++) {
+                    if (permissions[i].equals(Manifest.permission.ACCESS_FINE_LOCATION)) {
+                        countPermission = 0;
+                        break;
+                    }
+                }
             }
         }
     }
 
     @Override
     protected void onStart() {
-        if (apiClient != null && !apiClient.isConnected()) {
-            apiClient.connect();
-        }
         super.onStart();
     }
 
     @Override
     protected void onStop() {
-        if (apiClient.isConnected()) {
-            try {
-                LocationServices.FusedLocationApi.removeLocationUpdates(apiClient, this);
-                apiClient.disconnect();
-            } catch (Exception e) {
-                Log.e(TAG, e.getMessage());
-            }
-        }
         if (scannerView != null) {
             scannerView.invalidate();
             if (Build.VERSION_CODES.LOLLIPOP <= Build.VERSION.SDK_INT) {
@@ -353,6 +356,12 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements ZXingSca
         }
         super.onStop();
     }
+
+    /**
+     * private void removeLocationUpdates() {
+     * locationManager.removeUpdates(this);
+     * }
+     */
 
     @Override
     protected void onPause() {
@@ -369,10 +378,6 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements ZXingSca
     @Override
     protected void onDestroy() {
         scannerView = null;
-        if (apiClient != null) {
-            apiClient.unregisterConnectionCallbacks(this);
-        }
-        apiClient = null;
         super.onDestroy();
     }
 
@@ -381,7 +386,7 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements ZXingSca
      */
     private void iniciarFluxoWizard(String tipoConta, String campoInstalacao) {
         Log.d("HandlerQrCodeActivity", resultQrCode);
-        Intent i = new Intent(this, WizardActivity.class);
+        Intent i = new Intent(this, MainActivityWizard.class);
         i.putExtra(getResources().getString(R.string.dados_qr_code), resultQrCode);
         i.putExtra(EXTRA_TIPO_CONTA, tipoConta);
         i.putExtra(EXTRA_CAMPO_INSTALACAO, campoInstalacao);
@@ -408,53 +413,6 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements ZXingSca
 
     public void setLocation(Location location) {
         this.location = location;
-    }
-
-    @Override
-    public void onConnected(@Nullable Bundle bundle) {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            PermissionUtils.requestPermissions(this, GPS_PERMISSION, Arrays.asList(Manifest.permission.ACCESS_COARSE_LOCATION));
-            return;
-        }
-        setLocation(LocationServices.FusedLocationApi.getLastLocation(apiClient));
-        locationRequest = new LocationRequest();
-        locationRequest.setInterval(1000 * 60 * 5);
-        locationRequest.setFastestInterval(1000 * 60 * 3); //1000 * 60 * 3
-        locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
-        startLocationUpdates();
-        if (getLocation() == null) {
-            showToast(mContext.getResources().getString(R.string.msg_falha_pegar_localizacao));
-            LocationServices.FusedLocationApi.removeLocationUpdates(apiClient, this);
-            locationRequest = new LocationRequest();
-            locationRequest.setInterval(1000 * 60 * 5);
-            locationRequest.setFastestInterval(1000 * 60 * 3); //1000 * 60 * 3
-            locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-            startLocationUpdates();
-        }
-    }
-    
-    private void startLocationUpdates() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            PermissionUtils.requestPermissions(this, GPS_PERMISSION, Arrays.asList(Manifest.permission.ACCESS_COARSE_LOCATION));
-            return;
-        }
-        LocationServices.FusedLocationApi.requestLocationUpdates(apiClient, locationRequest, this);
-    }
-
-    @Override
-    public void onConnectionSuspended(int i) {
-
-    }
-
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        showToast(connectionResult.getErrorMessage());
-        setLocation(null);
-    }
-
-    @Override
-    public void onLocationChanged(Location location) {
-        setLocation(location);
     }
 
 }

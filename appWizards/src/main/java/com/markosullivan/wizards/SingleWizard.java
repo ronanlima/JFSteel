@@ -20,8 +20,8 @@ import static br.com.home.jfsteelbase.ConstantsUtil.SECOND_DATA_KEY;
 
 public class SingleWizard extends AbstractWizardModel {
     public static final String TITLE_PAGE_ENTREGA = "Local de entrega";
-    public static final String[] choicesEntrega = {"Portão", "Embaixo da porta", "Em mãos",
-            FIELD_LOCAL_ENTREGA_RECUSADA, FIELD_LOCAL_CONDOMINIO_PORTARIA, "Devolução", "Caixa de correspondência"};
+    public static final String[] choicesEntrega = {"Embaixo da porta", "Em mãos", FIELD_LOCAL_CONDOMINIO_PORTARIA, "Portão",
+            "Caixa de correspondência", "Devolução", FIELD_LOCAL_ENTREGA_RECUSADA};
     public static final String[] choicesSobreConta = {"Está protocolada", "Coletiva"};
 
     public SingleWizard(Context context, boolean deveExibirTelaProtocolo) {
