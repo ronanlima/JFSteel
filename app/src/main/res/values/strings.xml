@@ -20,6 +20,7 @@
     <string name="msg_qrcode_repetido">O Qr Code lido anteriormente foi atualizado!</string>
     <string name="msg_nenhuma_foto_capturada">Nenhuma foto capturada</string>
     <string name="msg_matricula_atualizada">Sua matrícula foi atualizada com sucesso!</string>
+    <string name="msg_matricula_nao_atualizada">Houve uma falha ao atualizar a matrícula!</string>
     <string name="label_sobre_a_conta">Sobre a conta</string>
     <string name="next">Prosseguir</string>
     <string name="photo">Foto</string>

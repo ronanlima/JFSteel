@@ -59,8 +59,7 @@
         <activity android:name=".camera.HandlerQrCodeActivity"
             android:configChanges="keyboardHidden|orientation"
             android:theme="@style/Theme.AppCompat.NoActionBar"
-            android:windowSoftInputMode="stateHidden"
-            android:screenOrientation="portrait"/>
+            android:windowSoftInputMode="stateHidden"/>
         <activity android:name=".test.GerenciaQrCodeTest">
             <!--<intent-filter>-->
                 <!--<action android:name="android.intent.action.MAIN" />-->

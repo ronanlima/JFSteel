@@ -105,39 +105,41 @@ public class FirebaseNotaImpl extends FirebaseServiceImpl<NotaServico> {
         StorageReference storageReference = storage.getReference().child(getmContext().getResources().getString(R.string.firebase_storage_nota_servico)).child(matricula).child(namePhoto);
 
         Bitmap bitmap = BitmapFactory.decodeFile(uriPhotoDisp);
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-        byte[] data = baos.toByteArray();
-        ByteArrayInputStream in = new ByteArrayInputStream(data);
+        if (bitmap != null) {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+            byte[] data = baos.toByteArray();
+            ByteArrayInputStream in = new ByteArrayInputStream(data);
 
-        UploadTask uploadTask = storageReference.putStream(in);
-        uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-            @Override
-            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                final String downloadUrl = taskSnapshot.getDownloadUrl().toString();
-                key.child(getmContext().getResources().getString(R.string.url_storage_foto)).setValue(downloadUrl).addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isComplete() && task.isSuccessful()) {
-                            updateFields(nota, downloadUrl, key.getKey(), true);
-                        } else {
-                            updateFields(nota, downloadUrl, key.getKey(), false);
+            UploadTask uploadTask = storageReference.putStream(in);
+            uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                    final String downloadUrl = taskSnapshot.getDownloadUrl().toString();
+                    key.child(getmContext().getResources().getString(R.string.url_storage_foto)).setValue(downloadUrl).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if (task.isComplete() && task.isSuccessful()) {
+                                updateFields(nota, downloadUrl, key.getKey(), true);
+                            } else {
+                                updateFields(nota, downloadUrl, key.getKey(), false);
+                            }
                         }
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        updateFields(nota, downloadUrl, key.getKey(), false);
-                        Log.e(TAG, e.getMessage());
-                    }
-                });
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                updateFields(nota, null, key.getKey(), false);
-            }
-        });
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            updateFields(nota, downloadUrl, key.getKey(), false);
+                            Log.e(TAG, e.getMessage());
+                        }
+                    });
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    updateFields(nota, null, key.getKey(), false);
+                }
+            });
+        }
     }
 
     @Override

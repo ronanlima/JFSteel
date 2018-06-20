@@ -291,17 +291,18 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements ZXingSca
         return new MatriculaDialogFragment.ClickButtonEntrar() {
             @Override
             public void nextActivity(String matricula) {
-                dialog.dismiss();
+                if (dialog != null) {
+                    dialog.dismiss();
+                }
                 dialog = null;
-                saveMatricula(matricula);
-                showToast(mContext.getResources().getString(R.string.msg_matricula_atualizada));
+                if (matricula != null && !matricula.isEmpty()) {
+                    saveMatricula(matricula);
+                    showToast(mContext.getResources().getString(R.string.msg_matricula_atualizada));
+                } else {
+                    showToast(mContext.getResources().getString(R.string.msg_matricula_nao_atualizada));
+                }
             }
         };
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-
     }
 
     @Override
