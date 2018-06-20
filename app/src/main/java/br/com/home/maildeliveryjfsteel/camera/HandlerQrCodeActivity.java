@@ -218,6 +218,7 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements ZXingSca
                     iniciarFluxoWizard(getResources().getString(R.string.tipo_conta_grupo_a_reaviso), tipoCodigo[2]);
                 } else {
                     showToast(getResources().getString(R.string.msg_falha_leitura_conta));
+                    continueReading();
                 }
                 break;
             case LENGTH_CONTA_DESLIGAMENTO:
@@ -227,6 +228,7 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements ZXingSca
                     iniciarFluxoWizard(getResources().getString(R.string.tipo_conta_grupo_a_reaviso), tipoCodigo[2]);
                 } else {
                     showToast(getResources().getString(R.string.msg_falha_leitura_conta));
+                    continueReading();
                 }
                 break;
             case LENGTH_COMUNICADO_IMPORTANTE:
@@ -234,11 +236,15 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements ZXingSca
                 break;
             default:
                 showToast(getResources().getString(R.string.msg_falha_leitura_conta));
-                isWizardRespondido = false;
-                resultQrCode = null;
-                onResume();
+                continueReading();
                 break;
         }
+    }
+
+    private void continueReading() {
+        isWizardRespondido = false;
+        resultQrCode = null;
+        onResume();
     }
 
     private void initScanner() {
