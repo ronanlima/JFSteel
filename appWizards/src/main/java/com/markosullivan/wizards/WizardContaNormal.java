@@ -21,8 +21,8 @@ import static br.com.home.jfsteelbase.ConstantsUtil.FIELD_LOCAL_ENTREGA_RECUSADA
 public class WizardContaNormal extends AbstractWizardModel {
     public static final String TITLE_PAGE_ENTREGA = "Local de entrega";
     public static final String TITLE_PAGE_SOBRE_CONTA = "Sobre a conta";
-    public static final String[] choicesEntrega = {"Caixa de correspondência", "Portão", "Embaixo da porta", "Em mãos",
-            FIELD_LOCAL_ENTREGA_RECUSADA, FIELD_LOCAL_CONDOMINIO_PORTARIA, "Devolução"};
+    public static final String[] choicesEntrega = {"Embaixo da porta", "Em mãos", FIELD_LOCAL_CONDOMINIO_PORTARIA, "Portão", "Caixa de correspondência",
+            "Devolução", FIELD_LOCAL_ENTREGA_RECUSADA};
     public static final String[] choicesSobreConta = {"Está protocolada", "Coletiva"};
 
     public WizardContaNormal(Context context, boolean deveExibirTelaProtocolo) {
