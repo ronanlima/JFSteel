@@ -86,6 +86,7 @@ public class CameraActivity extends AppCompatActivity {
     private String instalacao;
     private String tipoConta;
     private MediaPlayer mediaPlayer;
+    private boolean safeToTakePicture = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -167,8 +168,13 @@ public class CameraActivity extends AppCompatActivity {
             btnPhoto.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if (PermissionUtils.validate(CameraActivity.this, WRITE_EXTERNAL_STORAGE_PERMISSION, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                        camera.takePicture(null, null, pictureCallback);
+                    if (safeToTakePicture) {
+                        if (PermissionUtils.validate(CameraActivity.this, WRITE_EXTERNAL_STORAGE_PERMISSION, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                            camera.takePicture(null, null, pictureCallback);
+                            safeToTakePicture = false;
+                        }
+                    } else {
+                        Toast.makeText(mContext, mContext.getResources().getString(R.string.msg_salvando_foto_anterior), Toast.LENGTH_SHORT).show();
                     }
                 }
             });
@@ -189,6 +195,7 @@ public class CameraActivity extends AppCompatActivity {
             cameraPreview.setmCamera(camera);
             cameraPreview.initHolder();
         }
+        safeToTakePicture = true;
     }
 
     /**
@@ -259,8 +266,11 @@ public class CameraActivity extends AppCompatActivity {
                     shootSound();
                     saveIntoSqlite(pictureFile, dateTime);
                 } else {
-                    Log.e(TAG, "Verifique a permissão de escrita para o app.");
+                    String msg = "Verifique a permissão de escrita para o app.";
+                    Log.e(TAG, msg);
+                    Toast.makeText(mContext, msg, Toast.LENGTH_SHORT).show();
                 }
+                safeToTakePicture = true;
             }
         };
     }
