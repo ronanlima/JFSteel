@@ -25,6 +25,12 @@
     <string name="next">Prosseguir</string>
     <string name="photo">Foto</string>
     <string name="msg_salvando_foto_anterior">Aguarde enquanto a foto anterior é salva em seu dispositivo</string>
+    <string name="msg_falha_recuperar_localizacao_geral">Houve uma falha ao recuperar a localização, tanto via wi-fi quanto por GPS.</string>
+    <string name="msg_falha_recuperar_localizacao_gps">Não foi possível recuperar a localização utilizando o GPS.</string>
+    <string name="msg_falha_recuperar_localizacao_network">Não foi possível recuperar a localização utilizando a rede.</string>
+    <string name="msg_localizacao_network_solicitada">Localização via rede solicitada.</string>
+    <string name="msg_localizacao_gps_solicitada">Localização via GPS solicitada.</string>
+    <string name="msg_permissao_localizacao_pendente">Parece que você não concedeu permissão ao app para obter a localização. Por favor verifique se a permissão está habilitada, nas configurações do dispositivo</string>
     <string name="herp_derpsum">Herp derpsum sherpus derpler berps tee herp ter sherper der derpus terp? Merp ner, dee der perp.
         Sherpus ter berp derpler derperker pee herpler. Le ner derpus terpus, der ter herpy? Ner terp serp herpem berps herpy der ter.</string>
 </resources>

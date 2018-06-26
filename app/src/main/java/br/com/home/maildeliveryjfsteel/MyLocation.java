@@ -8,6 +8,8 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.widget.Toast;
 
 import java.util.Arrays;
 import java.util.Timer;
@@ -22,6 +24,8 @@ import static br.com.home.maildeliveryjfsteel.utils.PermissionUtils.GPS_PERMISSI
  */
 
 public class MyLocation {
+    public static final String TAG = MyLocation.class.getCanonicalName().toUpperCase();
+
     Timer timer1;
     LocationManager lm;
     LocationResult locationResult;
@@ -29,6 +33,7 @@ public class MyLocation {
     boolean network_enabled = false;
     private Context mContext;
     private AppCompatActivity mActivity;
+    private Toast mToast;
 
     public boolean getLocation(Context context, AppCompatActivity activity, LocationResult result) {
         //I use LocationResult callback class to pass location value from MyLocation to user code.
@@ -46,31 +51,55 @@ public class MyLocation {
         try {
             gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
         } catch (Exception ex) {
+            showExceptionToast(context, ex, R.string.msg_falha_recuperar_localizacao_gps);
         }
         try {
             network_enabled = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
         } catch (Exception ex) {
+            showExceptionToast(context, ex, R.string.msg_falha_recuperar_localizacao_network);
         }
 
         //don't start listeners if no provider is enabled
         if (!gps_enabled && !network_enabled) {
+            showToast(context, context.getResources().getString(R.string.msg_falha_recuperar_localizacao_geral));
             return false;
         }
 
         if (ActivityCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             PermissionUtils.requestPermissions(activity, GPS_PERMISSION, Arrays.asList(android.Manifest.permission.ACCESS_FINE_LOCATION));
+            showToast(context, context.getResources().getString(R.string.msg_permissao_localizacao_pendente));
             return false;
         }
 
         if (gps_enabled) {
             lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListenerGps);
+            showToast(context, context.getResources().getString(R.string.msg_localizacao_gps_solicitada));
         }
         if (network_enabled) {
             lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListenerNetwork);
+            showToast(context, context.getResources().getString(R.string.msg_localizacao_network_solicitada));
         }
 //        timer1 = new Timer();
 //        timer1.schedule(new GetLastLocation(), 20000);
         return true;
+    }
+
+    private void showExceptionToast(Context context, Exception ex, int msg_falha_recuperar_localizacao_gps) {
+        String msg = "";
+        if (!ex.getMessage().isEmpty()) {
+            msg = ex.getMessage();
+        }
+        Log.e(TAG, msg);
+        showToast(context, String.format("%s\n%s", context.getResources().getString(msg_falha_recuperar_localizacao_gps), msg));
+    }
+
+    private void showToast(Context context, String msg) {
+        if (mToast != null) {
+            mToast.cancel();
+        }
+
+        mToast = Toast.makeText(context, msg, Toast.LENGTH_LONG);
+        mToast.show();
     }
 
     LocationListener locationListenerGps = new LocationListener() {

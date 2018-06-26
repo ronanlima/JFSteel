@@ -7,14 +7,14 @@ android {
         applicationId "br.com.home.maildeliveryjfsteel"
         minSdkVersion 14
         targetSdkVersion 25
-        versionCode 39
-        versionName "1.0.18.2"
+        versionCode 40
+        versionName "1.0.18.3"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
     }
     signingConfigs {
         release {
-            storeFile file("/Users/rlima/AndroidStudioProjects/minhaKeystore.jks")
+            storeFile file("/Users/Ronan.lima/Documents/Git2/minhaKeystore.jks")
             storePassword "7xhy#23."
             keyAlias "MyAndroidKey"
             keyPassword "7xhy#22."
