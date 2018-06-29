@@ -52,14 +52,13 @@ public class FirebaseContaNormalImpl extends FirebaseServiceImpl<ContaNormal> {
                         reference.child(ct.getKeyRealtimeFb()).setValue(ct.getUrlStorageFoto()).addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
-                                if (task.isComplete() && task.isSuccessful()) {
-                                    updateFields(ct, ct.getUrlStorageFoto(), ct.getKeyRealtimeFb(), true);
-                                }
+                                updateFields(ct, ct.getUrlStorageFoto(), ct.getKeyRealtimeFb(), true);
                             }
                         }).addOnFailureListener(new OnFailureListener() {
                             @Override
                             public void onFailure(@NonNull Exception e) {
                                 Log.e(TAG, "Falha ao atualizar o registro = " + ct.getKeyRealtimeFb() + ". Causa = " + e.getMessage());
+                                updateFields(ct, ct.getUrlStorageFoto(), ct.getKeyRealtimeFb(), true);
                             }
                         });
                     } else {
@@ -100,7 +99,7 @@ public class FirebaseContaNormalImpl extends FirebaseServiceImpl<ContaNormal> {
     }
 
     @Override
-    public void uploadPhoto(final ContaNormal ct, String uriPhotoDisp, String namePhoto, final DatabaseReference key) {
+    public void uploadPhoto(final ContaNormal ct, final String uriPhotoDisp, String namePhoto, final DatabaseReference key) {
         StorageReference storageReference = storage.getReference().child(getmContext().getResources().getString(R.string.firebase_storage_conta)).child(matricula).child(namePhoto);
 
         Bitmap bitmap = BitmapFactory.decodeFile(uriPhotoDisp);
@@ -114,20 +113,17 @@ public class FirebaseContaNormalImpl extends FirebaseServiceImpl<ContaNormal> {
             uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                    final String downloadUrl = taskSnapshot.getDownloadUrl().toString();
+                    final String downloadUrl = taskSnapshot.getDownloadUrl() != null ? taskSnapshot.getDownloadUrl().toString()
+                            : String.format(getmContext().getResources().getString(R.string.msg_imagem_enviada_mas_nao_salva), uriPhotoDisp);
                     key.child(getmContext().getResources().getString(R.string.url_storage_foto)).setValue(downloadUrl).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
-                            if (task.isComplete() && task.isSuccessful()) {
-                                updateFields(ct, downloadUrl, key.getKey(), true);
-                            } else {
-                                updateFields(ct, downloadUrl, key.getKey(), false);
-                            }
+                            updateFields(ct, downloadUrl, key.getKey(), true);
                         }
                     }).addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
-                            updateFields(ct, downloadUrl, key.getKey(), false);
+                            updateFields(ct, downloadUrl, key.getKey(), true);
                             Log.e(TAG, e.getMessage());
                         }
                     });
@@ -135,7 +131,25 @@ public class FirebaseContaNormalImpl extends FirebaseServiceImpl<ContaNormal> {
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
-                    updateFields(ct, null, key.getKey(), false);
+                    String msg = "";
+                    if (e != null && e.getMessage() != null && !e.getMessage().isEmpty()) {
+                        msg = e.getMessage();
+                    }
+                    updateFields(ct, msg, key.getKey(), true);
+                }
+            });
+        } else {
+            final String msgPadraoImagemInexistente = String.format(getmContext().getResources().getString(R.string.msg_padrao_imagem_inexistente_dispositivo), uriPhotoDisp);
+            key.child(getmContext().getResources().getString(R.string.url_storage_foto)).setValue(msgPadraoImagemInexistente).addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    updateFields(ct, msgPadraoImagemInexistente, key.getKey(), true);
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    updateFields(ct, msgPadraoImagemInexistente, key.getKey(), true);
+                    Log.e(TAG, e.getMessage());
                 }
             });
         }

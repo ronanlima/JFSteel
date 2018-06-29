@@ -51,14 +51,13 @@ public class FirebaseNoQrCodeImpl extends FirebaseServiceImpl<NoQrCode> {
                         reference.child(item.getKeyRealtimeFb()).setValue(item.getUrlStorageFoto()).addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
-                                if (task.isComplete() && task.isSuccessful()) {
-                                    updateFields(item, item.getUrlStorageFoto(), item.getKeyRealtimeFb(), true);
-                                }
+                                updateFields(item, item.getUrlStorageFoto(), item.getKeyRealtimeFb(), true);
                             }
                         }).addOnFailureListener(new OnFailureListener() {
                             @Override
                             public void onFailure(@NonNull Exception e) {
                                 Log.e(TAG, "Falha ao atualizar o registro = " + item.getKeyRealtimeFb() + ". Causa = " + e.getMessage());
+                                updateFields(item, item.getUrlStorageFoto(), item.getKeyRealtimeFb(), true);
                             }
                         });
                     }
@@ -98,7 +97,7 @@ public class FirebaseNoQrCodeImpl extends FirebaseServiceImpl<NoQrCode> {
     }
 
     @Override
-    public void uploadPhoto(final NoQrCode item, String uriPhotoDisp, String namePhoto, final DatabaseReference key) {
+    public void uploadPhoto(final NoQrCode item, final String uriPhotoDisp, String namePhoto, final DatabaseReference key) {
         StorageReference storageReference = storage.getReference().child(getmContext().getResources().getString(R.string.firebase_storage_no_qrcode)).child(matricula).child(namePhoto);
 
         Bitmap bitmap = BitmapFactory.decodeFile(uriPhotoDisp);
@@ -112,20 +111,17 @@ public class FirebaseNoQrCodeImpl extends FirebaseServiceImpl<NoQrCode> {
             uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                    final String downloadUrl = taskSnapshot.getDownloadUrl().toString();
+                    final String downloadUrl = taskSnapshot.getDownloadUrl() != null ? taskSnapshot.getDownloadUrl().toString()
+                            : String.format(getmContext().getResources().getString(R.string.msg_imagem_enviada_mas_nao_salva), uriPhotoDisp);
                     key.child(getmContext().getResources().getString(R.string.url_storage_foto)).setValue(downloadUrl).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
-                            if (task.isComplete() && task.isSuccessful()) {
-                                updateFields(item, downloadUrl, key.getKey(), true);
-                            } else {
-                                updateFields(item, downloadUrl, key.getKey(), false);
-                            }
+                            updateFields(item, downloadUrl, key.getKey(), true);
                         }
                     }).addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
-                            updateFields(item, downloadUrl, key.getKey(), false);
+                            updateFields(item, downloadUrl, key.getKey(), true);
                             Log.e(TAG, e.getMessage());
                         }
                     });
@@ -133,7 +129,25 @@ public class FirebaseNoQrCodeImpl extends FirebaseServiceImpl<NoQrCode> {
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
-                    updateFields(item, null, key.getKey(), false);
+                    String msg = "";
+                    if (e != null && e.getMessage() != null && !e.getMessage().isEmpty()) {
+                        msg = e.getMessage();
+                    }
+                    updateFields(item, msg, key.getKey(), true);
+                }
+            });
+        } else {
+            final String msgPadraoImagemInexistente = String.format(getmContext().getResources().getString(R.string.msg_padrao_imagem_inexistente_dispositivo), uriPhotoDisp);
+            key.child(getmContext().getResources().getString(R.string.url_storage_foto)).setValue(msgPadraoImagemInexistente).addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    updateFields(item, msgPadraoImagemInexistente, key.getKey(), true);
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    updateFields(item, msgPadraoImagemInexistente, key.getKey(), true);
+                    Log.e(TAG, e.getMessage());
                 }
             });
         }
