@@ -9,6 +9,7 @@
     <color name="colorBackgroundDialog">#f1fffe</color>
     <color name="colorForeground">#183736</color>
     <color name="amarelo">#FFBB33</color>
+    <color name="branco">#FFFFFF</color>
 
     <color name="step_pager_previous_tab_color">#4433b5e5</color>
     <color name="step_pager_selected_tab_color">#ff0099cc</color>

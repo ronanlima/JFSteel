@@ -1,5 +1,9 @@
 <resources>
     <string name="app_name" translatable="false">JFSteel</string>
+    <string name="action_registers">Registros salvos</string>
+    <string name="label_tipo_conta_normal">Conta normal</string>
+    <string name="label_tipo_conta_nota_servico">Nota de serviço</string>
+    <string name="label_tipo_conta_no_qrcode">No qrcode</string>
     <string name="title_dialog_matricula">Matrícula - JFSteel</string>
     <string name="matricula">Informe sua matrícula</string>
     <string name="conf_matricula">Confirme sua matrícula</string>
