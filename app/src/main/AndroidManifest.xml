@@ -1,45 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="br.com.home.maildeliveryjfsteel">
+    package="br.com.home.maildeliveryjfsteel"
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
-    <uses-permission
-        android:name="android.permission.INTERACT_ACROSS_USERS_FULL"
-        android:protectionLevel="signature" />
-    <uses-permission
-        android:name="android.permission.INTERACT_ACROSS_USERS"
-        android:protectionLevel="signature" />
-    <uses-permission
-        android:name="android.permission.CONTROL_LOCATION_UPDATES"
-        tools:ignore="ProtectedPermissions" />
-    <uses-permission android:name="com.samsung.android.providers.context.permission.WRITE_USE_APP_FEATURE_SURVEY" />
+    <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS_FULL" android:protectionLevel="signature"/>
+    <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS" android:protectionLevel="signature"/>
+    <uses-permission android:name="android.permission.CONTROL_LOCATION_UPDATES" tools:ignore="ProtectedPermissions" />
+    <uses-permission android:name="com.samsung.android.providers.context.permission.WRITE_USE_APP_FEATURE_SURVEY"/>
     <uses-permission android:name="br.com.home.maildeliveryjfsteel.permission.MAPS_RECEIVE" />
 
-    <uses-feature
-        android:name="android.hardware.camera"
-        android:required="true" />
+    <uses-feature android:name="android.hardware.camera" android:required="true"/>
     <uses-feature android:name="android.hardware.camera.autofocus" />
-    <!-- <uses-feature android:name="android.hardware.location" android:required="true"/> -->
-    <uses-feature
-        android:name="android.hardware.location.network"
-        android:required="true" />
-    <uses-feature
-        android:name="android.hardware.location.gps"
-        android:required="true" />
-
+    <!--<uses-feature android:name="android.hardware.location" android:required="true"/>-->
+    <uses-feature android:name="android.hardware.location.network" android:required="true"/>
+    <uses-feature android:name="android.hardware.location.gps" android:required="true"/>
     <!-- Requisito para os mapas funcionarem, como não teremos mapas, não precisa. -->
-    <!-- <uses-feature android:glEsVersion="0x00020000" android:required="true"/> -->
-    <!-- <permission -->
-    <!-- android:name="br.com.home.maildeliveryjfsteel.permission.MAPS_RECEIVE" -->
-    <!-- android:protectionLevel="signature" /> -->
+    <!--<uses-feature android:glEsVersion="0x00020000" android:required="true"/>-->
+
+    <!--<permission-->
+        <!--android:name="br.com.home.maildeliveryjfsteel.permission.MAPS_RECEIVE"-->
+        <!--android:protectionLevel="signature" />-->
+
     <application
         android:name="android.support.multidex.MultiDexApplication"
         android:icon="@mipmap/ic_launcher"
@@ -47,6 +37,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppThemFirstActivity"
         tools:replace="android:theme">
+
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
@@ -54,51 +45,43 @@
             android:name="gom.google.android.maps.v2.API_KEY"
             android:value="@string/API_KEY" />
 
-        <activity android:name=".activity.MainActivity">
+        <activity android:name=".activity.MainActivity" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".activity.CameraActivity"
-            android:configChanges="keyboardHidden|orientation"
-            android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.NoActionBar"
-            android:windowSoftInputMode="stateHidden" />
-        <activity
-            android:name=".camera.HandlerQrCodeActivity"
+        <activity android:name=".activity.CameraActivity"
             android:configChanges="keyboardHidden|orientation"
             android:theme="@style/Theme.AppCompat.NoActionBar"
-            android:windowSoftInputMode="stateHidden" />
+            android:windowSoftInputMode="stateHidden"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".camera.HandlerQrCodeActivity"
+            android:configChanges="keyboardHidden|orientation"
+            android:theme="@style/Theme.AppCompat.NoActionBar"
+            android:windowSoftInputMode="stateHidden"/>
         <activity android:name=".test.GerenciaQrCodeTest">
-
-            <!-- <intent-filter> -->
-            <!-- <action android:name="android.intent.action.MAIN" /> -->
-            <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
-            <!-- </intent-filter> -->
+            <!--<intent-filter>-->
+                <!--<action android:name="android.intent.action.MAIN" />-->
+                <!--<category android:name="android.intent.category.LAUNCHER" />-->
+            <!--</intent-filter>-->
         </activity>
-        <!-- <activity android:name=".camera.QrCodeActivity"/> -->
-        <activity
-            android:name=".activity.HelloWorldActivity"
+        <!--<activity android:name=".camera.QrCodeActivity"/>-->
+        <activity android:name=".activity.HelloWorldActivity"
             android:configChanges="keyboardHidden|orientation"
-            android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.NoActionBar"
-            android:windowSoftInputMode="stateHidden" />
-        <activity
-            android:name=".activity.LocationActivityTest"
+            android:windowSoftInputMode="stateHidden"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".activity.LocationActivityTest"
             android:configChanges="keyboardHidden|orientation"
-            android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.NoActionBar"
-            android:windowSoftInputMode="stateHidden">
-
-            <!-- <intent-filter> -->
-            <!-- <action android:name="android.intent.action.MAIN" /> -->
-            <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
-            <!-- </intent-filter> -->
+            android:windowSoftInputMode="stateHidden"
+            android:screenOrientation="portrait" >
+            <!--<intent-filter>-->
+                <!--<action android:name="android.intent.action.MAIN" />-->
+                <!--<category android:name="android.intent.category.LAUNCHER" />-->
+            <!--</intent-filter>-->
         </activity>
-        <activity android:name=".activity.RegistrosActivity"></activity>
     </application>
 
 </manifest>
