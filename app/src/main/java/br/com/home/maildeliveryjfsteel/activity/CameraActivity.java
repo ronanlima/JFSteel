@@ -24,6 +24,8 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.crashlytics.android.Crashlytics;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -247,7 +249,9 @@ public class CameraActivity extends AppCompatActivity {
                         countPhoto++;
                     } catch (FileNotFoundException e) {
                         Log.e(TAG, "Arquivo não encontrado: " + e.getMessage());
+                        Crashlytics.logException(e);
                     } catch (IOException e) {
+                        Crashlytics.logException(e);
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {

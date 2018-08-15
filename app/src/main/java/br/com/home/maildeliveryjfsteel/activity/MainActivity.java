@@ -5,7 +5,10 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
 import android.view.Window;
+
+import com.crashlytics.android.Crashlytics;
 
 import br.com.home.maildeliveryjfsteel.BuildConfig;
 import br.com.home.maildeliveryjfsteel.R;
@@ -15,13 +18,16 @@ import br.com.home.maildeliveryjfsteel.camera.HandlerQrCodeActivity;
 import br.com.home.maildeliveryjfsteel.firebase.impl.FirebaseContaNormalImpl;
 import br.com.home.maildeliveryjfsteel.firebase.impl.FirebaseNoQrCodeImpl;
 import br.com.home.maildeliveryjfsteel.firebase.impl.FirebaseNotaImpl;
+import br.com.home.maildeliveryjfsteel.fragment.JFSteelDialog;
 import br.com.home.maildeliveryjfsteel.fragment.MatriculaDialogFragment;
 import br.com.home.maildeliveryjfsteel.persistence.MailDeliverDBService;
 import br.com.home.maildeliveryjfsteel.persistence.impl.MailDeliveryDBContaNormal;
 import br.com.home.maildeliveryjfsteel.persistence.impl.MailDeliveryDBNotaServico;
 import br.com.home.maildeliveryjfsteel.persistence.impl.MailDeliveryNoQrCode;
+import br.com.home.maildeliveryjfsteel.utils.AlertUtils;
 
 public class MainActivity extends AppCompatActivity {
+    public static final long DEFAULT_TIMESTAMP = 0l;
     private DialogFragment dialog;
 
     @Override
@@ -33,11 +39,33 @@ public class MainActivity extends AppCompatActivity {
             dialog = MatriculaDialogFragment.newInstance(setListener(), 0);
             dialog.setCancelable(false);
         } else {
-            startActivity(new Intent(this, HandlerQrCodeActivity.class));
-            new SaveFirebaseAsync().execute(new FirebaseAsyncParam(new MailDeliveryDBContaNormal(getBaseContext()).findBySit(MailDeliverDBService.SIT_FALSE), new FirebaseContaNormalImpl(getBaseContext(), null)));
-            new SaveFirebaseAsync().execute(new FirebaseAsyncParam(new MailDeliveryDBNotaServico(getBaseContext()).findBySit(MailDeliverDBService.SIT_FALSE), new FirebaseNotaImpl(getBaseContext(), null)));
-            new SaveFirebaseAsync().execute(new FirebaseAsyncParam(new MailDeliveryNoQrCode(getBaseContext()).findBySit(MailDeliverDBService.SIT_FALSE), new FirebaseNoQrCodeImpl(getBaseContext(), null)));
-            finish();
+            Long timestampUltimoRegistroLido = getTimestampUltimoRegistroLido();
+            long dataAtual = System.currentTimeMillis();
+            if (dataAtual < timestampUltimoRegistroLido) {
+                JFSteelDialog dialog = AlertUtils.criarAlerta(getString(R.string.titulo_dispositivo_horario_invalido), getString(R.string.msg_dispositivo_horario_invalido), JFSteelDialog.TipoAlertaEnum.ALERTA, false, new JFSteelDialog.OnClickDialog() {
+                    @Override
+                    public void onClickPositive(View v, String tag) {
+
+                    }
+
+                    @Override
+                    public void onClickNegative(View v, String tag) {
+                        finish();
+                    }
+
+                    @Override
+                    public void onClickNeutral(View v, String tag) {
+
+                    }
+                });
+                dialog.show(getSupportFragmentManager(), "dialog");
+            } else {
+                startActivity(new Intent(this, HandlerQrCodeActivity.class));
+                new SaveFirebaseAsync().execute(new FirebaseAsyncParam(new MailDeliveryDBContaNormal(getBaseContext()).findBySit(MailDeliverDBService.SIT_FALSE), new FirebaseContaNormalImpl(getBaseContext(), null)));
+                new SaveFirebaseAsync().execute(new FirebaseAsyncParam(new MailDeliveryDBNotaServico(getBaseContext()).findBySit(MailDeliverDBService.SIT_FALSE), new FirebaseNotaImpl(getBaseContext(), null)));
+                new SaveFirebaseAsync().execute(new FirebaseAsyncParam(new MailDeliveryNoQrCode(getBaseContext()).findBySit(MailDeliverDBService.SIT_FALSE), new FirebaseNoQrCodeImpl(getBaseContext(), null)));
+                finish();
+            }
         }
     }
 
@@ -69,6 +97,7 @@ public class MainActivity extends AppCompatActivity {
         return new MatriculaDialogFragment.ClickButtonEntrar() {
             @Override
             public void nextActivity(String matricula) {
+                Crashlytics.setUserIdentifier(matricula);
                 saveMatricula(matricula);
                 startActivity(new Intent(getApplicationContext(), HandlerQrCodeActivity.class));
                 finish();
@@ -85,7 +114,12 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences sp = getSharedPreferences(BuildConfig.APPLICATION_ID, MODE_PRIVATE);
         SharedPreferences.Editor edit = sp.edit();
         edit.putString(getResources().getString(R.string.sp_matricula), matricula);
-        edit.commit();
+        edit.apply();
+    }
+
+    private Long getTimestampUltimoRegistroLido() {
+        SharedPreferences sp = getSharedPreferences(BuildConfig.APPLICATION_ID, MODE_PRIVATE);
+        return sp.getLong(getString(R.string.sp_ultimo_registro_lido), DEFAULT_TIMESTAMP);
     }
 
     /**

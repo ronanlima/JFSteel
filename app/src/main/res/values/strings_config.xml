@@ -6,6 +6,7 @@
     <!-- Gerado do SHA1: DC:5D:78:2B:FA:29:2D:13:E0:6B:49:E3:B6:30:B9:5F:66:F4:B3:0D , keytool -list -v -keystore /Users/Ronan.lima/Documents/Git2/minhaKeystore.jks -->
     <string name="API_KEY" translatable="false">AIzaSyDV6aCWE3T5fE1LG-FqUvshJ21QsPoKh8s</string> <!-- chave criada para a conta jfsteelapp@gmail.com -->
     <string name="sp_matricula" translatable="false">matricula</string>
+    <string name="sp_ultimo_registro_lido" translatable="false">ultimoRegistroLido</string>
     <string name="firebase_no_contas" translatable="false">cartas</string>
     <string name="firebase_no_notas" translatable="false">notas</string>
     <string name="firebase_no_noqrcode" translatable="false">noqrcode</string>

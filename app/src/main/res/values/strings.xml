@@ -7,11 +7,13 @@
     <string name="btn_capturar_qrcode">QR Code</string>
     <string name="btn_entrar">Entrar</string>
     <string name="msg_permissao">Para utilizar esse aplicativo você precisa aceitar as permissões.</string>
+    <string name="msg_dispositivo_horario_invalido">Identificamos que a hora do seu dispositivo está errada. Para continuar utilizando este app, favor atualizar sua data e hora.</string>
     <string name="msg_erro_gravar_arquivo">Houve uma falha para gravar a imagem no diretório %s. Tente novamente!</string>
     <string name="msg_falha_pegar_localizacao">Falha ao recuperar a localização atual</string>
     <string name="msg_falha_salvar_servidor">Falha ao enviar o registro para o servidor.</string>
     <string name="msg_falha_leitura_qrcode">Falha ao ler o qr code</string>
     <string name="titulo_alerta_permissoes">Permissão necessária</string>
+    <string name="titulo_dispositivo_horario_invalido">Hora inválida</string>
     <string name="titulo_pedido_localizacao">Localização desconhecida</string>
     <string name="msg_pedido_localizacao">Por algum motivo não conseguimos recuperar sua localização. Por favor, informe o endereço atual para continuar.</string>
     <string name="hint_endereco">Endereço</string>

@@ -6,6 +6,8 @@ import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
+import com.crashlytics.android.Crashlytics;
+
 import java.io.IOException;
 
 /**
@@ -39,6 +41,7 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
                 getmCamera().startPreview();
             } catch (IOException e) {
                 Log.e(TAG, e.getMessage());
+                Crashlytics.logException(e);
             }
         }
     }
@@ -53,6 +56,7 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
             getmCamera().stopPreview();
         } catch (Exception e) {
             Log.e(TAG, e.getMessage());
+            Crashlytics.logException(e);
         }
 
         try {
@@ -60,6 +64,7 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
             getmCamera().startPreview();
         } catch (Exception e) {
             Log.e(TAG, "Erro ao startar o preview da câmera: " + e.getMessage());
+            Crashlytics.logException(e);
         }
     }
 

@@ -14,6 +14,9 @@ import br.com.home.maildeliveryjfsteel.persistence.dto.GenericDelivery;
 public abstract class FirebaseServiceImpl<T> implements FirebaseService<T> {
     private Context mContext;
     private ServiceNotification listenerService;
+    public static final Integer HIGH_PRIORITY = 1;
+    public static final Integer DEFAULT_PRIORITY = 2;
+    public static final Integer LOW_PRIORITY = 3;
 
     public FirebaseServiceImpl(Context context, ServiceNotification listenerService) {
         this.mContext = context;

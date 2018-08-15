@@ -1,35 +1,35 @@
 {
   "project_info": {
-    "project_number": "80877548507",
-    "firebase_url": "https://maildeliveryjfsteel-f3aa8.firebaseio.com",
-    "project_id": "maildeliveryjfsteel-f3aa8",
-    "storage_bucket": "maildeliveryjfsteel-f3aa8.appspot.com"
+    "project_number": "244362831104",
+    "firebase_url": "https://maildeliveryjfsteel.firebaseio.com",
+    "project_id": "maildeliveryjfsteel",
+    "storage_bucket": "maildeliveryjfsteel.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:80877548507:android:2f004c95c55f8c4e",
+        "mobilesdk_app_id": "1:244362831104:android:2f004c95c55f8c4e",
         "android_client_info": {
           "package_name": "br.com.home.maildeliveryjfsteel"
         }
       },
       "oauth_client": [
         {
-          "client_id": "80877548507-dn2efj2322e3u753jvaetmh7qtol87le.apps.googleusercontent.com",
+          "client_id": "244362831104-5l23votcsrica45qjb0l62oluhrplgar.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "br.com.home.maildeliveryjfsteel",
-            "certificate_hash": "3407ed163feeb73b8c89585f548bfb0f2c13b742"
+            "certificate_hash": "ff9c3b7354e2603ee55221b19a601b852e1d64ba"
           }
         },
         {
-          "client_id": "80877548507-ouolpttu8repmkm0j7vl5ukm1ltacch7.apps.googleusercontent.com",
+          "client_id": "244362831104-03f4inua117ea6ga98phu15avetq6482.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyDbhHz4N6bavA62vpGZkMnW9StiRu8uaP4"
+          "current_key": "AIzaSyDEmuA8DNWiqa0QuHzAQw-GmdE9exeegHQ"
         }
       ],
       "services": {
@@ -40,7 +40,7 @@
           "status": 2,
           "other_platform_oauth_client": [
             {
-              "client_id": "80877548507-ouolpttu8repmkm0j7vl5ukm1ltacch7.apps.googleusercontent.com",
+              "client_id": "244362831104-03f4inua117ea6ga98phu15avetq6482.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

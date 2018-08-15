@@ -11,6 +11,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.crashlytics.android.Crashlytics;
+
 import java.util.Arrays;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -51,11 +53,13 @@ public class MyLocation {
         try {
             gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
         } catch (Exception ex) {
+            Crashlytics.logException(ex);
             showExceptionToast(context, ex, R.string.msg_falha_recuperar_localizacao_gps);
         }
         try {
             network_enabled = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
         } catch (Exception ex) {
+            Crashlytics.logException(ex);
             showExceptionToast(context, ex, R.string.msg_falha_recuperar_localizacao_network);
         }
 

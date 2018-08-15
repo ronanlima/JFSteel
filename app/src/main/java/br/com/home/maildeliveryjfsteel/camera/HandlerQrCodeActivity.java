@@ -19,6 +19,7 @@ import android.view.Window;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.crashlytics.android.Crashlytics;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.Result;
 import com.markosullivan.wizards.MainActivityWizard;
@@ -126,6 +127,7 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements ZXingSca
     public void handleResult(Result result) {
         myLocation.getLocation(mContext, HandlerQrCodeActivity.this, locationResult);
         if (result != null) {
+            saveTimestampRegister();
             if (resultQrCode != null && result.getText().equals(resultQrCode)) {
                 Toast.makeText(getApplicationContext(), getResources().getString(R.string.msg_qrcode_repetido), Toast.LENGTH_LONG).show();
             }
@@ -137,6 +139,13 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements ZXingSca
         } else {
             Toast.makeText(getApplicationContext(), getResources().getString(R.string.msg_falha_leitura_qrcode), Toast.LENGTH_LONG).show();
         }
+    }
+
+    private void saveTimestampRegister() {
+        SharedPreferences sp = getSharedPreferences(BuildConfig.APPLICATION_ID, MODE_PRIVATE);
+        SharedPreferences.Editor edit = sp.edit();
+        edit.putLong(getString(R.string.sp_ultimo_registro_lido), System.currentTimeMillis());
+        edit.apply();
     }
 
     @Override
@@ -182,9 +191,11 @@ public class HandlerQrCodeActivity extends AppCompatActivity implements ZXingSca
             try {
                 dt2 = parse(data, "dd/MM/yyyy");
             } catch (ParseException e) {
+                Crashlytics.logException(e);
                 try {
                     dt2 = parse(data, "yyyy-MM-dd");
                 } catch (ParseException e1) {
+                    Crashlytics.logException(e);
                     dt2 = null;
                 }
             }

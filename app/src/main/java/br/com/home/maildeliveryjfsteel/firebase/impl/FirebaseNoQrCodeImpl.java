@@ -5,9 +5,9 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.support.annotation.NonNull;
-import android.util.Log;
 import android.widget.Toast;
 
+import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -56,8 +56,8 @@ public class FirebaseNoQrCodeImpl extends FirebaseServiceImpl<NoQrCode> {
                         }).addOnFailureListener(new OnFailureListener() {
                             @Override
                             public void onFailure(@NonNull Exception e) {
-                                Log.e(TAG, "Falha ao atualizar o registro = " + item.getKeyRealtimeFb() + ". Causa = " + e.getMessage());
                                 updateFields(item, item.getUrlStorageFoto(), item.getKeyRealtimeFb(), true);
+                                Crashlytics.log(HIGH_PRIORITY, TAG, "Falha ao atualizar o registro = " + item.getKeyRealtimeFb() + ". Causa = " + e.getMessage());
                             }
                         });
                     }
@@ -77,7 +77,7 @@ public class FirebaseNoQrCodeImpl extends FirebaseServiceImpl<NoQrCode> {
                     }).addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
-                            e.printStackTrace();
+                            Crashlytics.log(HIGH_PRIORITY, TAG, e.getMessage());
                             Toast.makeText(getmContext(), getmContext().getResources().getString(R.string.msg_falha_salvar_servidor), Toast.LENGTH_SHORT).show();
                         }
                     });
@@ -122,7 +122,7 @@ public class FirebaseNoQrCodeImpl extends FirebaseServiceImpl<NoQrCode> {
                         @Override
                         public void onFailure(@NonNull Exception e) {
                             updateFields(item, downloadUrl, key.getKey(), true);
-                            Log.e(TAG, e.getMessage());
+                            Crashlytics.log(HIGH_PRIORITY, TAG, e.getMessage());
                         }
                     });
                 }
@@ -130,10 +130,11 @@ public class FirebaseNoQrCodeImpl extends FirebaseServiceImpl<NoQrCode> {
                 @Override
                 public void onFailure(@NonNull Exception e) {
                     String msg = "";
-                    if (e != null && e.getMessage() != null && !e.getMessage().isEmpty()) {
+                    if (e.getMessage() != null && !e.getMessage().isEmpty()) {
                         msg = e.getMessage();
                     }
                     updateFields(item, msg, key.getKey(), true);
+                    Crashlytics.log(HIGH_PRIORITY, TAG, msg);
                 }
             });
         } else {
@@ -147,7 +148,7 @@ public class FirebaseNoQrCodeImpl extends FirebaseServiceImpl<NoQrCode> {
                 @Override
                 public void onFailure(@NonNull Exception e) {
                     updateFields(item, msgPadraoImagemInexistente, key.getKey(), true);
-                    Log.e(TAG, e.getMessage());
+                    Crashlytics.log(HIGH_PRIORITY, TAG, e.getMessage());
                 }
             });
         }
