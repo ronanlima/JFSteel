@@ -49,9 +49,9 @@ public class MailDeliveryDBContaNormal implements MailDeliverDBService<ContaNorm
             if (id != 0) {
                 String _id = String.valueOf(id);
                 String[] whereArgs = new String[]{_id};
-                return db.update(TABLE_REGISTRO_ENTREGA, item.getValuesInsert(), "_id=?", whereArgs);
+                return db.update(TABLE_REGISTRO_ENTREGA, item.getValuesInsert(mContext), "_id=?", whereArgs);
             } else {
-                return db.insert(TABLE_REGISTRO_ENTREGA, null, item.getValuesInsert());
+                return db.insert(TABLE_REGISTRO_ENTREGA, null, item.getValuesInsert(mContext));
             }
         } catch (SQLiteException e) {
             e.printStackTrace();
@@ -68,7 +68,7 @@ public class MailDeliveryDBContaNormal implements MailDeliverDBService<ContaNorm
      */
     @Override
     public List<ContaNormal> findAll() {
-        SQLiteDatabase db = new ManagerVersionsDB(mContext, DB_NAME, null, DB_VERSION).getWritableDatabase();
+        SQLiteDatabase db = new ManagerVersionsDB(mContext, DB_NAME, null, DB_VERSION).getReadableDatabase();
 
         try {
             Cursor c = db.query(TABLE_REGISTRO_ENTREGA, null, null, null, null, null, null);
@@ -89,7 +89,7 @@ public class MailDeliveryDBContaNormal implements MailDeliverDBService<ContaNorm
      */
     @Override
     public List<ContaNormal> findByAgrupador(String prefix) {
-        SQLiteDatabase db = new ManagerVersionsDB(mContext, DB_NAME, null, DB_VERSION).getWritableDatabase();
+        SQLiteDatabase db = new ManagerVersionsDB(mContext, DB_NAME, null, DB_VERSION).getReadableDatabase();
 
         try {
             Cursor c = db.query(TABLE_REGISTRO_ENTREGA, null, mContext.getResources().getString(R.string.prefix_agrupador) + " like '" + prefix + "%'", null, null, null, null);
@@ -110,7 +110,7 @@ public class MailDeliveryDBContaNormal implements MailDeliverDBService<ContaNorm
      */
     @Override
     public List<ContaNormal> findByQrCode(String qrCode) {
-        SQLiteDatabase db = new ManagerVersionsDB(mContext, DB_NAME, null, DB_VERSION).getWritableDatabase();
+        SQLiteDatabase db = new ManagerVersionsDB(mContext, DB_NAME, null, DB_VERSION).getReadableDatabase();
 
         try {
             Cursor c = db.query(TABLE_REGISTRO_ENTREGA, null, mContext.getResources().getString(R.string.dados_qr_code) + " = " + qrCode + "", null, null, null, null);
@@ -125,7 +125,7 @@ public class MailDeliveryDBContaNormal implements MailDeliverDBService<ContaNorm
 
     @Override
     public List<ContaNormal> findByQrCodeAndSit(String qrCode, int sitFirebase) {
-        SQLiteDatabase db = new ManagerVersionsDB(mContext, DB_NAME, null, DB_VERSION).getWritableDatabase();
+        SQLiteDatabase db = new ManagerVersionsDB(mContext, DB_NAME, null, DB_VERSION).getReadableDatabase();
 
         try {
             StringBuilder clause = new StringBuilder();
@@ -151,7 +151,7 @@ public class MailDeliveryDBContaNormal implements MailDeliverDBService<ContaNorm
      */
     @Override
     public List<ContaNormal> findBySit(int situacao) {
-        SQLiteDatabase db = new ManagerVersionsDB(mContext, DB_NAME, null, DB_VERSION).getWritableDatabase();
+        SQLiteDatabase db = new ManagerVersionsDB(mContext, DB_NAME, null, DB_VERSION).getReadableDatabase();
 
         try {
             Cursor c = db.query(TABLE_REGISTRO_ENTREGA, null, mContext.getResources().getString(R.string.sit_salvo_firebase) + " = " + situacao + "", null, null, null, null);
@@ -190,7 +190,7 @@ public class MailDeliveryDBContaNormal implements MailDeliverDBService<ContaNorm
                 r.setLocalEntregaCorresp(c.getString(c.getColumnIndex(mContext.getResources().getString(R.string.local_entrega_corresp))));
                 r.setContaColetiva(c.getInt(c.getColumnIndex(mContext.getResources().getString(R.string.conta_coletiva))) == 1 ? true : false);
                 r.setContaProtocolada(c.getInt(c.getColumnIndex(mContext.getResources().getString(R.string.conta_protocolada))) == 1 ? true : false);
-                r.setSitSalvoFirebase(c.getType(c.getColumnIndex(mContext.getResources().getString(R.string.sit_salvo_firebase))));
+                r.setSitSalvoFirebase(c.getInt(c.getColumnIndex(mContext.getResources().getString(R.string.sit_salvo_firebase))));
                 list.add(r);
             } while (c.moveToNext());
         }

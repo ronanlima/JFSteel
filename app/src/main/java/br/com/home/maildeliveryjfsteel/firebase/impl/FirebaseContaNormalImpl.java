@@ -35,8 +35,8 @@ public class FirebaseContaNormalImpl extends FirebaseServiceImpl<ContaNormal> {
 
     private String matricula;
 
-    public FirebaseContaNormalImpl(Context context, ServiceNotification listener) {
-        super(context, listener);
+    public FirebaseContaNormalImpl(Context context) {
+        super(context);
 
         SharedPreferences sp = context.getSharedPreferences(BuildConfig.APPLICATION_ID, context.MODE_PRIVATE);
         this.matricula = sp.getString(context.getResources().getString(R.string.sp_matricula), null);
@@ -176,13 +176,7 @@ public class FirebaseContaNormalImpl extends FirebaseServiceImpl<ContaNormal> {
         } else {
             ct.setUrlStorageFoto(null);
         }
-        if (ct.getContext() == null) {
-            ct.setContext(getmContext());
-        }
         db.save(ct);
-        if (getListenerService() != null) {
-            getListenerService().notifyEndService();
-        }
     }
 
 }

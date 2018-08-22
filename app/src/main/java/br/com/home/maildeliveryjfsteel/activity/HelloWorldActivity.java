@@ -5,8 +5,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
-import android.view.View;
 
+import java.util.Arrays;
 import java.util.Date;
 
 import br.com.home.maildeliveryjfsteel.R;
@@ -25,7 +25,6 @@ import br.com.home.maildeliveryjfsteel.persistence.dto.NotaServico;
 import br.com.home.maildeliveryjfsteel.persistence.impl.MailDeliveryDBContaNormal;
 import br.com.home.maildeliveryjfsteel.persistence.impl.MailDeliveryDBNotaServico;
 import br.com.home.maildeliveryjfsteel.persistence.impl.MailDeliveryNoQrCode;
-import br.com.home.maildeliveryjfsteel.utils.AlertUtils;
 
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_COMENTARIO_DATA_KEY;
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_CONTA_COLETIVA;
@@ -106,18 +105,18 @@ public class HelloWorldActivity extends AppCompatActivity {
                 || tipoConta.equals(getResources().getString(R.string.tipo_conta_grupo_a_reaviso))
                 || tipoConta.equals(getResources().getString(R.string.tipo_conta_desligamento))) {
             db = new MailDeliveryDBContaNormal(this);
-            conta = new ContaNormal(this, qrCode, new Date().getTime(),
+            conta = new ContaNormal(qrCode, new Date().getTime(),
                     getIntent().getStringExtra(getString(R.string.prefix_agrupador)), null, latitude,
                     longitude, null, endereco, 0,
                     getIntent().getStringExtra(EXTRA_LOCAL_ENTREGA_CORRESP), null);
             ((ContaNormal) conta).setContaProtocolada(getIntent().getBooleanExtra(EXTRA_CONTA_PROTOCOLADA, false));
             ((ContaNormal) conta).setContaColetiva(getIntent().getBooleanExtra(EXTRA_CONTA_COLETIVA, false));
             db.save(conta);
-            new SaveFirebaseAsync().execute(new FirebaseAsyncParam(db.findByQrCodeAndSit(qrCode, 0), new FirebaseContaNormalImpl(this, null)));
+            new SaveFirebaseAsync().execute(new FirebaseAsyncParam(Arrays.asList(conta), new FirebaseContaNormalImpl(this)));
 
         } else if (tipoConta.equals(getResources().getString(R.string.tipo_conta_nota))) {
             db = new MailDeliveryDBNotaServico(this);
-            conta = new NotaServico(this, qrCode, new Date().getTime(),
+            conta = new NotaServico(qrCode, new Date().getTime(),
                     getIntent().getStringExtra(getString(R.string.prefix_agrupador)), null, latitude,
                     longitude, null, endereco, 0,
                     getIntent().getStringExtra(EXTRA_LOCAL_ENTREGA_CORRESP), null);
@@ -125,21 +124,21 @@ public class HelloWorldActivity extends AppCompatActivity {
             ((NotaServico) conta).setMedidorExterno(getIntent().getStringExtra(EXTRA_MEDIDOR_EXTERNO));
             ((NotaServico) conta).setLeitura(getIntent().getStringExtra(EXTRA_LEITURA_DATA_KEY));
             db.save(conta);
-            new SaveFirebaseAsync().execute(new FirebaseAsyncParam(db.findByQrCodeAndSit(qrCode, 0), new FirebaseNotaImpl(this, null)));
+            new SaveFirebaseAsync().execute(new FirebaseAsyncParam(Arrays.asList(conta), new FirebaseNotaImpl(this)));
 
         } else {
             db = new MailDeliveryNoQrCode(this);
-            conta = new NoQrCode(this, null, new Date().getTime(), null, null, latitude, longitude,
-                    null, endereco, 0, getIntent().getStringExtra(EXTRA_ENDERECO_DATA_KEY), null);
+            conta = new NoQrCode(System.currentTimeMillis(), null, null, latitude, longitude,
+                    null, endereco, 0, getIntent().getStringExtra(EXTRA_ENDERECO_DATA_KEY));
             if (getIntent().getStringExtra(EXTRA_LEITURA_DATA_KEY) != null && !getIntent().getStringExtra(EXTRA_LEITURA_DATA_KEY).trim().isEmpty()) {
-                ((NoQrCode) conta).setMedidor(Integer.valueOf(getIntent().getStringExtra(EXTRA_LEITURA_DATA_KEY)));
+                ((NoQrCode) conta).setMedidor(getIntent().getStringExtra(EXTRA_LEITURA_DATA_KEY));
             }
             ((NoQrCode) conta).setComentario(getIntent().getStringExtra(EXTRA_COMENTARIO_DATA_KEY));
             if (getIntent().getStringExtra(EXTRA_NO_QR_CODE_POSSUI_CONTA) != null) {
                 ((NoQrCode) conta).setExisteConta(getIntent().getStringExtra(EXTRA_NO_QR_CODE_POSSUI_CONTA).equalsIgnoreCase("sim") ? 1 : 0);
             }
             db.save(conta);
-            new SaveFirebaseAsync().execute(new FirebaseAsyncParam(db.findBySit(0), new FirebaseNoQrCodeImpl(this, null)));
+            new SaveFirebaseAsync().execute(new FirebaseAsyncParam(Arrays.asList(conta), new FirebaseNoQrCodeImpl(this)));
         }
 
         setResult(Activity.RESULT_OK);

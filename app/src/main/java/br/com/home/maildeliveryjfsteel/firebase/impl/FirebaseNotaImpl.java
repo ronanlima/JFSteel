@@ -35,8 +35,8 @@ public class FirebaseNotaImpl extends FirebaseServiceImpl<NotaServico> {
 
     private String matricula;
 
-    public FirebaseNotaImpl(Context context, ServiceNotification listener) {
-        super(context, listener);
+    public FirebaseNotaImpl(Context context) {
+        super(context);
 
         SharedPreferences sp = context.getSharedPreferences(BuildConfig.APPLICATION_ID, context.MODE_PRIVATE);
         this.matricula = sp.getString(context.getResources().getString(R.string.sp_matricula), null);
@@ -169,13 +169,7 @@ public class FirebaseNotaImpl extends FirebaseServiceImpl<NotaServico> {
         } else {
             nota.setUrlStorageFoto(null);
         }
-        if (nota.getContext() == null) {
-            nota.setContext(getmContext());
-        }
         db.save(nota);
-        if (getListenerService() != null) {
-            getListenerService().notifyEndService();
-        }
     }
 }
 

@@ -45,6 +45,7 @@ import br.com.home.maildeliveryjfsteel.firebase.impl.FirebaseNotaImpl;
 import br.com.home.maildeliveryjfsteel.firebase.impl.FirebaseServiceImpl;
 import br.com.home.maildeliveryjfsteel.persistence.MailDeliverDBService;
 import br.com.home.maildeliveryjfsteel.persistence.dto.ContaNormal;
+import br.com.home.maildeliveryjfsteel.persistence.dto.NoQrCode;
 import br.com.home.maildeliveryjfsteel.persistence.dto.NotaServico;
 import br.com.home.maildeliveryjfsteel.persistence.impl.MailDeliveryDBContaNormal;
 import br.com.home.maildeliveryjfsteel.persistence.impl.MailDeliveryDBNotaServico;
@@ -53,12 +54,15 @@ import br.com.home.maildeliveryjfsteel.utils.PermissionUtils;
 import br.com.home.maildeliveryjfsteel.view.CameraImageView;
 
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_CAMPO_INSTALACAO;
+import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_COMENTARIO_DATA_KEY;
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_CONTA_COLETIVA;
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_CONTA_PROTOCOLADA;
+import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_ENDERECO_DATA_KEY;
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_LEITURA_DATA_KEY;
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_LOCAL_ENTREGA_CORRESP;
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_MEDIDOR_EXTERNO;
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_MEDIDOR_VIZINHO_DATA_KEY;
+import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_NO_QR_CODE_POSSUI_CONTA;
 import static br.com.home.jfsteelbase.ConstantsUtil.EXTRA_TIPO_CONTA;
 import static br.com.home.maildeliveryjfsteel.utils.PermissionUtils.CAMERA_PERMISSION;
 import static br.com.home.maildeliveryjfsteel.utils.PermissionUtils.GPS_PERMISSION;
@@ -107,13 +111,13 @@ public class CameraActivity extends AppCompatActivity {
                 || tipoConta.equals(getResources().getString(R.string.tipo_conta_grupo_a_reaviso))
                 || tipoConta.equals(getResources().getString(R.string.tipo_conta_desligamento))) {
             db = new MailDeliveryDBContaNormal(this);
-            fService = new FirebaseContaNormalImpl(this, null);
+            fService = new FirebaseContaNormalImpl(this);
         } else if (tipoConta.equals(getResources().getString(R.string.tipo_conta_nota))) {
             db = new MailDeliveryDBNotaServico(this);
-            fService = new FirebaseNotaImpl(this, null);
+            fService = new FirebaseNotaImpl(this);
         } else {
             db = new MailDeliveryNoQrCode(this);
-            fService = new FirebaseNoQrCodeImpl(this, null);
+            fService = new FirebaseNoQrCodeImpl(this);
         }
 
         btnPhoto = (ImageView) findViewById(R.id.btn_capturar_foto);
@@ -200,22 +204,6 @@ public class CameraActivity extends AppCompatActivity {
         safeToTakePicture = true;
     }
 
-    /**
-     * Cria um listener para notificar ao final do envio do registro para o firebase e atualização da
-     * base local.
-     *
-     * @return
-     */
-    private FirebaseServiceImpl.ServiceNotification createListenerService() {
-        return new FirebaseServiceImpl.ServiceNotification() {
-            @Override
-            public void notifyEndService() {
-                setResult(Activity.RESULT_OK);
-                finish();
-            }
-        };
-    }
-
     @Override
     public void onBackPressed() {
         setResult(Activity.RESULT_CANCELED);
@@ -293,7 +281,7 @@ public class CameraActivity extends AppCompatActivity {
         if (tipoConta.equals(mContext.getResources().getString(R.string.tipo_conta_normal))
                 || tipoConta.equals(mContext.getResources().getString(R.string.tipo_conta_grupo_a_reaviso))
                 || tipoConta.equals(mContext.getResources().getString(R.string.tipo_conta_desligamento))) {
-            ContaNormal r = new ContaNormal(getBaseContext(), getIntent().getStringExtra(mContext.getResources().getString(R.string.dados_qr_code)), dateTime,
+            ContaNormal r = new ContaNormal(getIntent().getStringExtra(mContext.getResources().getString(R.string.dados_qr_code)), dateTime,
                     mContext.getResources().getString(R.string.prefix_agrupador), file.getName(), getIntent().getDoubleExtra(mContext.getResources().getString(R.string.latitude), 0d),
                     getIntent().getDoubleExtra(mContext.getResources().getString(R.string.longitude), 0d), file.getAbsolutePath(),
                     getIntent().getStringExtra(mContext.getResources().getString(R.string.endereco_manual)), 0,
@@ -302,7 +290,7 @@ public class CameraActivity extends AppCompatActivity {
             r.setContaColetiva(getIntent().getBooleanExtra(EXTRA_CONTA_COLETIVA, false));
             db.save(r);
         } else if (tipoConta.equals(mContext.getResources().getString(R.string.tipo_conta_nota))) {
-            NotaServico ns = new NotaServico(getBaseContext(), getIntent().getStringExtra(mContext.getResources().getString(R.string.dados_qr_code)), dateTime,
+            NotaServico ns = new NotaServico(getIntent().getStringExtra(mContext.getResources().getString(R.string.dados_qr_code)), dateTime,
                     mContext.getResources().getString(R.string.prefix_agrupador), file.getName(), getIntent().getDoubleExtra(mContext.getResources().getString(R.string.latitude), 0d),
                     getIntent().getDoubleExtra(mContext.getResources().getString(R.string.longitude), 0d), file.getAbsolutePath(),
                     getIntent().getStringExtra(mContext.getResources().getString(R.string.endereco_manual)), 0,
@@ -311,6 +299,20 @@ public class CameraActivity extends AppCompatActivity {
             ns.setMedidorVizinho(getIntent().getStringExtra(EXTRA_MEDIDOR_VIZINHO_DATA_KEY));
             ns.setLeitura(getIntent().getStringExtra(EXTRA_LEITURA_DATA_KEY));
             db.save(ns);
+        } else {
+            NoQrCode noQrCode = new NoQrCode(dateTime,
+                    "", file.getName(), getIntent().getDoubleExtra(mContext.getResources().getString(R.string.latitude), 0d),
+                    getIntent().getDoubleExtra(mContext.getResources().getString(R.string.longitude), 0d), file.getAbsolutePath(),
+                    getIntent().getStringExtra(mContext.getResources().getString(R.string.endereco_manual)), 0,
+                    getIntent().getStringExtra(EXTRA_ENDERECO_DATA_KEY));
+            if (getIntent().getStringExtra(EXTRA_LEITURA_DATA_KEY) != null && !getIntent().getStringExtra(EXTRA_LEITURA_DATA_KEY).trim().isEmpty()) {
+                noQrCode.setMedidor(getIntent().getStringExtra(EXTRA_LEITURA_DATA_KEY));
+            }
+            noQrCode.setComentario(getIntent().getStringExtra(EXTRA_COMENTARIO_DATA_KEY));
+            if (getIntent().getStringExtra(EXTRA_NO_QR_CODE_POSSUI_CONTA) != null) {
+                noQrCode.setExisteConta(getIntent().getStringExtra(EXTRA_NO_QR_CODE_POSSUI_CONTA).equalsIgnoreCase("sim") ? 1 : 0);
+            }
+            db.save(noQrCode);
         }
     }
 

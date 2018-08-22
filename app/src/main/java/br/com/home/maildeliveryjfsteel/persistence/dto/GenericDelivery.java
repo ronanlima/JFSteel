@@ -11,7 +11,6 @@ import br.com.home.maildeliveryjfsteel.R;
 
 public class GenericDelivery {
 
-    private Context mContext;
     private Long id;
     private String dadosQrCode;
     private Long timesTamp;
@@ -26,10 +25,9 @@ public class GenericDelivery {
     private String localEntregaCorresp; // o tipo de residencia em que a conta foi entregue. Ex: condomínio, casa, poste, etc.
     private String keyRealtimeFb;
 
-    public GenericDelivery(Context context, String dadosQrCode, Long timesTamp, String prefixAgrupador, String idFoto
+    public GenericDelivery(String dadosQrCode, Long timesTamp, String prefixAgrupador, String idFoto
             , Double latitude, Double longitude, String uriFotoDisp, String enderecoManual, int sitSalvoFirebase
             , String localEntregaCorresp, String urlStorageFoto) {
-        this.mContext = context;
         setDadosQrCode(dadosQrCode);
         setTimesTamp(timesTamp);
         setPrefixAgrupador(prefixAgrupador);
@@ -49,41 +47,41 @@ public class GenericDelivery {
     public GenericDelivery() {
     }
 
-    public ContentValues getValuesInsert() {
+    public ContentValues getValuesInsert(Context context) {
         ContentValues values = new ContentValues();
         if (getId() != null) {
-            values.put(mContext.getResources().getString(R.string.id_sqlite), getId());
+            values.put(context.getString(R.string.id_sqlite), getId());
         }
         if (getKeyRealtimeFb() != null) {
-            values.put(mContext.getResources().getString(R.string.key_realtime_fb), getKeyRealtimeFb());
+            values.put(context.getString(R.string.key_realtime_fb), getKeyRealtimeFb());
         }
         if (getDadosQrCode() != null) {
-            values.put(mContext.getResources().getString(R.string.dados_qr_code), getDadosQrCode());
+            values.put(context.getString(R.string.dados_qr_code), getDadosQrCode());
         }
         if (getTimesTamp() != null && getTimesTamp() != 0l) {
-            values.put(mContext.getResources().getString(R.string.hora_entrega), getTimesTamp());
+            values.put(context.getString(R.string.hora_entrega), getTimesTamp());
         }
         if (getPrefixAgrupador() != null) {
-            values.put(mContext.getResources().getString(R.string.prefix_agrupador), getPrefixAgrupador());
+            values.put(context.getString(R.string.prefix_agrupador), getPrefixAgrupador());
         }
         if (getIdFoto() != null) {
-            values.put(mContext.getResources().getString(R.string.id_foto), getIdFoto());
+            values.put(context.getString(R.string.id_foto), getIdFoto());
         }
         if (getLatitude() != 0) {
-            values.put(mContext.getResources().getString(R.string.latitude), getLatitude());
-            values.put(mContext.getResources().getString(R.string.longitude), getLongitude());
+            values.put(context.getString(R.string.latitude), getLatitude());
+            values.put(context.getString(R.string.longitude), getLongitude());
         } else {
-            values.put(mContext.getResources().getString(R.string.endereco_manual), getEnderecoManual());
+            values.put(context.getString(R.string.endereco_manual), getEnderecoManual());
         }
         if (getUriFotoDisp() != null) {
-            values.put(mContext.getResources().getString(R.string.uri_foto_disp), getUriFotoDisp());
+            values.put(context.getString(R.string.uri_foto_disp), getUriFotoDisp());
         }
-        values.put(mContext.getResources().getString(R.string.sit_salvo_firebase), getSitSalvoFirebase());
+        values.put(context.getString(R.string.sit_salvo_firebase), getSitSalvoFirebase());
         if (getLocalEntregaCorresp() != null) {
-            values.put(mContext.getResources().getString(R.string.local_entrega_corresp), getLocalEntregaCorresp());
+            values.put(context.getString(R.string.local_entrega_corresp), getLocalEntregaCorresp());
         }
         if (getUrlStorageFoto() != null) {
-            values.put(mContext.getResources().getString(R.string.url_storage_foto), getUrlStorageFoto());
+            values.put(context.getString(R.string.url_storage_foto), getUrlStorageFoto());
         }
         return values;
     }
@@ -190,13 +188,5 @@ public class GenericDelivery {
 
     public void setKeyRealtimeFb(String keyRealtimeFb) {
         this.keyRealtimeFb = keyRealtimeFb;
-    }
-
-    public Context getContext() {
-        return mContext;
-    }
-
-    public void setContext(Context mContext) {
-        this.mContext = mContext;
     }
 }

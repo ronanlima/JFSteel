@@ -2,8 +2,6 @@ package br.com.home.maildeliveryjfsteel.firebase.impl;
 
 import android.content.Context;
 
-import java.io.Serializable;
-
 import br.com.home.maildeliveryjfsteel.firebase.FirebaseService;
 import br.com.home.maildeliveryjfsteel.persistence.dto.GenericDelivery;
 
@@ -13,14 +11,12 @@ import br.com.home.maildeliveryjfsteel.persistence.dto.GenericDelivery;
 
 public abstract class FirebaseServiceImpl<T> implements FirebaseService<T> {
     private Context mContext;
-    private ServiceNotification listenerService;
     public static final Integer HIGH_PRIORITY = 1;
     public static final Integer DEFAULT_PRIORITY = 2;
     public static final Integer LOW_PRIORITY = 3;
 
-    public FirebaseServiceImpl(Context context, ServiceNotification listenerService) {
+    public FirebaseServiceImpl(Context context) {
         this.mContext = context;
-        this.listenerService = listenerService;
     }
 
     public GenericDTO createDTO(GenericDelivery contaDelivery) {
@@ -30,19 +26,8 @@ public abstract class FirebaseServiceImpl<T> implements FirebaseService<T> {
         return dto;
     }
 
-    /**
-     * Listener utilizado para notificar a Activity que chamou os métodos dessa classe, do seu término
-     */
-    public interface ServiceNotification extends Serializable {
-        void notifyEndService();
-    }
-
     public Context getmContext() {
         return mContext;
-    }
-
-    public ServiceNotification getListenerService() {
-        return listenerService;
     }
 }
 

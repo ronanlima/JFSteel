@@ -41,9 +41,11 @@ public class MailDeliveryNoQrCode implements MailDeliverDBService<NoQrCode> {
             if (id != 0) {
                 String _id = String.valueOf(id);
                 String[] whereArgs = new String[]{_id};
-                return db.update(TABLE_REGISTRO_ENTREGA, item.getValuesInsert(), "_id=?", whereArgs);
+                int qtdUpdate = db.update(TABLE_REGISTRO_ENTREGA, item.getValuesInsert(mContext), "_id=?", whereArgs);
+                return qtdUpdate;
             } else {
-                return db.insert(TABLE_REGISTRO_ENTREGA, null, item.getValuesInsert());
+                long idInserted = db.insert(TABLE_REGISTRO_ENTREGA, null, item.getValuesInsert(mContext));
+                return idInserted;
             }
         } catch (SQLiteException e) {
             e.printStackTrace();
@@ -95,9 +97,16 @@ public class MailDeliveryNoQrCode implements MailDeliverDBService<NoQrCode> {
         return null;
     }
 
+    /**
+     * Como esse tipo de registro não possui qr code, a chamada é repassada para o método findBySit.
+     *
+     * @param qrCode
+     * @param sitFirebase
+     * @return
+     */
     @Override
     public List<NoQrCode> findByQrCodeAndSit(String qrCode, int sitFirebase) {
-        return null;
+        return findBySit(sitFirebase);
     }
 
     /**
@@ -108,7 +117,7 @@ public class MailDeliveryNoQrCode implements MailDeliverDBService<NoQrCode> {
      */
     @Override
     public List<NoQrCode> findBySit(int situacao) {
-        SQLiteDatabase db = new ManagerVersionsDB(mContext, DB_NAME, null, DB_VERSION).getWritableDatabase();
+        SQLiteDatabase db = new ManagerVersionsDB(mContext, DB_NAME, null, DB_VERSION).getReadableDatabase();
 
         try {
             Cursor c = db.query(TABLE_REGISTRO_ENTREGA, null, mContext.getResources().getString(R.string.sit_salvo_firebase) + " = " + situacao + "", null, null, null, null);
@@ -134,7 +143,7 @@ public class MailDeliveryNoQrCode implements MailDeliverDBService<NoQrCode> {
             do {
                 NoQrCode r = new NoQrCode();
                 r.setId(c.getLong(c.getColumnIndex("_id")));
-                r.setMedidor(c.getInt(c.getColumnIndex(mContext.getResources().getString(R.string.medidor))));
+                r.setMedidor(c.getString(c.getColumnIndex(mContext.getResources().getString(R.string.medidor))));
                 r.setTimesTamp(c.getLong(c.getColumnIndex(mContext.getResources().getString(R.string.hora_entrega))));
                 r.setEnderecoManual(c.getString(c.getColumnIndex(mContext.getResources().getString(R.string.endereco_manual))));
                 r.setLocalEntregaCorresp(c.getString(c.getColumnIndex(mContext.getResources().getString(R.string.local_entrega_corresp))));
@@ -142,7 +151,7 @@ public class MailDeliveryNoQrCode implements MailDeliverDBService<NoQrCode> {
                 r.setLatitude(c.getDouble(c.getColumnIndex(mContext.getResources().getString(R.string.latitude))));
                 r.setLongitude(c.getDouble(c.getColumnIndex(mContext.getResources().getString(R.string.longitude))));
                 r.setComentario(c.getString(c.getColumnIndex(mContext.getResources().getString(R.string.comentario))));
-                r.setSitSalvoFirebase(c.getType(c.getColumnIndex(mContext.getResources().getString(R.string.sit_salvo_firebase))));
+                r.setSitSalvoFirebase(c.getInt(c.getColumnIndex(mContext.getResources().getString(R.string.sit_salvo_firebase))));
                 list.add(r);
             } while (c.moveToNext());
         }

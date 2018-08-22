@@ -1,9 +1,11 @@
 package br.com.home.maildeliveryjfsteel.persistence;
 
 import android.content.Context;
+import android.content.res.AssetManager;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.BufferedReader;
@@ -55,8 +57,59 @@ public class AppSQLiteHelper extends SQLiteOpenHelper {
     }
 
     @Override
-    public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        Log.d(TAG, "Atualizando tabela da versão " + oldVersion + " para " + newVersion);
+        try {
+            for (int i = oldVersion; i < newVersion; i++) {
+                String migration = String.format("from_%d_to_%d.sql", i, (i + 1));
+                Log.d(TAG, "Procurando pelo arquivo de migração: " + migration);
+                manageDB(mContext.getResources().openRawResource(R.raw.from_1_to_2), db);
+//                readAndExecuteSQLScript(db, mContext, migration);
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Exception executando o script de atualização: " + e);
+        }
+    }
 
+    private void readAndExecuteSQLScript(SQLiteDatabase db, Context context, String fileName) {
+        if (TextUtils.isEmpty(fileName)) {
+            Log.d(TAG, "O arquivo SQL está vazio");
+            return;
+        }
+
+        Log.d(TAG, "Script encontrado. Executando...");
+        AssetManager assetManager = context.getAssets();
+        BufferedReader reader = null;
+
+        try {
+            InputStream is = assetManager.open(fileName);
+            InputStreamReader isr = new InputStreamReader(is);
+            reader = new BufferedReader(isr);
+            executeSQLScript(db, reader);
+        } catch (IOException e) {
+            Log.e(TAG, "IOException: ", e);
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                    Log.e(TAG, "IOException: ", e);
+                }
+            }
+        }
+    }
+
+    private void executeSQLScript(SQLiteDatabase db, BufferedReader reader) throws IOException {
+        String line;
+        StringBuilder statement = new StringBuilder();
+        while ((line = reader.readLine()) != null) {
+            statement.append(line);
+            statement.append("\n");
+            if (line.endsWith(";")) {
+                db.execSQL(statement.toString());
+                statement = new StringBuilder();
+            }
+        }
     }
 
 }

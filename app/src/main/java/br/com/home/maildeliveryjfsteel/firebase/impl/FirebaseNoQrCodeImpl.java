@@ -34,8 +34,8 @@ public class FirebaseNoQrCodeImpl extends FirebaseServiceImpl<NoQrCode> {
     private static final String TAG = FirebaseNoQrCodeImpl.class.getCanonicalName().toUpperCase();
     private String matricula;
 
-    public FirebaseNoQrCodeImpl(Context context, ServiceNotification listener) {
-        super(context, listener);
+    public FirebaseNoQrCodeImpl(Context context) {
+        super(context);
 
         SharedPreferences sp = context.getSharedPreferences(BuildConfig.APPLICATION_ID, context.MODE_PRIVATE);
         this.matricula = sp.getString(context.getResources().getString(R.string.sp_matricula), null);
@@ -88,8 +88,7 @@ public class FirebaseNoQrCodeImpl extends FirebaseServiceImpl<NoQrCode> {
 
     @Override
     public GenericDTO createDTO(GenericDelivery ct) {
-        NoQrCodeDTO dto = new NoQrCodeDTO(ct.getDadosQrCode(), ct.getIdFoto(), ct.getLatitude(), ct.getLongitude(),
-                ct.getEnderecoManual(), ct.getTimesTamp(), ct.getLocalEntregaCorresp());
+        NoQrCodeDTO dto = new NoQrCodeDTO(ct.getTimesTamp(), ct.getIdFoto(), ct.getLatitude(), ct.getLongitude(), ct.getEnderecoManual(), ct.getLocalEntregaCorresp());
         dto.setComentario(((NoQrCode) ct).getComentario());
         dto.setExisteConta(((NoQrCode) ct).getExisteConta());
         dto.setMedidor(((NoQrCode) ct).getMedidor());
@@ -166,31 +165,36 @@ public class FirebaseNoQrCodeImpl extends FirebaseServiceImpl<NoQrCode> {
         } else {
             ct.setUrlStorageFoto(null);
         }
-        if (ct.getContext() == null) {
-            ct.setContext(getmContext());
-        }
         db.save(ct);
     }
 
 }
 
 class NoQrCodeDTO extends GenericDTO {
-    private int medidor;
+    private String medidor;
     private int existeConta;
     private String comentario;
 
-    public NoQrCodeDTO(String dadosQrCode, String idFoto, double latitude, double longitude, String enderecoManual, long timeStamp, String localEntrega) {
-        super(dadosQrCode, idFoto, latitude, longitude, enderecoManual, timeStamp, localEntrega);
+    public NoQrCodeDTO(Long timesTamp, String idFoto, Double latitude, Double longitude, String enderecoManual, String localEntregaCorresp) {
+        setTimeStamp(timesTamp);
+        setIdFoto(idFoto);
+        if (latitude != 0d) {
+            setLatitude(latitude);
+            setLongitude(longitude);
+        } else {
+            setEnderecoManual(enderecoManual);
+        }
+        setLocalEntrega(localEntregaCorresp);
     }
 
     public NoQrCodeDTO() {
     }
 
-    public int getMedidor() {
+    public String getMedidor() {
         return medidor;
     }
 
-    public void setMedidor(int medidor) {
+    public void setMedidor(String medidor) {
         this.medidor = medidor;
     }
 

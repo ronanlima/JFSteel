@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface MailDeliverDBService<T> {
     String DB_NAME = "jfsteel.sqlite";
-    Integer DB_VERSION = 1;
+    Integer DB_VERSION = 2;
     Integer SIT_FALSE = 0;
     Integer SIT_TRUE = 1;
 
