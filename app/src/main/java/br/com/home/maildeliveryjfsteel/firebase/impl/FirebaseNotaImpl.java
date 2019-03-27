@@ -53,12 +53,14 @@ public class FirebaseNotaImpl extends FirebaseServiceImpl<NotaServico> {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
                                 updateFields(nota, nota.getUrlStorageFoto(), nota.getKeyRealtimeFb(), true);
+                                deleteFile(nota.getUriFotoDisp());
                             }
                         }).addOnFailureListener(new OnFailureListener() {
                             @Override
                             public void onFailure(@NonNull Exception e) {
                                 Crashlytics.log(HIGH_PRIORITY, TAG, "Falha ao atualizar o registro = " + nota.getKeyRealtimeFb() + ". Causa = " + e.getMessage());
                                 updateFields(nota, nota.getUrlStorageFoto(), nota.getKeyRealtimeFb(), true);
+                                deleteFile(nota.getUriFotoDisp());
                             }
                         });
                     } else {
@@ -74,6 +76,7 @@ public class FirebaseNotaImpl extends FirebaseServiceImpl<NotaServico> {
                                     uploadPhoto(nota, nota.getUriFotoDisp(), nota.getIdFoto(), key);
                                 } else {
                                     updateFields(nota, null, key.getKey(), true);
+                                    deleteFile(nota.getUriFotoDisp());
                                 }
                             }
                         }
@@ -120,11 +123,13 @@ public class FirebaseNotaImpl extends FirebaseServiceImpl<NotaServico> {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             updateFields(nota, downloadUrl, key.getKey(), true);
+                            deleteFile(uriPhotoDisp);
                         }
                     }).addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
                             updateFields(nota, downloadUrl, key.getKey(), true);
+                            deleteFile(uriPhotoDisp);
                             Crashlytics.log(HIGH_PRIORITY, TAG, e.getMessage());
                         }
                     });
@@ -137,6 +142,7 @@ public class FirebaseNotaImpl extends FirebaseServiceImpl<NotaServico> {
                         msg = e.getMessage();
                     }
                     updateFields(nota, msg, key.getKey(), true);
+                    deleteFile(uriPhotoDisp);
                     Crashlytics.log(HIGH_PRIORITY, TAG, msg);
                 }
             });
@@ -146,11 +152,13 @@ public class FirebaseNotaImpl extends FirebaseServiceImpl<NotaServico> {
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
                     updateFields(nota, msgPadraoImagemInexistente, key.getKey(), true);
+                    deleteFile(uriPhotoDisp);
                 }
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
                     updateFields(nota, msgPadraoImagemInexistente, key.getKey(), true);
+                    deleteFile(uriPhotoDisp);
                     Crashlytics.log(HIGH_PRIORITY, TAG, e.getMessage());
                 }
             });

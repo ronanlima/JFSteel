@@ -18,8 +18,10 @@ import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.util.List;
 
+import br.com.home.jfsteelbase.AppExecutors;
 import br.com.home.maildeliveryjfsteel.BuildConfig;
 import br.com.home.maildeliveryjfsteel.R;
 import br.com.home.maildeliveryjfsteel.persistence.dto.ContaNormal;
@@ -53,12 +55,14 @@ public class FirebaseContaNormalImpl extends FirebaseServiceImpl<ContaNormal> {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
                                 updateFields(ct, ct.getUrlStorageFoto(), ct.getKeyRealtimeFb(), true);
+                                deleteFile(ct.getUriFotoDisp());
                             }
                         }).addOnFailureListener(new OnFailureListener() {
                             @Override
                             public void onFailure(@NonNull Exception e) {
                                 Crashlytics.log(HIGH_PRIORITY, TAG, "Falha ao atualizar o registro = " + ct.getKeyRealtimeFb() + ". Causa = " + e.getMessage());
                                 updateFields(ct, ct.getUrlStorageFoto(), ct.getKeyRealtimeFb(), true);
+                                deleteFile(ct.getUriFotoDisp());
                             }
                         });
                     } else {
@@ -74,6 +78,7 @@ public class FirebaseContaNormalImpl extends FirebaseServiceImpl<ContaNormal> {
                                     uploadPhoto(ct, ct.getUriFotoDisp(), ct.getIdFoto(), key);
                                 } else {
                                     updateFields(ct, null, key.getKey(), true);
+                                    deleteFile(ct.getUriFotoDisp());
                                 }
                             }
                         }
@@ -119,12 +124,14 @@ public class FirebaseContaNormalImpl extends FirebaseServiceImpl<ContaNormal> {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             updateFields(ct, downloadUrl, key.getKey(), true);
+                            deleteFile(uriPhotoDisp);
                         }
                     }).addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
                             updateFields(ct, downloadUrl, key.getKey(), true);
                             Crashlytics.log(HIGH_PRIORITY, TAG, e.getMessage());
+                            deleteFile(uriPhotoDisp);
                         }
                     });
                 }
@@ -136,6 +143,7 @@ public class FirebaseContaNormalImpl extends FirebaseServiceImpl<ContaNormal> {
                         msg = e.getMessage();
                     }
                     updateFields(ct, msg, key.getKey(), true);
+                    deleteFile(uriPhotoDisp);
                     Crashlytics.log(HIGH_PRIORITY, TAG, msg);
                 }
             });
@@ -145,12 +153,14 @@ public class FirebaseContaNormalImpl extends FirebaseServiceImpl<ContaNormal> {
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
                     updateFields(ct, msgPadraoImagemInexistente, key.getKey(), true);
+                    deleteFile(uriPhotoDisp);
                 }
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
                     updateFields(ct, msgPadraoImagemInexistente, key.getKey(), true);
                     Crashlytics.log(HIGH_PRIORITY, TAG, e.getMessage());
+                    deleteFile(uriPhotoDisp);
                 }
             });
         }

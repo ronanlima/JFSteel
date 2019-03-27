@@ -52,11 +52,13 @@ public class FirebaseNoQrCodeImpl extends FirebaseServiceImpl<NoQrCode> {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
                                 updateFields(item, item.getUrlStorageFoto(), item.getKeyRealtimeFb(), true);
+                                deleteFile(item.getUriFotoDisp());
                             }
                         }).addOnFailureListener(new OnFailureListener() {
                             @Override
                             public void onFailure(@NonNull Exception e) {
                                 updateFields(item, item.getUrlStorageFoto(), item.getKeyRealtimeFb(), true);
+                                deleteFile(item.getUriFotoDisp());
                                 Crashlytics.log(HIGH_PRIORITY, TAG, "Falha ao atualizar o registro = " + item.getKeyRealtimeFb() + ". Causa = " + e.getMessage());
                             }
                         });
@@ -71,6 +73,7 @@ public class FirebaseNoQrCodeImpl extends FirebaseServiceImpl<NoQrCode> {
                                     uploadPhoto(item, item.getUriFotoDisp(), item.getIdFoto(), key);
                                 } else {
                                     updateFields(item, null, key.getKey(), true);
+                                    deleteFile(item.getUriFotoDisp());
                                 }
                             }
                         }
@@ -116,11 +119,13 @@ public class FirebaseNoQrCodeImpl extends FirebaseServiceImpl<NoQrCode> {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             updateFields(item, downloadUrl, key.getKey(), true);
+                            deleteFile(uriPhotoDisp);
                         }
                     }).addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
                             updateFields(item, downloadUrl, key.getKey(), true);
+                            deleteFile(uriPhotoDisp);
                             Crashlytics.log(HIGH_PRIORITY, TAG, e.getMessage());
                         }
                     });
@@ -133,6 +138,7 @@ public class FirebaseNoQrCodeImpl extends FirebaseServiceImpl<NoQrCode> {
                         msg = e.getMessage();
                     }
                     updateFields(item, msg, key.getKey(), true);
+                    deleteFile(uriPhotoDisp);
                     Crashlytics.log(HIGH_PRIORITY, TAG, msg);
                 }
             });
@@ -142,11 +148,13 @@ public class FirebaseNoQrCodeImpl extends FirebaseServiceImpl<NoQrCode> {
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
                     updateFields(item, msgPadraoImagemInexistente, key.getKey(), true);
+                    deleteFile(uriPhotoDisp);
                 }
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
                     updateFields(item, msgPadraoImagemInexistente, key.getKey(), true);
+                    deleteFile(uriPhotoDisp);
                     Crashlytics.log(HIGH_PRIORITY, TAG, e.getMessage());
                 }
             });

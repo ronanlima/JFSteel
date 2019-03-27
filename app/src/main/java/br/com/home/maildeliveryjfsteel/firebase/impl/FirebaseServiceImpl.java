@@ -2,6 +2,9 @@ package br.com.home.maildeliveryjfsteel.firebase.impl;
 
 import android.content.Context;
 
+import java.io.File;
+
+import br.com.home.jfsteelbase.AppExecutors;
 import br.com.home.maildeliveryjfsteel.firebase.FirebaseService;
 import br.com.home.maildeliveryjfsteel.persistence.dto.GenericDelivery;
 
@@ -28,6 +31,18 @@ public abstract class FirebaseServiceImpl<T> implements FirebaseService<T> {
 
     public Context getmContext() {
         return mContext;
+    }
+
+    void deleteFile(final String uriPhotoDisp) {
+        if (uriPhotoDisp != null && !uriPhotoDisp.trim().isEmpty()) {
+            AppExecutors.getInstance().getDiskIO().execute(new Runnable() {
+                @Override
+                public void run() {
+                    File f = new File(uriPhotoDisp);
+                    boolean isDeleted = f.delete();
+                }
+            });
+        }
     }
 }
 
